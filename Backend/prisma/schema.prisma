@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  publisher
+  reader
+}
+
+enum OnboardingStatus {
+  pending
+  registered
+  approved
+  rejected
+  completed
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  orgName        String?   @map("org_name")
+  orgWebsite     String?   @map("org_website")
+  phone          String?
+  city           String?
+  country        String?
+  businessDoc    String?   @map("business_doc")
+  newspaperLicense String? @map("newspaper_license")
+  passwordHash   String    @map("password_hash")
+  role           UserRole  @default(reader)
+  creditBalance  Decimal   @default(0) @map("credit_balance") @db.Decimal(10, 2)
+  isDeleted      Boolean   @default(false) @map("is_deleted")
+  deletedAt      DateTime? @map("deleted_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  sources        Source[]
+
+  @@map("users")
+}
+
+model Source {
+  id               String    @id @default(uuid())
+  name             String
+  homepageUrl      String    @map("homepage_url")
+  rssUrl           String?   @map("rss_url")
+  scrapeConfig     Json?     @map("scrape_config")
+  payoutRate       Decimal   @default(0.1) @map("payout_rate") @db.Decimal(10, 2)
+  scrapingInterval Int       @default(60) @map("scraping_interval")
+  ownerId          String?   @map("owner_id")
+  owner            User?     @relation(fields: [ownerId], references: [id])
+  isActive         Boolean   @default(true) @map("is_active")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  articles         Article[]
+
+  @@map("sources")
+}
+
+model Article {
+  id         String   @id @default(uuid())
+  sourceId   String   @map("source_id")
+  source     Source   @relation(fields: [sourceId], references: [id])
+  title      String
+  synopsis   String?
+  imageUrl   String?  @map("image_url")
+  sourceUrl  String   @unique @map("source_url")
+  postedAt   DateTime @map("posted_at")
+  category   String?
+  clusterId  Int?     @map("cluster_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("articles")
+}
+
+model PublisherOnboarding {
+  id             String           @id @default(uuid())
+  token          String           @unique
+  email          String
+  status         OnboardingStatus @default(pending)
+  orgName        String?          @map("org_name")
+  orgWebsite     String?          @map("org_website")
+  rssUrl         String?          @map("rss_url")
+  orgDescription String?          @map("org_description")
+  publisherName  String?          @map("publisher_name")
+  country        String?
+  city           String?
+  phone          String?
+  businessDoc    String?          @map("business_doc")
+  newspaperLicense String?        @map("newspaper_license")
+  requestedRole  UserRole         @default(reader) @map("requested_role")
+  expiresAt      DateTime         @map("expires_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  @@map("publisher_onboarding")
+}

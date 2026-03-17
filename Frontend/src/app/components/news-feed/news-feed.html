@@ -1,0 +1,67 @@
+<div class="news-container">
+  <nav class="top-nav">
+    <div class="nav-brand">
+      <span class="logo-icon">📰</span>
+      <h1>Pulse Aggregator</h1>
+    </div>
+    <div class="nav-actions">
+      <a routerLink="/login" class="nav-link">Publisher Login</a>
+      <a routerLink="/register" class="btn-primary">Become a Partner</a>
+    </div>
+  </nav>
+
+  <header class="feed-header">
+    <div class="header-content">
+      <h2>Latest Chronicles</h2>
+      <p>Your premium source for real-time global news coverage</p>
+    </div>
+    <div class="search-bar">
+      <input type="text" placeholder="Explore stories...">
+      <span class="search-icon">🔍</span>
+    </div>
+  </header>
+
+  <nav class="category-tabs">
+    <div class="tabs-scroll">
+      @for (cat of categories; track cat) {
+        <button 
+          class="tab-btn" 
+          [class.active]="selectedCategory() === cat"
+          (click)="selectCategory(cat)">
+          {{ cat === 'All' ? '🏠 Home' : cat }}
+        </button>
+      }
+    </div>
+  </nav>
+
+  <main class="feed-grid">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Curating your feed...</p>
+      </div>
+    } @else {
+      @for (article of articles(); track article.id) {
+        <article class="news-card">
+          <div class="card-image" [style.background-image]="article.imageUrl ? 'url(' + article.imageUrl + ')' : 'url(https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000&auto=format&fit=crop)'">
+            <span class="source-badge">{{ article.source?.name }}</span>
+          </div>
+          <div class="card-content">
+            <div class="card-meta">
+              <span class="date">{{ formatDate(article.postedAt) }}</span>
+            </div>
+            <h3>{{ article.title }}</h3>
+            <p class="synopsis">{{ article.synopsis || 'No synopsis available for this story.' }}</p>
+            <div class="card-footer">
+              <a [href]="article.sourceUrl" target="_blank" class="read-more">Read Original Story →</a>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state">
+          <p>The feed is currently silent. Check back shortly for new stories.</p>
+        </div>
+      }
+    }
+  </main>
+</div>

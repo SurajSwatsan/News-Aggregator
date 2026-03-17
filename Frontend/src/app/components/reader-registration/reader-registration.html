@@ -1,0 +1,86 @@
+<div class="registration-layout">
+  <div class="form-container">
+    <div class="form-header">
+      <h1>Create your account</h1>
+      <p class="subtitle">Join the elite network of news publishers</p>
+    </div>
+
+    @if (errorMessage()) {
+    <div class="error-msg">
+      {{ errorMessage() }}
+    </div>
+    }
+
+    <form (submit)="onSubmit($event)" class="registration-form">
+      <div class="registration-role-selector">
+        <button type="button" class="role-btn" [class.active]="role() === 'reader'" (click)="role.set('reader')">Reader</button>
+        <button type="button" class="role-btn" [class.active]="role() === 'publisher'" (click)="role.set('publisher')">Publisher</button>
+        @if (!adminExists()) {
+          <button type="button" class="role-btn" [class.active]="role() === 'admin'" (click)="role.set('admin')">Admin</button>
+        }
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group full-width">
+          <label for="email">Email*</label>
+          <input type="email" id="email" [(ngModel)]="email" name="email" required placeholder="Enter your email">
+        </div>
+
+        @if (role() !== 'reader') {
+        <div class="input-group">
+          <label>{{ role() === 'admin' ? 'Admin name' : 'Publisher name' }}*</label>
+          <input type="text" [(ngModel)]="publisherName" name="publisherName" required [placeholder]="role() === 'admin' ? 'Enter admin name' : 'Enter publisher name'">
+        </div>
+        }
+
+        @if (role() === 'publisher') {
+        <div class="input-group">
+          <label>Organization*</label>
+          <input type="text" [(ngModel)]="orgName" name="orgName" required placeholder="Enter organization name">
+        </div>
+        <div class="input-group full-width">
+          <label>Official website*</label>
+          <input type="url" [(ngModel)]="orgWebsite" name="orgWebsite" required placeholder="https://example.com">
+        </div>
+        <div class="input-group full-width">
+          <label>RSS Feed URL (Optional)</label>
+          <input type="url" [(ngModel)]="rssUrl" name="rssUrl" placeholder="https://example.com/rss">
+          <small class="rss-hint">Leave blank and we'll try to find it automatically!</small>
+        </div>
+        <div class="input-group">
+          <label>Country*</label>
+          <input type="text" [(ngModel)]="country" name="country" required placeholder="Enter country">
+        </div>
+        <div class="input-group">
+          <label>City*</label>
+          <input type="text" [(ngModel)]="city" name="city" required placeholder="Enter city">
+        </div>
+        <div class="input-group full-width">
+          <label>Phone number*</label>
+          <input type="tel" [(ngModel)]="phone" name="phone" required placeholder="Enter phone number">
+        </div>
+
+        <div class="input-group full-width verification-section">
+          <label>Business Registration*</label>
+          <div class="file-upload-container">
+            <span class="file-name">{{ businessDocName() || 'Upload PDF/Image (Max 5MB)' }}</span>
+            <input type="file" (change)="businessDocName.set($any($event.target).files[0]?.name)" class="file-input">
+          </div>
+        </div>
+        }
+      </div>
+
+      <p class="service-notice">We want you to know exactly how our service works and why we need your details.</p>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" [disabled]="isLoading()">
+          {{ isLoading() ? 'Processing...' : 'Complete Registration' }}
+        </button>
+
+        <div class="auth-footer">
+          <p>Already a member? <a routerLink="/login">Sign In here</a></p>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

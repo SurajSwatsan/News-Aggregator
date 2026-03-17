@@ -1,0 +1,31 @@
+<div class="auth-container">
+  <div class="auth-card" *ngIf="!success()">
+    <div class="auth-header">
+      <h1>Activate Your Account</h1>
+      <p>Set a secure password to finalize your publisher account.</p>
+    </div>
+
+    <form (submit)="onSubmit()" #activateForm="ngForm">
+      <div class="form-group">
+        <label>Choose Password</label>
+        <input type="password" [(ngModel)]="password" name="password" required minlength="8" placeholder="At least 8 characters">
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required placeholder="Repeat password">
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="!activateForm.form.valid || isSubmitting() || password !== confirmPassword">
+        {{ isSubmitting() ? 'Activating...' : 'Set Password & Activate' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="auth-card success-card" *ngIf="success()">
+    <div class="success-icon">✓</div>
+    <h2>Account Activated!</h2>
+    <p>Your password has been set. Redirecting to login in a few seconds...</p>
+    <button class="btn-text" (click)="success.set(false)">Go to Login Now</button>
+  </div>
+</div>

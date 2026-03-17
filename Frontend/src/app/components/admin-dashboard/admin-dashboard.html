@@ -1,0 +1,149 @@
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M4 14.5a3 3 0 0 1-1-2.4 3 3 0 0 1 1-2.4 3.3 3.3 0 0 1 4.5 0l.5.5.5-.5a3.3 3.3 0 0 1 4.5 0 3 3 0 0 1 1 2.4 3 3 0 0 1-1 2.4L9 21l-5-6.5Z"/><path d="M12 2v4"/><path d="m16.2 4.2 2.8 2.8"/><path d="M18 12h4"/><path d="m16.2 19.8 2.8-2.8"/></svg>
+      <span>Next-Gen Aggregator</span>
+    </div>
+
+    <nav class="nav-links">
+      <div class="nav-item" [class.active]="activeTab() === 'overview'" (click)="switchTab('overview')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" [class.active]="activeTab() === 'sources'" (click)="switchTab('sources')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+        News Sources
+      </div>
+      <div class="nav-item" [class.active]="activeTab() === 'readers'" (click)="switchTab('readers')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Readers
+      </div>
+      <div class="nav-item" [class.active]="activeTab() === 'publishers'" (click)="switchTab('publishers')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>
+        Publishers
+      </div>
+      <div class="nav-item" routerLink="/user">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        All Users
+      </div>
+    </nav>
+
+    <button class="btn-logout" (click)="onLogout()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+      Sign Out
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <h2>Welcome back, Admin</h2>
+      <div class="user-profile">
+        <span>{{ user()?.email }}</span>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- Overview Tab -->
+      <div *ngIf="activeTab() === 'overview'">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Articles</div>
+            <div class="stat-value">{{ totalArticles() }}</div>
+            <div class="stat-trend">+12 this hour</div>
+          </div>
+          <div class="stat-card highlight">
+            <div class="stat-label">Daily New Sources</div>
+            <div class="stat-value">{{ sourcesAddedToday() }}</div>
+            <div class="stat-trend">Added via RSS today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Readers</div>
+            <div class="stat-value">{{ totalReaders() }}</div>
+            <div class="stat-trend">+5 today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Sources</div>
+            <div class="stat-value">{{ activeSources() }}</div>
+            <div class="stat-trend">Growth: +{{ sourcesAddedToday() }}</div>
+          </div>
+        </div>
+
+        <div class="main-grid">
+          <div class="stat-card system-health">
+            <h2>System Health</h2>
+            <div class="health-status">
+              <div class="pulse-indicator"></div>
+              <p style="color: #94a3b8">Scraper workers are currently healthy. Backend processing at 21 articles/min.</p>
+            </div>
+            <div class="automated-actions">
+              <div class="action-item">
+                <span class="action-tag">Daily Task</span>
+                <span class="action-text">RSS Importer active at midnight</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card recent-activity">
+            <h2>Recent Activity</h2>
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let s of sources().slice(0, 3)">
+                <div class="activity-icon news"></div>
+                <div class="activity-info">
+                  <p>New Source: {{ s.name }}</p>
+                  <span>Added {{ s.createdAt | date:'shortTime' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sources Tab -->
+      <div *ngIf="activeTab() === 'sources'">
+        <div class="table-container">
+          <div class="table-header">
+            <h2>News Sources Management</h2>
+            <button class="btn-primary" (click)="loadSources()">Refresh List</button>
+          </div>
+          
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Source Name</th>
+                <th>Owner / Org</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of sources()">
+                <td>
+                  <div class="source-cell">
+                    <span class="source-name">{{ s.name }}</span>
+                    <span class="source-url">{{ s.homepageUrl }}</span>
+                  </div>
+                </td>
+                <td>{{ s.owner?.orgName || 'Automated' }}</td>
+                <td>
+                  <span class="status-badge" [class.active]="s.isActive">
+                    {{ s.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>{{ s.createdAt | date:'mediumDate' }}</td>
+                <td>
+                  <button class="btn-icon">Edit</button>
+                </td>
+              </tr>
+              <tr *ngIf="sources().length === 0">
+                <td colspan="5" class="empty-state">No sources found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>

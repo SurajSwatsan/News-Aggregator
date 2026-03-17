@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+  <title>Test Publishers</title>
+  <item>
+    <title>Auto News Daily</title>
+    <link>https://autonews.example.com</link>
+    <description>Automatic News Updates</description>
+  </item>
+  <item>
+    <title>Global Tech Feed</title>
+    <link>https://techfeed.example.com</link>
+    <enclosure url="https://techfeed.example.com/rss" length="0" type="application/rss+xml" />
+  </item>
+</channel>
+</rss>
