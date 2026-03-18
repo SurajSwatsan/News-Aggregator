@@ -181,45 +181,26 @@ form {
   background-color: rgba(255, 184, 34, 0.05);
 }
 
-/* Social Login */
-.social-login {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-top: 2.5rem;
-}
-
-.social-text {
-  font-size: 0.9rem;
+/* Footer Link (Register) */
+.footer-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
   color: var(--text-muted);
 }
 
-.social-icons {
-  display: flex;
-  gap: 0.75rem;
+.footer-link a {
+  color: var(--primary-yellow);
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 0.25rem;
+  transition: opacity 0.2s;
 }
 
-.social-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s;
+.footer-link a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
-
-.social-btn:hover {
-  transform: translateY(-2px);
-}
-
-.social-btn.facebook { background-color: var(--facebook); }
-.social-btn.google { background-color: var(--google); }
-.social-btn.linkedin { background-color: var(--linkedin); }
 
 /* Error Message */
 .error-msg {
