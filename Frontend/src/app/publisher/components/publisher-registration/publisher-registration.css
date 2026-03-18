@@ -1,4 +1,4 @@
-@import '../shared-auth.css';
+@import '../../../components/shared-auth.css';
 
 .form-row {
   display: grid;

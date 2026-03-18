@@ -44,7 +44,7 @@ export class AccountActivationComponent implements OnInit {
       },
       error: () => {
         this.isSubmitting.set(false);
-        alert('Failed to activate account. The link might be expired.');
+        alert('Failed to set password. The link might be expired or already used.');
       }
     });
   }

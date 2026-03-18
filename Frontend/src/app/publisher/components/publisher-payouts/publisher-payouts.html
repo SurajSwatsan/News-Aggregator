@@ -1,0 +1,78 @@
+<div class="animate-fade">
+  <div class="payouts-container">
+    <!-- Payout Summary Grid -->
+    <div class="summary-grid">
+      <div *ngFor="let metric of summaryMetrics()" class="summary-card">
+        <div class="metric-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path [attr.d]="metric.icon"></path>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="label">{{ metric.label }}</span>
+          <span class="value">{{ metric.value }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payout Table Section -->
+    <div class="white-card table-section">
+      <div class="card-header">
+        <div class="header-info">
+          <h3>Transaction History</h3>
+          <p>View all past payouts and their statuses</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v4m4-10l5 5 5-5m-5 5V3"></path>
+            </svg>
+            Download Statements
+          </button>
+        </div>
+      </div>
+
+      <table class="payout-table">
+        <thead>
+          <tr>
+            <th>Payout ID</th>
+            <th>Payout Date</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of payoutHistory()">
+            <td class="id-cell">{{ row.id }}</td>
+            <td>{{ row.date }}</td>
+            <td class="amount-cell">{{ row.amount }}</td>
+            <td>
+              <div class="method-cell">
+                <span class="method-icon">🏦</span>
+                {{ row.method }}
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [class.completed]="row.status === 'Completed'">
+                {{ row.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-row">
+      <div class="help-card">
+        <div class="help-icon">❓</div>
+        <div class="help-text">
+          <h4>Need help with a payout?</h4>
+          <p>Our support team is available 24/7 to resolve any payment discrepancy.</p>
+        </div>
+        <button class="btn-link">Contact Support →</button>
+      </div>
+    </div>
+  </div>
+</div>

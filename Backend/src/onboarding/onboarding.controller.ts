@@ -32,6 +32,11 @@ export class OnboardingController {
     return this.onboardingService.approvePublisher(id);
   }
 
+  @Post('reject/:id')
+  async reject(@Param('id') id: string) {
+    return this.onboardingService.rejectPublisher(id);
+  }
+
   @Post('activate')
   async activate(@Body() body: { token: string; password: string }) {
     const hashedPassword = await bcrypt.hash(body.password, 10);

@@ -1,8 +1,8 @@
 <div class="auth-container">
   <div class="auth-card" *ngIf="!success()">
     <div class="auth-header">
-      <h1>Activate Your Account</h1>
-      <p>Set a secure password to finalize your publisher account.</p>
+      <h1>Set Your Password</h1>
+      <p>Please choose a secure password to activate your publisher dashboard.</p>
     </div>
 
     <form (submit)="onSubmit()" #activateForm="ngForm">
@@ -24,8 +24,8 @@
 
   <div class="auth-card success-card" *ngIf="success()">
     <div class="success-icon">✓</div>
-    <h2>Account Activated!</h2>
-    <p>Your password has been set. Redirecting to login in a few seconds...</p>
+    <h2>Password Set Successfully!</h2>
+    <p>Your account is now active. Redirecting you to login...</p>
     <button class="btn-text" (click)="success.set(false)">Go to Login Now</button>
   </div>
 </div>

@@ -1,67 +1,207 @@
 <div class="news-container">
-  <nav class="top-nav">
-    <div class="nav-brand">
-      <span class="logo-icon">📰</span>
-      <h1>Pulse Aggregator</h1>
-    </div>
-    <div class="nav-actions">
-      <a routerLink="/login" class="nav-link">Publisher Login</a>
-      <a routerLink="/register" class="btn-primary">Become a Partner</a>
-    </div>
-  </nav>
-
-  <header class="feed-header">
-    <div class="header-content">
-      <h2>Latest Chronicles</h2>
-      <p>Your premium source for real-time global news coverage</p>
-    </div>
-    <div class="search-bar">
-      <input type="text" placeholder="Explore stories...">
-      <span class="search-icon">🔍</span>
-    </div>
-  </header>
-
-  <nav class="category-tabs">
-    <div class="tabs-scroll">
-      @for (cat of categories; track cat) {
-        <button 
-          class="tab-btn" 
-          [class.active]="selectedCategory() === cat"
-          (click)="selectCategory(cat)">
-          {{ cat === 'All' ? '🏠 Home' : cat }}
-        </button>
-      }
-    </div>
-  </nav>
-
-  <main class="feed-grid">
-    @if (isLoading()) {
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Curating your feed...</p>
-      </div>
-    } @else {
-      @for (article of articles(); track article.id) {
-        <article class="news-card">
-          <div class="card-image" [style.background-image]="article.imageUrl ? 'url(' + article.imageUrl + ')' : 'url(https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000&auto=format&fit=crop)'">
-            <span class="source-badge">{{ article.source?.name }}</span>
-          </div>
-          <div class="card-content">
-            <div class="card-meta">
-              <span class="date">{{ formatDate(article.postedAt) }}</span>
-            </div>
-            <h3>{{ article.title }}</h3>
-            <p class="synopsis">{{ article.synopsis || 'No synopsis available for this story.' }}</p>
-            <div class="card-footer">
-              <a [href]="article.sourceUrl" target="_blank" class="read-more">Read Original Story →</a>
-            </div>
-          </div>
-        </article>
-      } @empty {
-        <div class="empty-state">
-          <p>The feed is currently silent. Check back shortly for new stories.</p>
+  <!-- Breaking News Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker-label">BREAKING</div>
+    <div class="ticker-content">
+      @for (article of topArticles(); track article.id) {
+        <div class="ticker-item">
+          <span class="ticker-dot"></span>
+          <button class="ticker-link" (click)="handleArticleAccess(article)">{{ article.title }}</button>
         </div>
       }
+    </div>
+  </div>
+
+  <div class="top-utility-bar">
+    <div class="utility-content">
+      <div class="utility-left">
+        <span class="edition-info">Edition: International &nbsp;|&nbsp; Issue No. 008</span>
+        <span class="current-date">{{ currentDate() }}</span>
+        <span class="weather-widget">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" class="weather-icon">
+            <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2" />
+          </svg>
+          72°F New York
+        </span>
+      </div>
+      <div class="utility-right">
+        @if (currentUser()) {
+          <div class="user-credits">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="credit-icon">
+              <path d="M12 2L1 12l11 10 11-10L12 2zm0 16.3L4.7 12 12 5.7l7.3 6.3-7.3 6.3z"/>
+            </svg>
+            <span class="credit-count">{{ currentUser().credits }} CREDITS</span>
+          </div>
+          <button (click)="logout()" class="utility-link">Sign Out</button>
+        } @else {
+          <a routerLink="/login" class="utility-link">Sign In</a>
+          <a routerLink="/register" class="utility-link">Subscribe</a>
+        }
+      </div>
+    </div>
+  </div>
+
+  <nav class="masthead">
+    <div class="masthead-content">
+      <div class="masthead-left">
+        <button class="menu-trigger" aria-label="Menu">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
+            <path d="M3 12h18M3 6h18M3 18h11" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="nav-brand-centered">
+        <div class="brand-wrapper">
+          <h1 class="font-serif">News Aggregator</h1>
+          <p class="brand-tagline">YOUR DAILY SOURCE FOR GLOBAL HEADLINES & TRUSTED STORIES</p>
+        </div>
+      </div>
+
+      <div class="masthead-right">
+        <div class="social-icons">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="social-icon">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="social-icon">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+          </svg>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+        </div>
+        <a routerLink="/register" class="btn-partner">Partner with Us</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="full-width-search">
+    <div class="search-inner">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" class="search-icon-large">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" placeholder="Search for stories, topics, or authors...">
+      <button class="search-submit">SEARCH</button>
+    </div>
+  </div>
+
+  <nav class="category-strip">
+    <div class="tabs-wrapper">
+      @for (cat of categories; track cat) {
+      <button class="category-tab" [class.active]="selectedCategory() === cat" (click)="selectCategory(cat)">
+        <span class="tab-text">{{ cat === 'All' ? 'HOME' : cat | uppercase }}</span>
+        <div class="tab-indicator"></div>
+      </button>
+      }
+    </div>
+  </nav>
+
+  <main class="feed-layout">
+    @if (isLoading()) {
+    <div class="loading-overlay">
+      <div class="premium-loader"></div>
+      <p>Curating your global news feed...</p>
+    </div>
+    } @else {
+      <!-- Hero Section -->
+      @if (selectedCategory() === 'All' && featuredArticle()) {
+      <div class="hero-grid">
+        <div class="hero-featured" [style.background-image]="'url(' + (featuredArticle().imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000') + ')'">
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <span class="hero-tag">FEATURED</span>
+            <h2 class="hero-title">{{ featuredArticle().title }}</h2>
+            <p class="hero-synopsis" [innerHTML]="(featuredArticle().synopsis || '') | safeHtml"></p>
+            <button (click)="handleArticleAccess(featuredArticle())" class="btn-hero">Full Story</button>
+          </div>
+        </div>
+        <div class="hero-secondary">
+          @for (article of heroArticles(); track article.id) {
+          <article class="secondary-item">
+            <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" [alt]="article.title">
+            <div class="secondary-content">
+              <span class="secondary-category">{{ article.category || 'General' }}</span>
+              <h3 class="secondary-title">{{ article.title }}</h3>
+            </div>
+            <button (click)="handleArticleAccess(article)" class="clickable-overlay"></button>
+          </article>
+          }
+        </div>
+      </div>
+      }
+
+      <div class="main-content-area">
+        <div class="news-list">
+          <div class="section-header">
+            <h3>Latest Headlines</h3>
+            <span class="count-badge">{{ (articles() || []).length }} Articles</span>
+          </div>
+          
+          <div class="news-grid">
+            @for (article of articles(); track article.id) {
+            <article class="premium-card">
+              <div class="card-image-wrap">
+                <div class="image-overlay"></div>
+                <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
+                  [alt]="article.title">
+                <span class="source-tag">{{ article.source?.name }}</span>
+              </div>
+      
+              <div class="card-body">
+                <div class="card-header-meta">
+                  <span class="card-category">{{ article.category || 'General' }}</span>
+                  <span class="card-date">{{ formatDate(article.postedAt) }}</span>
+                </div>
+                <h3 class="card-title">{{ article.title }}</h3>
+                <p class="card-synopsis" [innerHTML]="(article.synopsis || 'No synopsis available.') | safeHtml"></p>
+      
+                <footer class="card-action">
+                  <button (click)="handleArticleAccess(article)" class="btn-read">
+                    Read Story
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </footer>
+              </div>
+            </article>
+            } @empty {
+            <div class="empty-feed">
+              <div class="empty-icon">📂</div>
+              <h3>No Articles Found</h3>
+              <p>Try switching categories or check back later.</p>
+            </div>
+            }
+          </div>
+        </div>
+
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <h4 class="sidebar-title">Trending Now</h4>
+            <div class="trending-list">
+              @for (article of trendingArticles(); track article.id; let i = $index) {
+              <div class="trending-item">
+                <span class="trending-rank">0{{ i + 1 }}</span>
+                <div class="trending-info">
+                  <h5 class="trending-headline"><button class="trending-link" (click)="handleArticleAccess(article)">{{ article.title }}</button></h5>
+                  <span class="trending-meta">{{ article.source?.name }}</span>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="sidebar-section partner-card">
+            <h4>Become a Partner</h4>
+            <p>Publish your news and reach millions of readers worldwide.</p>
+            <a routerLink="/register" class="btn-sidebar">Apply Now</a>
+          </div>
+        </aside>
+      </div>
     }
   </main>
+  
+  @if (showPaymentModal()) {
+    <app-payment-modal (close)="showPaymentModal.set(false)"></app-payment-modal>
+  }
 </div>

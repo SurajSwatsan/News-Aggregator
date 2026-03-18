@@ -1,9 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RSSEngineService } from '../rss-engine/rss-engine.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class PublisherService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private rssEngine: RSSEngineService,
+    @InjectQueue('sync-articles') private syncQueue: Queue,
+  ) {}
 
   async getDashboardStats(userId: string) {
     const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
@@ -51,6 +58,77 @@ export class PublisherService {
       currentBalance: '1,240.50',
       pendingPayout: '450.00',
       totalEarned: '12,500.00',
+    };
+  }
+
+  async getSourceDetails(userId: string) {
+    const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
+    if (!source) throw new NotFoundException('No news source found for this publisher');
+    return {
+      name: source.name,
+      url: source.homepageUrl,
+      description: '', // Schema doesn't have description yet
+    };
+  }
+
+  async updateSourceDetails(userId: string, data: any) {
+    const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
+    if (!source) throw new NotFoundException('No news source found for this publisher');
+
+    return this.prisma.source.update({
+      where: { id: source.id },
+      data: {
+        name: data.name,
+        homepageUrl: data.url,
+      }
+    });
+  }
+
+  async getFeeds(userId: string) {
+    const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
+    if (!source) throw new NotFoundException('No news source found for this publisher');
+
+    return source.rssUrl ? [{ url: source.rssUrl, status: 'Active', lastSync: source.updatedAt }] : [];
+  }
+
+  async addFeed(userId: string, url: string) {
+    const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
+    if (!source) throw new NotFoundException('No news source found for this publisher');
+
+    return this.prisma.source.update({
+      where: { id: source.id },
+      data: { rssUrl: url }
+    });
+  }
+
+  async createArticle(userId: string, data: any) {
+    const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
+    if (!source) throw new NotFoundException('No news source found for this publisher');
+
+    return this.prisma.article.create({
+      data: {
+        sourceId: source.id,
+        title: data.title,
+        synopsis: data.synopsis,
+        category: data.category,
+        sourceUrl: data.sourceUrl,
+        imageUrl: data.imageUrl,
+        postedAt: new Date(),
+      }
+    });
+  }
+
+  async triggerSync(userId: string) {
+    const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
+    if (!source) throw new NotFoundException('No news source found for this publisher');
+
+    if (!source.rssUrl) return { message: 'No RSS URL configured.' };
+
+    // Offload to background queue
+    await this.syncQueue.add('sync', { sourceId: source.id });
+
+    return { 
+      message: 'Background synchronization started. The list will update automatically.' 
     };
   }
 }

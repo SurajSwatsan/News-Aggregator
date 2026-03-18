@@ -71,15 +71,16 @@ export class MailService {
   }
 
   async sendActivation(email: string, orgName: string, activationLink: string) {
-    const subject = 'Your Publisher Account is Approved!';
+    const subject = 'Next-Gen News: Set Your Publisher Account Password';
     const html = `
       <div style="font-family: Arial, sans-serif; color: #333;">
         <h2>Congratulations, ${orgName}!</h2>
-        <p>Your application to join Next-Gen News has been approved by the administrator.</p>
-        <p>You can now activate your account and set your password by clicking the link below:</p>
+        <p>Your application to join Next-Gen News has been approved.</p>
+        <p>To finalize your account and access your dashboard, please set your secure password using the link below:</p>
         <div style="margin: 20px 0;">
-          <a href="${activationLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Activate Account</a>
+          <a href="${activationLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Set My Password</a>
         </div>
+        <p>Once set, you will be able to log in to your dashboard immediately.</p>
         <hr>
         <p style="font-size: 0.8em; color: #777;">Welcome aboard!</p>
       </div>

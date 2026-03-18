@@ -1,0 +1,174 @@
+<div class="animate-fade">
+  <div class="white-card">
+    <div class="table-header-clean">
+      <div class="search-box-full">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search by title..." class="clean-input">
+      </div>
+      <div class="header-actions" style="display: flex; gap: 0.75rem; align-items: center;">
+        <button class="btn-ghost" (click)="syncFeeds()" [disabled]="isSyncing()">
+          <svg [class.animate-spin]="isSyncing()" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          {{ isSyncing() ? 'Syncing...' : 'Sync Articles' }}
+        </button>
+        <button class="btn-primary" (click)="showArticleModal.set(true)">+ Add Article</button>
+      </div>
+    </div>
+
+    <!-- Article Content Grid -->
+    <div class="article-grid">
+      <div *ngFor="let article of articles()" class="article-card">
+        <div class="card-img-wrapper">
+          <img *ngIf="article.imageUrl" [src]="article.imageUrl" class="card-img" alt="Article Thumbnail">
+          <div *ngIf="!article.imageUrl" class="card-img-placeholder">
+            {{ article.title.substring(0, 1) }}
+          </div>
+          <span class="card-badge">{{ (article.category || 'GENERAL') | uppercase }}</span>
+        </div>
+        
+        <div class="card-content">
+          <h3 class="card-title">{{ article.title }}</h3>
+          <!-- Repositioned date/time -->
+          <div class="card-time">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {{ formatDate(article.postedAt) }}
+          </div>
+          
+          <div class="card-footer">
+            <div class="status-indicator">
+              <span class="dot live"></span>
+              <span class="status-pill active">Live</span>
+            </div>
+            <button class="btn-edit-card" title="Edit Article">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty State -->
+      <div *ngIf="articles().length === 0" class="empty-state-full">
+        <div class="empty-state">
+          <div class="empty-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+              <polyline points="14.5 2 14.5 8 20.5 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h2>No articles found</h2>
+          <p>Articles imported via RSS or added manually will appear here.</p>
+          <button class="btn-primary" (click)="showArticleModal.set(true)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Publish your first article
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Article Creation Modal -->
+<div class="modal-overlay" *ngIf="showArticleModal()">
+  <div class="modal-content animate-fade">
+    <div class="modal-header">
+      <h3>Create New Article</h3>
+      <button class="btn-icon" (click)="showArticleModal.set(false)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <input type="text" #artTitle placeholder=" " class="clean-input-full">
+          <label>Article Title</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="image-upload-wrapper">
+          <input type="file" #imageInput (change)="onFileSelected($event)" accept="image/*" hidden>
+          <div class="upload-zone" (click)="imageInput.click()" [class.hidden]="selectedImage()">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <div class="upload-text">
+              <strong>Select Article Image</strong>
+              <span>Browse from your folder or drag here</span>
+            </div>
+          </div>
+          
+          <div class="image-preview-container" *ngIf="selectedImage()">
+            <img [src]="selectedImage()" class="modal-image-preview">
+            <button class="btn-remove-preview" (click)="selectedImage.set(null)" title="Remove Image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            <input type="text" #artUrl placeholder=" " class="clean-input-full">
+            <label>Article URL (Original Source)</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            <select #artCat class="clean-select">
+              <option value="General">General</option>
+              <option value="Technology">Technology</option>
+              <option value="Business">Business</option>
+              <option value="Politics">Politics</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Environment">Environment</option>
+            </select>
+            <label>Category</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group editor-group">
+        <label class="premium-label">Description <span class="label-hint">(Rich Text supported)</span></label>
+        <p class="editor-helper-text">General overview of the article, providing key context for readers.</p>
+        <div class="input-wrapper top-align" [class.filled]="synopsisFilled()">
+          <div class="rich-text-container">
+            <div class="editor-toolbar">
+              <select class="format-select" (change)="applyFormat($event)">
+                <option value="p">Normal</option>
+                <option value="h1">Header 1</option>
+                <option value="h2">Header 2</option>
+                <option value="h3">Header 3</option>
+              </select>
+              <div class="tool-divider"></div>
+              <button class="tool-btn" type="button" onclick="document.execCommand('bold', false, '')" title="Bold"><strong>B</strong></button>
+              <button class="tool-btn" type="button" onclick="document.execCommand('italic', false, '')" title="Italic"><em>I</em></button>
+              <button class="tool-btn" type="button" onclick="document.execCommand('underline', false, '')" title="Underline"><u>U</u></button>
+              <button class="tool-btn" type="button" onclick="document.execCommand('strikeThrough', false, '')" title="Strikethrough"><s>S</s></button>
+              <button class="tool-btn" type="button" onclick="document.execCommand('formatBlock', false, 'blockquote')" title="Quote"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21H14.017ZM14.017 21C12.9124 21 12.017 20.1046 12.017 19V15C12.017 12.7909 13.8079 11 16.017 11H17.017C18.1216 11 19.017 10.1046 19.017 9V5C19.017 3.89543 18.1216 3 17.017 3H16.017C14.9124 3 14.017 3.89543 14.017 5V6H12.017V5C12.017 2.79086 13.8079 1 16.017 1H17.017C19.2261 1 21.017 2.79086 21.017 5V9C21.017 11.2091 19.2261 13 17.017 13H16.017C14.9124 13 14.017 13.8954 14.017 15V19C14.017 20.1046 13.1216 21 12.017 21H14.017ZM5.017 21L5.017 18C5.017 16.8954 5.91243 16 7.017 16H10.017C11.1216 16 12.017 16.8954 12.017 18V21H5.017ZM5.017 21C3.91243 21 3.017 20.1046 3.017 19V15C3.017 12.7909 4.80786 11 7.017 11H8.017C9.12157 11 10.017 10.1046 10.017 9V5C10.017 3.89543 9.12157 3 8.017 3H7.017C5.91243 3 5.017 3.89543 5.017 5V6H3.017V5C3.017 2.79086 4.80786 1 7.017 1H8.017C10.2261 1 12.017 2.79086 12.017 5V9C12.017 11.2091 10.2261 13 8.017 13H7.017C5.91243 13 5.017 13.8954 5.017 15V19C5.017 20.1046 4.12157 21 3.017 21H5.017Z"/></svg></button>
+              <div class="tool-divider"></div>
+              <button class="tool-btn" type="button" onclick="document.execCommand('insertUnorderedList', false, '')" title="Bullet List"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button>
+              <button class="tool-btn" type="button" onclick="document.execCommand('insertOrderedList', false, '')" title="Numbered List"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg></button>
+              <div class="tool-divider"></div>
+              <button class="tool-btn" type="button" onclick="let url=prompt('Enter URL'); if(url) document.execCommand('createLink', false, url)" title="Link"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></button>
+              <button class="tool-btn" type="button" onclick="document.execCommand('removeFormat', false, '')" title="Clear Format"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="3" fill="none"><path d="M17.47 19a2 2 0 0 1-1.41-.59L12 14.41l-4.06 4a2 2 0 0 1-2.82 0l-2.12-2.12a2 2 0 0 1 0-2.82L7.09 9.41 3 5.32V1.91l4.41.01 4.58 4.58 4.41-4.41L21 2.09v3.41l-4.01 4.01 4.01 4.01a2 2 0 0 1 0 2.82l-2.12 2.12a2 2 0 0 1-1.41.59z"></path></svg></button>
+            </div>
+            <div class="editor-content" contenteditable="true" #artSyn placeholder=" " (input)="synopsisFilled.set(artSyn.innerText.trim().length > 0)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="showArticleModal.set(false)">Cancel</button>
+      <button class="btn-primary" (click)="createArticle({ 
+        title: artTitle.value, 
+        synopsis: artSyn.innerHTML, 
+        category: artCat.value, 
+        sourceUrl: artUrl.value, 
+        imageUrl: selectedImage() 
+      })">Publish Article</button>
+    </div>
+  </div>
+</div>

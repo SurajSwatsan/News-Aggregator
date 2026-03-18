@@ -1,0 +1,101 @@
+<div class="animate-fade">
+  <div class="revenue-container">
+    <!-- Financial Metrics Grid -->
+    <div class="metrics-grid">
+      <div *ngFor="let metric of revenueMetrics()" class="metric-card">
+        <div class="metric-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path [attr.d]="metric.icon"></path>
+          </svg>
+        </div>
+        <div class="metric-details">
+          <span class="metric-label">{{ metric.label }}</span>
+          <div class="metric-value">{{ metric.value }}</div>
+          <span class="metric-trend" [class.highlight]="metric.trend.includes('+')">
+            {{ metric.trend }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue Breakdown & Payouts Row -->
+    <div class="financial-row">
+      <!-- Payout Countdown Card -->
+      <div class="payout-card">
+        <div class="card-header">
+          <h3>Withdrawal & Payouts</h3>
+          <button class="btn-primary-sm">Request Withdrawal</button>
+        </div>
+        <div class="payout-timer">
+          <div class="timer-circle">
+            <span class="days">14</span>
+            <span class="unit">Days to Payout</span>
+          </div>
+          <div class="payout-info">
+            <p>Your next automatic payout is scheduled for <strong>April 01, 2026</strong>.</p>
+            <div class="payout-method-small">
+              <span>Primary Method:</span>
+              <strong>Bank Transfer (****5678)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Methods Card -->
+      <div class="methods-card">
+        <div class="card-header">
+          <h3>Payment Methods</h3>
+          <button class="btn-ghost-sm">Manage</button>
+        </div>
+        <div class="methods-list">
+          <div *ngFor="let method of payoutMethods()" class="method-item">
+            <div class="method-icon"><i class="icon-bank"></i></div>
+            <div class="method-details">
+              <strong>{{ method.type }}</strong>
+              <span>{{ method.details }}</span>
+            </div>
+            <span class="status-tag" [class.primary]="method.status === 'Primary'">{{ method.status }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earning History Table -->
+    <div class="history-section white-card">
+      <div class="card-header">
+        <h3>Earning History</h3>
+        <div class="header-actions">
+          <button class="btn-outline-sm">Export CSV</button>
+          <select class="clean-select-sm">
+            <option>Last 6 Months</option>
+            <option>Last Year</option>
+          </select>
+        </div>
+      </div>
+      <table class="financial-table">
+        <thead>
+          <tr>
+            <th>Month / Period</th>
+            <th>Total Views</th>
+            <th>Avg. RPM</th>
+            <th>Earning</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of earningHistory()">
+            <td class="period-cell">{{ row.period }}</td>
+            <td>{{ row.views }}</td>
+            <td>{{ row.rpm }}</td>
+            <td class="earned-cell">{{ row.earned }}</td>
+            <td>
+              <span class="payment-status" [class.paid]="row.status === 'Paid'" [class.pending]="row.status === 'Processing'">
+                {{ row.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

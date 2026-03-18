@@ -1,0 +1,84 @@
+<div class="animate-fade">
+  <div class="analytics-container">
+    <!-- Detailed Metrics Grid -->
+    <div class="metrics-grid">
+      <div *ngFor="let metric of detailedMetrics()" class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">{{ metric.label }}</span>
+          <span class="trend-badge" [class.negative]="metric.trend.includes('-')">
+            {{ metric.trend }}
+          </span>
+        </div>
+        <div class="metric-value">{{ metric.value }}</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card main-chart">
+        <div class="card-header">
+          <h3>Engagement Over Time</h3>
+          <select class="clean-select-sm">
+            <option>Last 30 Days</option>
+            <option>Last 7 Days</option>
+          </select>
+        </div>
+        <div class="visual-placeholder">
+          <div class="bar-chart-mock">
+            <div class="bar" style="height: 60%"></div>
+            <div class="bar" style="height: 80%"></div>
+            <div class="bar" style="height: 40%"></div>
+            <div class="bar" style="height: 90%"></div>
+            <div class="bar" style="height: 70%"></div>
+            <div class="bar" style="height: 50%"></div>
+            <div class="bar" style="height: 85%"></div>
+          </div>
+          <p>Daily Article Consumption (Views)</p>
+        </div>
+      </div>
+
+      <div class="chart-card side-chart">
+        <div class="card-header">
+          <h3>Device Distribution</h3>
+        </div>
+        <div class="device-list">
+          <div *ngFor="let item of deviceBreakdown()" class="device-item">
+            <div class="device-info">
+              <span class="device-name">{{ item.device }}</span>
+              <span class="device-val">{{ item.flat }}</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width]="item.flat" [style.background]="item.color"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Articles Table -->
+    <div class="white-card table-section">
+      <div class="card-header">
+        <h3>Top Performing Content</h3>
+        <button class="btn-ghost-sm">View Full Export</button>
+      </div>
+      <table class="premium-table">
+        <thead>
+          <tr>
+            <th>Article Title</th>
+            <th>Total Views</th>
+            <th>Social Shares</th>
+            <th>Conversion Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let article of topArticles()">
+            <td class="article-cell">{{ article.title }}</td>
+            <td>{{ article.views }}</td>
+            <td>{{ article.shares }}</td>
+            <td><span class="rate-tag">{{ article.conversion }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<div class="overview-container animate-fade">
+  <div class="metrics-grid">
+    <div *ngFor="let metric of metrics()" class="metric-card-horizontal">
+      <div class="metric-icon-bg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path [attr.d]="metric.icon"></path>
+        </svg>
+      </div>
+      <div class="metric-info">
+        <span class="metric-label">{{ metric.label }}</span>
+        <div class="metric-value-row">
+          <span class="metric-value">{{ metric.value }}</span>
+          <span class="status-badge positive">+12%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Overview Section -->
+  <div class="chart-section mt-6">
+    <div class="section-header">
+      <h2>Performance Overview</h2>
+      <select class="clean-select-sm">
+        <option>Last 7 Days</option>
+        <option>Last 30 Days</option>
+        <option>Last 90 Days</option>
+      </select>
+    </div>
+    <div class="chart-box">
+      <div class="placeholder-chart">
+        <p>Traffic Analytics Visualization</p>
+      </div>
+    </div>
+  </div>
+</div>

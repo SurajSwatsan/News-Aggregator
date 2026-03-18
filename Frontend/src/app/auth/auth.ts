@@ -38,14 +38,23 @@ export class AuthService {
     );
   }
 
+  refreshProfile() {
+    return this.http.get<any>(`${this.apiUrl}/profile`).pipe(
+      tap(user => {
+        localStorage.setItem('user', JSON.stringify(user));
+        this.currentUser.set(user);
+      })
+    );
+  }
+
   logout() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('access_token');
       localStorage.removeItem('user');
-      console.log('User logged out, redirecting to login...');
+      console.log('User logged out, redirecting to home...');
     }
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 }

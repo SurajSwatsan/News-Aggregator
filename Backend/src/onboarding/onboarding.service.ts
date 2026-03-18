@@ -114,6 +114,21 @@ export class OnboardingService {
 
     return { message, activationLink };
   }
+  
+  async rejectPublisher(id: string) {
+    const onboarding = await this.prisma.publisherOnboarding.findFirst({ 
+      where: { id, status: OnboardingStatus.registered } 
+    });
+    
+    if (!onboarding) throw new NotFoundException('Registration request not found');
+
+    await this.prisma.publisherOnboarding.update({
+      where: { id },
+      data: { status: OnboardingStatus.rejected }
+    });
+
+    return { message: 'Registration request rejected.' };
+  }
 
   async setPassword(token: string, passwordHash: string) {
     const onboarding = await this.prisma.publisherOnboarding.findUnique({
@@ -125,7 +140,7 @@ export class OnboardingService {
     }
 
     // Use a transaction to ensure all or nothing
-    return await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       // Create the User
       const user = await tx.user.create({
         data: {
@@ -145,7 +160,7 @@ export class OnboardingService {
       });
 
       // Create the News Source
-      await tx.source.create({
+      const source = await tx.source.create({
         data: {
           name: onboarding.orgName || 'Unknown Organization',
           homepageUrl: onboarding.orgWebsite || '',
@@ -162,7 +177,16 @@ export class OnboardingService {
         data: { status: OnboardingStatus.completed }
       });
 
-      return { message: 'Account activated successfully! You can now log in.' };
+      return { user, source };
     });
+
+    // Initial Sync outside transaction
+    if (result.source.rssUrl) {
+      this.rssEngine.syncRSSNews(result.source.id).catch(err => {
+        console.error('Initial sync failed:', err);
+      });
+    }
+
+    return { message: 'Password set successfully. Account activated.' };
   }
 }

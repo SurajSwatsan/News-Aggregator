@@ -27,22 +27,37 @@ export class AppService {
   }
 
   async getPublicArticles(category?: string) {
-    const where = category && category !== 'All' ? { category } : {};
+    const sources = await this.prisma.source.findMany({ where: { isActive: true } });
+    const perSourceLimit = 15; // Pull enough from each to ensure variety
     
-    return this.prisma.article.findMany({
-      where,
-      include: {
-        source: {
-          select: {
-            name: true,
-            homepageUrl: true,
+    const articlePromises = sources.map(source => {
+      const where: any = { sourceId: source.id };
+      if (category && category !== 'All') {
+        where.category = category;
+      }
+      return this.prisma.article.findMany({
+        where,
+        include: {
+          source: {
+            select: {
+              name: true,
+              homepageUrl: true,
+            }
           }
-        }
-      },
-      orderBy: {
-        postedAt: 'desc'
-      },
-      take: 50
+        },
+        orderBy: {
+          postedAt: 'desc'
+        },
+        take: perSourceLimit
+      });
     });
+
+    const results = await Promise.all(articlePromises);
+    const flattened = results.flat();
+    
+    // Sort by postedAt desc and return top 100
+    return flattened
+      .sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
+      .slice(0, 100);
   }
 }
