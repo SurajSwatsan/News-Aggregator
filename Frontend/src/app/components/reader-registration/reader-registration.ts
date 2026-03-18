@@ -19,6 +19,7 @@ export class ReaderRegistrationComponent implements OnInit {
   username = '';
   name = '';
   phone = '';
+  password = '';
   
   // Role selection
   role = signal<'reader' | 'publisher' | 'admin'>('reader');
@@ -64,7 +65,7 @@ export class ReaderRegistrationComponent implements OnInit {
       email: this.email,
       username: this.username,
       name: this.name,
-      password: '', // Password removed from UI
+      password: this.password,
       requestedRole: this.role(),
       isPublisher: this.role() === 'publisher',
       orgName: this.orgName,

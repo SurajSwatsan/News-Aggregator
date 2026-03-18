@@ -18,6 +18,7 @@ async function bootstrap() {
     await prisma.user.create({
       data: {
         email: adminEmail,
+        name: 'System Admin',
         passwordHash: hashedPassword,
         role: UserRole.admin,
         creditBalance: 1000,

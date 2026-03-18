@@ -24,6 +24,7 @@ enum OnboardingStatus {
 model User {
   id             String    @id @default(uuid())
   email          String    @unique
+  username       String?   @unique
   name           String?
   orgName        String?   @map("org_name")
   orgWebsite     String?   @map("org_website")
@@ -81,6 +82,8 @@ model PublisherOnboarding {
   id             String           @id @default(uuid())
   token          String           @unique
   email          String
+  username       String?
+  passwordHash   String?          @map("password_hash")
   status         OnboardingStatus @default(pending)
   orgName        String?          @map("org_name")
   orgWebsite     String?          @map("org_website")

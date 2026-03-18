@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async registerSuperAdmin(data: any) {
     const { email, password, secret } = data;
@@ -20,10 +20,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid registration secret');
     }
 
-    const adminExists = await this.prisma.user.findFirst({ 
-      where: { role: UserRole.admin } 
+    const adminExists = await this.prisma.user.findFirst({
+      where: { role: UserRole.admin }
     });
-    
+
     if (adminExists) {
       throw new ConflictException('SuperAdmin already exists');
     }
@@ -40,9 +40,10 @@ export class AuthService {
   }
 
   async register(data: any) {
-    const { 
-      email, 
-      password, 
+    const {
+      email,
+      username,
+      password,
       isPublisher,
       orgName,
       orgWebsite,
@@ -78,6 +79,11 @@ export class AuthService {
       }
     }
 
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
     await this.prisma.publisherOnboarding.create({
       data: {
         token: crypto.randomUUID(),
@@ -98,9 +104,9 @@ export class AuthService {
       },
     });
 
-    return { 
-      message: 'Registration submitted! Please wait for admin approval.',
-      pendingApproval: true 
+    return {
+      message: 'Registration submitted! Your account is pending admin approval. You can log in once approved.',
+      pendingApproval: true
     };
   }
 
@@ -108,11 +114,11 @@ export class AuthService {
     const adminUser = await this.prisma.user.findFirst({
       where: { role: UserRole.admin, isDeleted: false } as any
     });
-    
+
     if (adminUser) return true;
 
     const pendingAdmin = await this.prisma.publisherOnboarding.findFirst({
-      where: { 
+      where: {
         requestedRole: UserRole.admin,
         status: { in: [OnboardingStatus.pending, OnboardingStatus.registered, OnboardingStatus.approved] }
       }
@@ -158,7 +164,7 @@ export class AuthService {
       
       ORDER BY "createdAt" DESC
     `);
-    
+
     return users;
   }
 
