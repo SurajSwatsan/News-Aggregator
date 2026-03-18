@@ -16,9 +16,17 @@ export class ReaderRegistrationComponent implements OnInit {
   private router = inject(Router);
 
   email = '';
+  username = '';
+  name = '';
+  phone = '';
   
   // Role selection
   role = signal<'reader' | 'publisher' | 'admin'>('reader');
+  
+  toggleUserRole(event: Event) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.role.set(isChecked ? 'publisher' : 'reader');
+  }
   
   // Publisher/Admin shared fields
   publisherName = '';
@@ -28,7 +36,6 @@ export class ReaderRegistrationComponent implements OnInit {
   orgDescription = '';
   country = '';
   city = '';
-  phone = '';
   businessDocName = signal<string | null>(null);
   licenseDocName = signal<string | null>(null);
 
@@ -49,12 +56,15 @@ export class ReaderRegistrationComponent implements OnInit {
 
   onSubmit(event: Event) {
     event.preventDefault();
+    this.errorMessage.set(null);
 
     this.isLoading.set(true);
-    this.errorMessage.set(null);
 
     this.http.post('http://localhost:3000/auth/register', {
       email: this.email,
+      username: this.username,
+      name: this.name,
+      password: '', // Password removed from UI
       requestedRole: this.role(),
       isPublisher: this.role() === 'publisher',
       orgName: this.orgName,

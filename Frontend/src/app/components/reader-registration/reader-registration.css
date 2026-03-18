@@ -1,263 +1,438 @@
+/* CSS Variables for Premium Theme */
 :host {
   --bg-white: #ffffff;
-  --text-main: #1a1a1a;
-  --text-muted: #666666;
-  --border-color: #dddddd;
-  --border-focus: #1a1a1a;
-  --error-color: #d93025;
-  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --text-dark: #2d3748;
+  --text-muted: #718096;
+  --primary-yellow: #ffb822;
+  --primary-hover: #e6a213;
+  --input-bg: #f7fafc;
+  --border-light: #e2e8f0;
+  --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.1);
+  --radius: 12px;
+  --font-family: 'Inter', -apple-system, sans-serif;
 }
 
-.registration-layout {
+/* Base Wrapper */
+.registration-wrapper {
   min-height: 100vh;
-  background: var(--bg-white);
-  font-family: var(--font-family);
+  background-color: #f0f4f8; /* Soft blue-gray background */
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 4rem 1rem;
+  padding: 2rem 1rem;
+  font-family: var(--font-family);
 }
 
-.form-container {
-  max-width: 650px;
+/* Center Card Container */
+.registration-card {
+  display: flex;
+  background: var(--bg-white);
   width: 100%;
+  max-width: 1150px;
+  min-height: 720px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-premium);
+  overflow: hidden;
+  margin: 1rem;
+}
+
+/* =========================================
+   LEFT SIDE: FORM SECTION
+   ========================================= */
+.form-side {
+  flex: 1;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
 }
 
 .form-header {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 
 .form-header h1 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--text-main);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-dark);
   margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
 }
 
-.form-header .subtitle {
+.subtitle {
   color: var(--text-muted);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 500;
 }
 
+/* Form Grid & Groups */
 .registration-form {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
 }
 
-.registration-role-selector {
-  display: flex;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 0.5rem;
-  border-radius: 12px;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.role-btn {
-  flex: 1;
-  padding: 0.75rem;
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.role-btn.active {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-}
-
-.role-btn:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-}
-
-/* Switch Styles */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 22px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: var(--text-main);
-}
-
-input:checked + .slider:before {
-  transform: translateX(22px);
-}
-
-/* Form Grid */
-.form-grid {
+.input-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem 2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .input-group.full-width {
-  grid-column: span 2;
+  grid-column: 1 / -1;
 }
 
 .input-group label {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  padding-left: 2px;
+}
+
+/* Input Wrapper & Icons */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1.25rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: color 0.2s;
 }
 
 .input-group input {
-  height: 48px;
-  padding: 0 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 1rem;
-  color: var(--text-main);
-  transition: border-color 0.2s;
+  width: 100%;
+  height: 56px;
+  background-color: var(--input-bg);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  padding: 0 1rem 0 3.2rem;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: var(--border-focus);
+  background-color: #ffffff;
+  border-color: var(--primary-yellow);
+  box-shadow: 0 0 0 4px rgba(255, 184, 34, 0.15);
 }
 
-.input-group input::placeholder {
-  color: #aaaaaa;
+.input-group input:focus + .input-icon,
+.input-wrapper:focus-within .input-icon {
+  color: var(--primary-yellow);
 }
 
-/* File Upload */
-.verification-section {
+/* User Role Checkbox Container */
+.user-checkbox-container {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+/* Additional Condition Fields Block */
+.additional-fields-section {
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1.5px solid var(--border-light);
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Form Footer Section */
+.form-footer-section {
+  margin-top: 1.5rem;
+}
+
+/* Custom Checkbox Container */
+.custom-checkbox-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  user-select: none;
+  min-height: 24px;
+}
+
+.custom-checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  display: inline-block;
+  position: relative;
+  margin-right: 12px;
+  flex-shrink: 0;
+  height: 22px;
+  width: 22px;
+  background-color: var(--input-bg);
+  border: 1.5px solid var(--border-light);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.custom-checkbox-container:hover input ~ .checkmark {
+  border-color: var(--primary-yellow);
+}
+
+.custom-checkbox-container input:checked ~ .checkmark {
+  background-color: var(--primary-yellow);
+  border-color: var(--primary-yellow);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.custom-checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.custom-checkbox-container .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+.custom-checkbox-container a {
+  color: var(--primary-yellow);
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.custom-checkbox-container a:hover {
+  text-decoration: underline;
+}
+
+/* Action Row & Buttons */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
   margin-top: 1rem;
 }
 
+.btn-premium-register {
+  background-color: var(--primary-yellow);
+  color: #ffffff;
+  border: none;
+  height: 56px;
+  padding: 0 3.5rem;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 20px rgba(255, 184, 34, 0.25);
+}
+
+.btn-premium-register:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(255, 184, 34, 0.35);
+}
+
+.btn-premium-register:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.login-prompt {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.login-prompt a {
+  color: var(--primary-yellow);
+  text-decoration: none;
+  font-weight: 800;
+  margin-left: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.login-prompt a:hover {
+  opacity: 0.8;
+}
+
+/* Error Message */
+.error-msg {
+  background-color: #fef2f2;
+  color: #ef4444;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  border: 1px solid #fca5a5;
+  text-align: center;
+}
+
+/* Upload styles */
 .file-upload-container {
-  position: relative;
-  height: 48px;
-  border: 1px dashed var(--border-color);
-  border-radius: 4px;
   display: flex;
   align-items: center;
-  padding: 0 1rem;
+  height: 45px;
+  background-color: var(--input-bg);
+  border: 1px dashed var(--btn-blue);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
   cursor: pointer;
-  background: #fafafa;
 }
 
 .file-name {
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  padding: 0 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .file-input {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   cursor: pointer;
 }
 
-/* Footer Section */
-.service-notice {
-  margin-top: 2rem;
-  font-size: 1rem;
-  color: var(--text-main);
-  line-height: 1.5;
-}
-
-.form-actions {
+/* =========================================
+   RIGHT SIDE: ILLUSTRATION SECTION
+   ========================================= */
+.image-side {
+  flex: 1.1;
+  background-color: #f8fafc; /* Very light gray to distinguish from card */
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
 }
 
-.submit-btn {
-  height: 52px;
-  background: var(--text-main);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
+.vector-container {
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.submit-btn:hover {
-  opacity: 0.9;
+.hero-vector {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
 }
 
-.submit-btn:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
+/* SVG Animations applied to classes within the SVG */
+@keyframes floatMed {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
-.auth-footer {
-  text-align: center;
-  font-size: 0.95rem;
-  color: var(--text-muted);
+@keyframes floatSlow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
 }
 
-.auth-footer a {
-  color: var(--text-main);
-  font-weight: 600;
-  text-decoration: none;
+@keyframes floatFast {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-18px); }
+  100% { transform: translateY(0px); }
 }
 
-.auth-footer a:hover {
-  text-decoration: underline;
+::ng-deep .float-med {
+  animation: floatMed 6s ease-in-out infinite;
+  transform-origin: center;
+}
+::ng-deep .float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+::ng-deep .float-fast {
+  animation: floatFast 4s ease-in-out infinite;
 }
 
-.error-msg {
-  background: #fdf2f2;
-  color: var(--error-color);
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 2rem;
-  border: 1px solid #f9d6d6;
-  font-weight: 500;
+/* =========================================
+   RESPONSIVENESS
+   ========================================= */
+@media (max-width: 1024px) {
+  .registration-card {
+    flex-direction: column;
+    margin: 1rem;
+  }
+
+  .image-side {
+    display: none; /* Hide complex image on smaller screens */
+  }
+
+  .form-side {
+    padding: 2.5rem;
+  }
 }
 
 @media (max-width: 600px) {
-  .form-grid {
-    grid-template-columns: 1fr;
+  .form-side {
+    padding: 1.5rem;
   }
-  .input-group.full-width {
-    grid-column: span 1;
+  
+  .input-grid {
+    grid-template-columns: 1fr; /* Stack inputs vertically */
+  }
+  
+  .social-register {
+    flex-direction: column;
+  }
+  
+  .action-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .role-pills {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
