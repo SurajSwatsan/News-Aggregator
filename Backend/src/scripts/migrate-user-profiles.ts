@@ -37,7 +37,7 @@ async function main() {
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          name: user.name || onboarding.publisherName || onboarding.orgName || null,
+          name: user.name || (onboarding.publisherFirstName ? `${onboarding.publisherFirstName} ${onboarding.publisherLastName || ''}`.trim() : null) || onboarding.orgName || null,
           orgName: onboarding.orgName,
           orgWebsite: onboarding.orgWebsite,
           phone: onboarding.phone,

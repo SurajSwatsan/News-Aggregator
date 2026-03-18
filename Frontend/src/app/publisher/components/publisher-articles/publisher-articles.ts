@@ -1,14 +1,13 @@
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { SafeHtmlPipe } from '../../../pipes/safe-html.pipe';
 import { SocketService } from '../../../services/socket.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-publisher-articles',
   standalone: true,
-  imports: [CommonModule, SafeHtmlPipe],
+  imports: [CommonModule],
   templateUrl: './publisher-articles.html',
   styleUrl: './publisher-articles.css'
 })

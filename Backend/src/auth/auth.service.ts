@@ -49,7 +49,8 @@ export class AuthService {
       orgWebsite,
       rssUrl,
       orgDescription,
-      publisherName,
+      publisherFirstName,
+      publisherLastName,
       country,
       city,
       phone,
@@ -92,7 +93,8 @@ export class AuthService {
         orgWebsite,
         rssUrl,
         orgDescription,
-        publisherName,
+        publisherFirstName,
+        publisherLastName,
         country,
         city,
         phone,
@@ -148,7 +150,7 @@ export class AuthService {
       UNION ALL
       
       SELECT 
-        id, email, publisher_name as name, 
+        id, email, TRIM(CONCAT(publisher_first_name, ' ', publisher_last_name)) as name, 
         org_name as "orgName", 
         org_website as "orgWebsite", 
         phone, city, country, 
@@ -195,7 +197,7 @@ export class AuthService {
         return await this.prisma.publisherOnboarding.update({
           where: { id } as any,
           data: {
-            publisherName: data.name,
+            publisherFirstName: data.name,
             requestedRole: data.role as any,
           }
         });

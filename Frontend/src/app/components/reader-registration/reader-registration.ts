@@ -30,7 +30,8 @@ export class ReaderRegistrationComponent implements OnInit {
   }
   
   // Publisher/Admin shared fields
-  publisherName = '';
+  publisherFirstName = '';
+  publisherLastName = '';
   orgName = '';
   orgWebsite = '';
   rssUrl = '';
@@ -72,7 +73,8 @@ export class ReaderRegistrationComponent implements OnInit {
       orgWebsite: this.orgWebsite,
       rssUrl: this.rssUrl,
       orgDescription: this.orgDescription,
-      publisherName: this.publisherName,
+      publisherFirstName: this.publisherFirstName,
+      publisherLastName: this.publisherLastName,
       country: this.country,
       city: this.city,
       phone: this.phone,

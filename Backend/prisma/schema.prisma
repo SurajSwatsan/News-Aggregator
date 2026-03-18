@@ -89,7 +89,8 @@ model PublisherOnboarding {
   orgWebsite     String?          @map("org_website")
   rssUrl         String?          @map("rss_url")
   orgDescription String?          @map("org_description")
-  publisherName  String?          @map("publisher_name")
+  publisherFirstName String?          @map("publisher_first_name")
+  publisherLastName  String?          @map("publisher_last_name")
   country        String?
   city           String?
   phone          String?
