@@ -1,35 +1,82 @@
-<div class="login-container">
-  <div class="login-card">
-    <div class="logo-section">
-      <div class="logo-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-      </div>
-      <h1>Next-Gen News</h1>
-      <p class="subtitle">Admin Control Center</p>
-    </div>
+<div class="login-wrapper">
+  <!-- Left Side: Form Container -->
+  <div class="form-side">
+    <div class="form-container">
 
-    @if (errorMessage()) {
+      <!-- Brand Logo -->
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="logo-yellow.svg" alt="iofrm logo">
+        </div>
+      </div>
+
+      <!-- Main Copy -->
+      <div class="copy-section">
+        <h1>Get more things done with<br>Loggin platform.</h1>
+        <p>Access to the most powerfull tool in the<br>entire design and web industry.</p>
+      </div>
+
+      @if (errorMessage()) {
       <div class="error-msg">{{ errorMessage() }}</div>
-    }
+      }
 
-    <form (submit)="onSubmit($event)">
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="admin@news.com" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="••••••••" required>
-      </div>
+      <form (submit)="onSubmit($event)">
+        <!-- Inputs -->
+        <div class="form-group">
+          <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="E-mail Address" required>
+        </div>
 
-      <button type="submit" [disabled]="isLoading()">
-        {{ isLoading() ? 'Signing in...' : 'Sign In' }}
-      </button>
+        <div class="form-group">
+          <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="Password" required>
+        </div>
 
-      <div class="auth-footer">
-        <p>Don't have an account? <a routerLink="/register">Register</a></p>
-      </div>
-    </form>
+        <!-- Buttons -->
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+            {{ isLoading() ? 'Logging in...' : 'Login' }}
+          </button>
+          <button type="button" class="btn btn-outline" routerLink="/register">Create account</button>
+        </div>
+
+        <!-- Social Login -->
+        <div class="social-login">
+          <span class="social-text">Or login with</span>
+          <div class="social-icons">
+            <button type="button" class="social-btn facebook" routerLink="/register" aria-label="Login with Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </button>
+            <button type="button" class="social-btn google" routerLink="/register" aria-label="Login with Google">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M21.8055 10.0415H12V14.5454H17.6596C17.3986 15.986 16.5413 17.2037 15.2863 17.962V20.9419H18.6853C20.6729 19.1121 21.8055 16.3888 21.8055 13.0454C21.8055 11.9664 21.6115 10.9579 21.8055 10.0415Z" />
+                <path
+                  d="M12 21.9998C14.7578 21.9998 17.0673 21.0883 18.6853 19.336L15.2863 16.3562C14.4145 16.9404 13.2981 17.2889 12 17.2889C9.48912 17.2889 7.36863 15.5947 6.61191 13.315H3.10986V16.3159C4.74705 19.5694 8.12586 21.9998 12 21.9998Z" />
+                <path
+                  d="M6.61191 11.8385C6.42111 11.2721 6.31477 10.655 6.31477 10.0242C6.31477 9.39345 6.42111 8.77637 6.61191 8.20996V5.20911H3.10986C2.42857 6.55648 2 8.23258 2 10.0242C2 11.8159 2.42857 13.4919 3.10986 14.8393L6.61191 11.8385Z" />
+                <path
+                  d="M12 4.71077C13.5042 4.71077 14.8427 5.22851 15.9048 6.24285L18.7562 3.39145C17.0601 1.83398 14.7505 0.999756 12 0.999756C8.12586 0.999756 4.74705 3.43018 3.10986 6.68367L6.61191 9.68453C7.36863 7.40478 9.48912 4.71077 12 4.71077Z" />
+              </svg>
+            </button>
+            <button type="button" class="social-btn linkedin" routerLink="/register" aria-label="Login with LinkedIn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                <rect x="2" y="9" width="4" height="12"></rect>
+                <circle cx="4" cy="4" r="2"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Right Side: Beautiful Vector Art Container -->
+  <div class="image-side">
+    <div class="vector-container">
+      <!-- Original template graphic -->
+      <img src="graphic15.svg" alt="Graphic" class="hero-vector">
+    </div>
   </div>
 </div>
