@@ -139,12 +139,33 @@ export class OnboardingService {
       throw new BadRequestException('Invalid activation token');
     }
 
+    return await this.completeActivation(onboarding, passwordHash);
+  }
+
+  async activateApprovedAccount(token: string) {
+    const onboarding = await this.prisma.publisherOnboarding.findUnique({
+      where: { token }
+    });
+
+    if (!onboarding || onboarding.status !== OnboardingStatus.approved) {
+      throw new BadRequestException('Invalid or expired activation token');
+    }
+
+    if (!onboarding.passwordHash) {
+      throw new BadRequestException('Account requires a password to be set.');
+    }
+
+    return await this.completeActivation(onboarding, onboarding.passwordHash);
+  }
+
+  private async completeActivation(onboarding: any, passwordHash: string) {
     // Use a transaction to ensure all or nothing
     const result = await this.prisma.$transaction(async (tx) => {
       // Create the User
       const user = await tx.user.create({
         data: {
           email: onboarding.email,
+          username: onboarding.username,
           name: onboarding.publisherName || onboarding.orgName || null,
           orgName: onboarding.orgName,
           orgWebsite: onboarding.orgWebsite,
@@ -187,6 +208,6 @@ export class OnboardingService {
       });
     }
 
-    return { message: 'Password set successfully. Account activated.' };
+    return { message: 'Account activated successfully.' };
   }
 }
