@@ -13,16 +13,17 @@ import { FloatingInputComponent } from '../common/floating-input/floating-input'
   styleUrl: './login.css'
 })
 export class LoginComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  // Removed duplicate inject() calls to resolve TS2300 error
 
   email = '';
   password = '';
   otp = '';
-  
+
   step = signal<1 | 2>(1); // 1: Email, 2: OTP
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+
+  constructor(private authService: AuthService, private router: Router) { }
 
   onLogin(event: Event) {
     event.preventDefault();

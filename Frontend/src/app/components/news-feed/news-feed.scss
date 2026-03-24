@@ -13,7 +13,7 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   background: #0a0a0b;
   color: #f8f9fa;
   font-family: $font-sans;
-  overflow-x: hidden; // Ensure no horizontal scrolling on mobile
+  // removed overflow-x: hidden as it can break position: sticky
 }
 
 /* Breaking News Ticker */
@@ -349,9 +349,8 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   }
 }
 
-/* Search Bar */
 .full-width-search {
-  background: #000;
+  background: transparent;
   border-bottom: 1px solid #1a1a1c;
   padding: 0.85rem 0;
 }
@@ -421,12 +420,16 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   }
 }
 
-/* Category Tabs */
-.category-strip {
-  border-bottom: 1px solid #1a1a1c;
+.sticky-nav-wrapper {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 2000;
   background: #0a0a0b;
+  border-bottom: 1px solid #1a1a1c;
 }
 
+/* Category Tabs */
 .tabs-wrapper {
   max-width: 1440px;
   margin: 0 auto;
@@ -497,27 +500,32 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   }
 }
 
-.main-content-area {
+.layout-grid {
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: clamp(2rem, 5vw, 4.4rem);
+  align-items: start;
 
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
   }
 }
 
+.main-body-column {
+  min-width: 0; // Prevent grid blowout
+}
+
 /* Hero Section */
 .hero-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1rem;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 1.5rem;
   margin-bottom: 3rem;
   height: 600px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-    height: auto;
+  
+  @media (max-width: 1400px) {
+      grid-template-columns: 1fr;
+      height: auto;
   }
 }
 
@@ -945,8 +953,15 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   gap: 3rem;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 140px; // Offset for sticky header
+  height: fit-content;
+  z-index: 10;
   
   @media (max-width: 1200px) {
+    position: relative;
+    top: 0;
     margin-top: 2rem;
     padding-top: 3rem;
     border-top: 1px solid rgba(255,255,255,0.05);
