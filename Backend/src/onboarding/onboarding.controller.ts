@@ -1,6 +1,8 @@
-import { Controller, Post, Get, Body, Param, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, BadRequestException, UseGuards } from '@nestjs/common';
 import { OnboardingService } from './onboarding.service';
 import * as bcrypt from 'bcrypt';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AdminGuard } from '../auth/admin.guard';
 
 @Controller('onboarding')
 export class OnboardingController {
@@ -23,16 +25,19 @@ export class OnboardingController {
   }
 
   @Get('requests')
+  @UseGuards(JwtAuthGuard, AdminGuard)
   async getRequests() {
     return this.onboardingService.getPendingRequests();
   }
 
   @Post('approve/:id')
+  @UseGuards(JwtAuthGuard, AdminGuard)
   async approve(@Param('id') id: string) {
     return this.onboardingService.approvePublisher(id);
   }
 
   @Post('reject/:id')
+  @UseGuards(JwtAuthGuard, AdminGuard)
   async reject(@Param('id') id: string) {
     return this.onboardingService.rejectPublisher(id);
   }
@@ -41,5 +46,11 @@ export class OnboardingController {
   async activate(@Body() body: { token: string; password: string }) {
     const hashedPassword = await bcrypt.hash(body.password, 10);
     return this.onboardingService.setPassword(body.token, hashedPassword);
+  }
+
+  @Get('confirm-approval')
+  async confirmApproval(@Query('token') token: string) {
+    if (!token) throw new BadRequestException('Token is required');
+    return this.onboardingService.confirmPublisherApproval(token);
   }
 }

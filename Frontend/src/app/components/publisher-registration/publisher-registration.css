@@ -1,8 +1,8 @@
 /* CSS Variables for Premium Theme */
 :host {
   --bg-white: #ffffff;
-  --text-dark: #2d3748;
-  --text-muted: #718096;
+  --text-dark: #1a202c;
+  --text-muted: #4a5568;
   --primary-yellow: #ffb822;
   --primary-hover: #e6a213;
   --input-bg: #f7fafc;
@@ -306,16 +306,54 @@
 }
 
 /* Upload styles */
-.file-upload-container {
+.premium-upload-box {
   display: flex;
   align-items: center;
-  height: 45px;
-  background-color: var(--input-bg);
-  border: 1px dashed var(--btn-blue);
-  border-radius: var(--radius-sm);
-  position: relative;
-  overflow: hidden;
+  gap: 1.2rem;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.premium-upload-box:hover {
+  background-color: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.upload-icon-box {
+  width: 48px;
+  height: 48px;
+  background-color: #eff6ff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.upload-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.upload-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.upload-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
 }
 
 .file-name {

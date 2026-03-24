@@ -1,0 +1,148 @@
+<div class="registration-wrapper">
+  <!-- Central Card -->
+  <div class="registration-card">
+
+    <!-- Left Side: Form Area -->
+    <div class="form-side">
+      <div class="form-header">
+        <h1>Publisher Registration</h1>
+        <p class="subtitle">Apply to become a verified news publisher</p>
+      </div>
+
+      @if (errorMessage()) {
+      <div class="error-msg">{{ errorMessage() }}</div>
+      }
+
+      <form (submit)="onSubmit($event)" class="registration-form">
+
+        <!-- Basic Info Section -->
+        <div class="section-title">Account Information</div>
+        <div class="input-grid">
+          <app-floating-input label="1st Name" type="text" id="name" name="name" [(ngModel)]="name" [required]="true">
+          </app-floating-input>
+          <app-floating-input label="Last Name" type="text" id="username" name="username" [(ngModel)]="username"
+            [required]="true">
+          </app-floating-input>
+
+          <app-floating-input label="E-mail Address" type="email" id="email" name="email" [(ngModel)]="email"
+            [required]="true">
+          </app-floating-input>
+
+          <app-floating-input label="Password" type="password" id="password" name="password" [(ngModel)]="password"
+            [required]="true">
+          </app-floating-input>
+        </div>
+
+        <div class="additional-fields-section">
+          <div class="section-title">Publisher Information</div>
+          <div class="input-grid additional-fields">
+
+            <app-floating-input label="Org First Name" type="text" name="publisherFirstName"
+              [(ngModel)]="publisherFirstName" [required]="true">
+            </app-floating-input>
+            <app-floating-input label="Org Last Name" type="text" name="publisherLastName"
+              [(ngModel)]="publisherLastName" [required]="true">
+            </app-floating-input>
+
+            <app-floating-input label="Organization Name" type="text" name="orgName" [(ngModel)]="orgName"
+              [required]="true">
+            </app-floating-input>
+            <app-floating-input label="Official Website" type="url" name="orgWebsite" [(ngModel)]="orgWebsite"
+              [required]="true">
+            </app-floating-input>
+
+            <app-floating-input label="RSS Feed URL (Optional)" type="url" name="rssUrl" [(ngModel)]="rssUrl"
+              class="full-width">
+            </app-floating-input>
+
+            <app-floating-input label="Country" type="text" name="country" [(ngModel)]="country" [required]="true">
+            </app-floating-input>
+            <app-floating-input label="City" type="text" name="city" [(ngModel)]="city" [required]="true">
+            </app-floating-input>
+
+            <app-floating-input label="Phone Number" type="tel" name="phone" [(ngModel)]="phone" [required]="true"
+              class="full-width">
+            </app-floating-input>
+
+            <div class="input-group full-width">
+              <div class="premium-upload-box" (click)="businessFileInput.click()">
+                <div class="upload-icon-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <polyline points="9 15 12 12 15 15"></polyline>
+                  </svg>
+                </div>
+                <div class="upload-text-content">
+                  <div class="upload-title">Business Registration</div>
+                  <div class="upload-subtitle">
+                    {{ businessFileName() ? businessFileName() : 'Upload PDF/Image (Max 5MB)' }}
+                  </div>
+                </div>
+                <input type="file" #businessFileInput (change)="onFileSelected($event, 'business')"
+                  style="display: none">
+              </div>
+            </div>
+
+            <app-floating-input label="Newspaper License Number" type="text" name="newspaperLicense"
+              [(ngModel)]="newspaperLicense" [required]="true" class="full-width">
+            </app-floating-input>
+          </div>
+        </div>
+
+        <!-- Terms and Submit -->
+        <div class="form-footer-section">
+          <div class="terms-group">
+            <label class="custom-checkbox-container">
+              <input type="checkbox" id="terms" required>
+              <span class="checkmark"></span>
+              <span class="checkbox-text">I agree with <a href="#" (click)="$event.preventDefault()">Terms and
+                  Conditions</a></span>
+            </label>
+          </div>
+
+          <div class="action-row">
+            <button type="submit" class="btn-premium-register" [disabled]="isLoading()">
+              {{ isLoading() ? 'Submitting Application...' : 'Apply for Publisher' }}
+            </button>
+            <div class="login-prompt">
+              Already have an account? <a routerLink="/login">LOG IN</a>
+            </div>
+          </div>
+
+          <div class="user-prompt" style="margin-top: 1.5rem; font-size: 0.95rem; color: #718096;">
+            Regular reader? <a routerLink="/register"
+              style="color: #ffb822; font-weight: 700; text-decoration: none;">Register as User</a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Side: Custom SVG Illustration -->
+    <div class="image-side">
+      <div class="vector-container">
+        <svg viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg" class="hero-vector">
+          <!-- Background Abstract Elements -->
+          <circle cx="650" cy="150" r="100" fill="#f0f5fa" opacity="0.6" />
+          <!-- Large Background Gears -->
+          <g transform="translate(400, 150) rotate(15)" opacity="0.4">
+            <circle cx="160" cy="170" r="60" fill="#ffffff" stroke="#b0c4de" stroke-width="15" />
+          </g>
+          <!-- Gear icon highlighting organization -->
+          <g class="float-slow" transform="translate(680, 150)">
+            <rect x="0" y="0" width="30" height="30" rx="6" fill="#ffffff" stroke="#4aa3f0" stroke-width="2" />
+            <path d="M6,15 L12,21 L24,9" stroke="#ff7b72" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </g>
+          <!-- Person at desk -->
+          <g transform="translate(420, 250)">
+            <rect x="-80" y="180" width="180" height="8" fill="#1e293b" />
+            <path d="M120,120 C100,160 80,200 110,210 C130,210 140,160 120,120" fill="#ef4444" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>

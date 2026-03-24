@@ -1,0 +1,25 @@
+<div class="floating-group" [class.focused]="isFocused()" [class.has-value]="value && value.length > 0">
+  <div class="input-container">
+    <div class="icon-wrapper">
+      <ng-content select="[icon]"></ng-content>
+    </div>
+    
+    <input 
+      [type]="type" 
+      [id]="id" 
+      [name]="name" 
+      [(ngModel)]="value"
+      (ngModelChange)="onInputChange($event)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      [autocomplete]="autocomplete"
+      [required]="required"
+      [attr.maxlength]="maxlength"
+      [ngStyle]="customStyle"
+      placeholder=" "
+    >
+    
+    <label [for]="id" class="floating-label">{{ label }}</label>
+    
+  </div>
+</div>

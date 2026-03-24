@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastService } from '../../../services/toast.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -15,6 +16,7 @@ export class PublisherRegistrationComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   token = signal<string | null>(null);
   invitation = signal<any>(null);
@@ -79,7 +81,7 @@ export class PublisherRegistrationComponent implements OnInit {
       },
       error: () => {
         this.isSubmitting.set(false);
-        alert('Failed to register. Please try again.');
+        this.toast.show('Failed to register. Please try again.', 'error');
       }
     });
   }

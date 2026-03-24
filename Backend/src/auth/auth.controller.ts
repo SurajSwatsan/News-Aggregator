@@ -1,6 +1,7 @@
-import { Controller, Post, Get, Body, Patch, Param, Delete, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Patch, Param, Delete, UnauthorizedException, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -45,11 +46,47 @@ export class AuthController {
     return {
       access_token: this.jwtService.sign(payload),
       user: {
+        id: user.id,
         email: user.email,
         role: user.role,
         creditBalance: user.creditBalance
       }
     };
+  }
+
+  @Post('request-otp')
+  async requestOtp(@Body() body: { email: string, name?: string, username?: string, password?: string }) {
+    return this.authService.requestOtp(body.email, body.name, body.username, body.password);
+  }
+
+  @Post('verify-otp')
+  async verifyOtp(@Body() body: { email: string, code: string }) {
+    const result = await this.authService.verifyOtp(body.email, body.code);
+    
+    const user = (result as any).user;
+    if (!user) {
+      return result; // For onboarding cases that need more info
+    }
+
+    const payload = { email: user.email, sub: user.id, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        creditBalance: user.creditBalance
+      }
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async getProfile(@Req() req: any) {
+    const user = await this.authService.getUsers().then(users => 
+      (users as any[]).find(u => u.id === req.user.id)
+    );
+    return user;
   }
 
   @Patch('users/:id')
@@ -65,5 +102,9 @@ export class AuthController {
   @Post('users/:id/restore')
   async restoreUser(@Param('id') id: string) {
     return this.authService.restoreUser(id);
+  }
+  @Post('add-credits')
+  async addCredits(@Body() body: { userId: string, credits: number }) {
+    return this.authService.addCredits(body.userId, body.credits);
   }
 }

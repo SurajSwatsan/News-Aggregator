@@ -1,0 +1,156 @@
+<div class="register-wrapper">
+    <div class="register-card" [class.expanded-card]="registrationType() === 'publisher'">
+
+        <div class="form-side">
+            <!-- Role Selector Tabs -->
+            <div class="role-selector">
+                <button type="button" class="role-btn" [class.active]="registrationType() === 'user'"
+                    (click)="onTypeChange('user')">Reader</button>
+                <button type="button" class="role-btn" [class.active]="registrationType() === 'publisher'"
+                    (click)="onTypeChange('publisher')">Publisher</button>
+            </div>
+
+            <div class="form-header">
+                <h1>{{ step() === 1 ? (registrationType() === 'user' ? 'Join Next-Gen News' : 'Publisher Application') :
+                    'Verify Identity' }}</h1>
+                <p class="subtitle">
+                    {{ step() === 1 ? (registrationType() === 'user' ? 'Join thousands of readers staying informed every
+                    day.' : 'Reach a global audience by publishing your stories on our platform.') : 'Enter the security
+                    code we just sent to ' + email }}
+                </p>
+            </div>
+
+            @if (errorMessage()) {
+            <div class="error-msg">{{ errorMessage() }}</div>
+            }
+
+            @if (step() === 1) {
+            <form (submit)="onSubmit($event)" class="register-form">
+                <div class="form-grid">
+                    <app-floating-input label="E-mail Address" type="email" id="email" name="email" [(ngModel)]="email"
+                        [required]="true" autocomplete="off" class="full-width">
+                    </app-floating-input>
+
+                    <!-- Basic Info -->
+                    <!-- Basic Info -->
+                        <app-floating-input [label]="registrationType() === 'user' ? '1st Name' : '1st Name'" type="text"
+                            id="name" name="name" [(ngModel)]="name" [required]="true">
+                        </app-floating-input>
+
+                    <app-floating-input [label]="registrationType() === 'user' ? 'Last Name' : 'Last Name'" type="text"
+                        id="username" name="username" [(ngModel)]="username">
+                    </app-floating-input>
+
+                    @if (registrationType() === 'publisher') {
+                    <!-- Publisher Fields -->
+                    <div class="section-divider">Organization Details</div>
+
+                    <app-floating-input label="Legal Company Name" type="text" name="orgName" [(ngModel)]="orgName"
+                        [required]="true">
+                    </app-floating-input>
+
+                    <app-floating-input label="Official Website" type="url" name="orgWebsite" [(ngModel)]="orgWebsite"
+                        [required]="true">
+                    </app-floating-input>
+
+                    <app-floating-input label="RSS Feed URL (Optional)" type="url" name="rssUrl" [(ngModel)]="rssUrl"
+                        class="full-width">
+                    </app-floating-input>
+
+                    <app-floating-input label="Company Country" type="text" name="country" [(ngModel)]="country"
+                        [required]="true">
+                    </app-floating-input>
+
+                    <app-floating-input label="Headquarters City" type="text" name="city" [(ngModel)]="city"
+                        [required]="true">
+                    </app-floating-input>
+
+                    <app-floating-input label="Business Phone Number" type="tel" name="phone" [(ngModel)]="phone"
+                        [required]="true" class="full-width">
+                    </app-floating-input>
+
+                    <div class="input-group full-width">
+                        <div class="premium-upload" (click)="businessFileInput.click()">
+                            <div class="upload-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                                    <polyline points="9 15 12 12 15 15"></polyline>
+                                </svg>
+                            </div>
+                            <div class="upload-info">
+                                <h4>Business Registration Doc</h4>
+                                <p>{{ businessFileName() ? businessFileName() : 'Click to upload PDF or Image' }}</p>
+                            </div>
+                            <input type="file" #businessFileInput (change)="onFileSelected($event, 'business')"
+                                style="display: none">
+                        </div>
+                    </div>
+
+                    <app-floating-input label="Newspaper License Number" type="text" name="newspaperLicense"
+                        [(ngModel)]="newspaperLicense" [required]="true" class="full-width">
+                    </app-floating-input>
+                    @}
+                </div>
+
+                <button type="submit" class="btn-primary" [disabled]="isLoading() || !email || !name">
+                    <span>{{ isLoading() ? 'Processing...' : (registrationType() === 'user' ? 'Register Now' : 'Submit
+                        Application') }}</span>
+                    @if (!isLoading()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                    }
+                </button>
+            </form>
+            } @else {
+            <!-- Step 2: OTP (Readers only) -->
+            <form (submit)="onVerifyOtp($event)" class="register-form">
+                <app-floating-input label="Security Verification Code" type="text" id="otp" name="otp" [(ngModel)]="otp"
+                    [required]="true" [maxlength]="6">
+                </app-floating-input>
+
+                <button type="submit" class="btn-primary" [disabled]="isLoading() || otp.length < 6">
+                    <span>{{ isLoading() ? 'Verifying...' : 'Verify & Complete' }}</span>
+                    @if (!isLoading()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                    }
+                </button>
+
+                <button type="button" class="btn-secondary" (click)="resetStep()" [disabled]="isLoading()">
+                    Use a different email address
+                </button>
+            </form>
+            }
+
+            <div class="form-footer">
+                <p>Already have an account? <a routerLink="/login">Login here</a></p>
+            </div>
+        </div>
+
+        <div class="image-side">
+            <div class="illustration-box">
+                <img [src]="registrationType() === 'user' ? 'registration-illustration.png' : 'publisher-illustration.png'"
+                    [alt]="registrationType() === 'user' ? 'Reader Illustration' : 'Publisher Illustration'"
+                    class="register-illustration">
+                <div class="quote-box">
+                    <h3>{{ registrationType() === 'user' ? 'Stay Ahead of the Curve' : 'Empower Your Voice' }}</h3>
+                    <p>
+                        {{ registrationType() === 'user' ? 'Experience news that matters to you. Personalized, verified,
+                        and always up to date.' : 'Join a prestigious network of publishers and reach millions of
+                        verified readers across the globe.' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
