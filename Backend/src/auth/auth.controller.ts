@@ -98,13 +98,13 @@ export class AuthController {
   async softDeleteUser(@Param('id') id: string) {
     return this.authService.softDeleteUser(id);
   }
-
-  @Post('users/:id/restore')
-  async restoreUser(@Param('id') id: string) {
-    return this.authService.restoreUser(id);
-  }
   @Post('add-credits')
   async addCredits(@Body() body: { userId: string, credits: number }) {
     return this.authService.addCredits(body.userId, body.credits);
+  }
+
+  @Post('deduct-credits')
+  async deductCredits(@Body() body: { userId: string, articleId: string }) {
+    return this.authService.deductArticleCredit(body.userId, body.articleId);
   }
 }

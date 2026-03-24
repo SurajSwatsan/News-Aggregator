@@ -31,7 +31,8 @@ export class UserRegistrationComponent implements OnInit {
 
   // Publisher specific fields
   phone = '';
-  // password = ''; // Removed as per user request
+  password = '';
+  confirmPassword = '';
   publisherFirstName = '';
   publisherLastName = '';
   orgName = '';
@@ -97,10 +98,16 @@ export class UserRegistrationComponent implements OnInit {
   }
 
   private handleUserSubmit() {
-    if (!this.email || !this.name) return;
+    if (!this.email || !this.name || !this.password) return;
+    
+    if (this.password !== this.confirmPassword) {
+      this.errorMessage.set('Passwords do not match');
+      return;
+    }
+
     this.isLoading.set(true);
 
-    this.authService.requestOtp(this.email, this.name, this.username).subscribe({
+    this.authService.requestOtp(this.email, this.name, this.username, this.password).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.step.set(2);
@@ -118,7 +125,6 @@ export class UserRegistrationComponent implements OnInit {
       email: this.email,
       username: this.username,
       name: this.name,
-      // password: this.password, // Removed
       requestedRole: 'publisher',
       isPublisher: true,
       orgName: this.orgName,
@@ -155,7 +161,9 @@ export class UserRegistrationComponent implements OnInit {
 
     this.authService.verifyOtp(this.email, this.otp).subscribe({
       next: (res) => {
-        this.router.navigate(['/']);
+        this.isLoading.set(false);
+        this.toast.show('Registration successful! Please login with your email and password.');
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.isLoading.set(false);

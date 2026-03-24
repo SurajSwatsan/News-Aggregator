@@ -41,6 +41,16 @@
                         id="username" name="username" [(ngModel)]="username">
                     </app-floating-input>
 
+                    @if (registrationType() === 'user') {
+                        <app-floating-input label="Password" type="password" name="password" [(ngModel)]="password"
+                            [required]="true">
+                        </app-floating-input>
+
+                        <app-floating-input label="Confirm Password" type="password" name="confirmPassword"
+                            [(ngModel)]="confirmPassword" [required]="true">
+                        </app-floating-input>
+                    }
+
                     @if (registrationType() === 'publisher') {
                     <!-- Publisher Fields -->
                     <div class="section-divider">Organization Details</div>
@@ -96,7 +106,7 @@
                     @}
                 </div>
 
-                <button type="submit" class="btn-primary" [disabled]="isLoading() || !email || !name">
+                <button type="submit" class="btn-primary" [disabled]="isLoading() || !email || !name || (registrationType() === 'user' && !password)">
                     <span>{{ isLoading() ? 'Processing...' : (registrationType() === 'user' ? 'Register Now' : 'Submit
                         Application') }}</span>
                     @if (!isLoading()) {

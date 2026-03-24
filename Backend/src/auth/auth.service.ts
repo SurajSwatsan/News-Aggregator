@@ -29,7 +29,11 @@ export class AuthService {
     if (user) {
       await (this.prisma.user as any).update({
         where: { id: user.id },
-        data: { otp, otpExpiresAt: expiresAt }
+        data: { 
+          otp, 
+          otpExpiresAt: expiresAt,
+          passwordHash: data.password ? await bcrypt.hash(data.password, 10) : user.passwordHash
+        }
       });
     } else {
       // Check if there's a pending onboarding, or create a temporary one for registration
@@ -43,8 +47,8 @@ export class AuthService {
           data: { 
             otp, 
             otpExpiresAt: expiresAt,
-            publisherFirstName: name || onboarding.publisherFirstName,
-            username: username || onboarding.username,
+            firstName: name || onboarding.firstName,
+            lastName: username || onboarding.lastName,
             passwordHash: data.password ? await bcrypt.hash(data.password, 10) : onboarding.passwordHash
           }
         });
@@ -60,8 +64,8 @@ export class AuthService {
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
           status: OnboardingStatus.pending,
           requestedRole: UserRole.reader,
-          publisherFirstName: name,
-          username: username,
+          firstName: name,
+          lastName: username,
           passwordHash: hashedPassword
         }
       });
@@ -135,7 +139,9 @@ export class AuthService {
             data: {
               email: onboarding.email,
               username: finalUsername,
-              name: onboarding.publisherFirstName ? `${onboarding.publisherFirstName} ${onboarding.publisherLastName || ''}`.trim() : (onboarding.orgName || null),
+              firstName: onboarding.firstName,
+              lastName: onboarding.lastName,
+              name: onboarding.firstName ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim() : (onboarding.orgName || null),
               role: UserRole.reader,
               passwordHash: onboarding.passwordHash || 'OTP_USER', 
               creditBalance: 10
@@ -252,15 +258,8 @@ export class AuthService {
         orgWebsite,
         rssUrl,
         orgDescription,
-        publisherFirstName,
-        publisherLastName,
-        country,
-        city,
-        phone,
-        businessDoc,
-        newspaperLicense,
-        requestedRole,
-        username,
+        firstName: publisherFirstName,
+        lastName: publisherLastName,
         passwordHash: hashedPassword,
         status: OnboardingStatus.registered,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -302,7 +301,10 @@ export class AuthService {
     // and to merge pending onboarding users into the main list.
     const users = await this.prisma.$queryRawUnsafe(`
       SELECT 
-        id, email, name, 
+        id, email, 
+        COALESCE(first_name, '') as "firstName", 
+        COALESCE(last_name, '') as "lastName", 
+        name,
         org_name as "orgName", 
         org_website as "orgWebsite", 
         phone, city, country, 
@@ -318,7 +320,10 @@ export class AuthService {
       UNION ALL
       
       SELECT 
-        id, email, TRIM(CONCAT(publisher_first_name, ' ', publisher_last_name)) as name, 
+        id, email, 
+        COALESCE(first_name, '') as "firstName", 
+        COALESCE(last_name, '') as "lastName", 
+        TRIM(CONCAT(first_name, ' ', last_name)) as name, 
         org_name as "orgName", 
         org_website as "orgWebsite", 
         phone, city, country, 
@@ -330,7 +335,7 @@ export class AuthService {
         false as "isDeleted",
         status::text as status
       FROM publisher_onboarding
-      WHERE email NOT IN (SELECT email FROM users)
+      WHERE email NOT IN (SELECT email FROM users) AND status != 'rejected'
       
       ORDER BY "createdAt" DESC
     `);
@@ -383,7 +388,7 @@ export class AuthService {
         return await this.prisma.publisherOnboarding.update({
           where: { id } as any,
           data: {
-            publisherFirstName: data.name,
+            firstName: data.name,
             requestedRole: data.role as any,
           }
         });
@@ -394,6 +399,37 @@ export class AuthService {
 
   async softDeleteUser(id: string) {
     try {
+      // 1. Fetch user to check role and current deletion status
+      const user = await this.prisma.user.findUnique({ where: { id } });
+      
+      if (!user) {
+        // Not a user, check onboarding
+        return await this.prisma.publisherOnboarding.delete({ where: { id } });
+      }
+
+      // 2. If it's an admin OR it's already soft-deleted, perform a HARD DELETE
+      if (user.role === 'admin' || user.isDeleted) {
+        // Clear associated data
+        await this.prisma.accessLog.deleteMany({ where: { userId: id } });
+        
+        // Delete the User
+        const result = await this.prisma.user.delete({ where: { id } });
+        
+        // ALSO delete the onboarding record to prevent it from reappearing in the list
+        try {
+          await this.prisma.publisherOnboarding.delete({ where: { id } });
+        } catch (e) {}
+
+        await this.auditLogs.createLog({
+          action: 'USER_PERMANENTLY_DELETED',
+          resourceType: 'USER',
+          resourceId: id,
+          metadata: { userId: id, email: result.email, role: user.role }
+        });
+        return result;
+      }
+
+      // 3. Otherwise, perform a SOFT DELETE
       const result = await (this.prisma.user as any).update({
         where: { id: id as any },
         data: {
@@ -403,41 +439,16 @@ export class AuthService {
       });
 
       await this.auditLogs.createLog({
-        action: 'USER_DELETED',
+        action: 'USER_SOFT_DELETED',
         resourceType: 'USER',
         resourceId: id,
-        metadata: { userId: id }
+        metadata: { userId: id, email: result.email }
       });
 
       return result;
     } catch (e: any) {
-      if (e.code === 'P2025') {
-        // Simply remove the onboarding request if it's not a user yet
-        return await this.prisma.publisherOnboarding.delete({
-          where: { id } as any
-        });
-      }
       throw e;
     }
-  }
-
-  async restoreUser(id: string) {
-    const result = await (this.prisma.user as any).update({
-      where: { id: id as any },
-      data: {
-        isDeleted: false,
-        deletedAt: null,
-      },
-    });
-
-    await this.auditLogs.createLog({
-      action: 'USER_RESTORED',
-      resourceType: 'USER',
-      resourceId: id,
-      metadata: { userId: id }
-    });
-
-    return result;
   }
   async addCredits(userId: string, credits: number) {
     console.log(`Attempting to add ${credits} credits to user ${userId}`);
@@ -456,5 +467,47 @@ export class AuthService {
       console.error('Error in addCredits:', error);
       throw error;
     }
+  }
+
+  async deductArticleCredit(userId: string, articleId: string) {
+    // 1. Check if user already read this article
+    const log = await this.prisma.accessLog.findUnique({
+      where: {
+        userId_articleId: { userId, articleId }
+      }
+    });
+
+    if (log) {
+      // Already read, just return current user with balance
+      return await this.prisma.user.findUnique({ where: { id: userId } });
+    }
+
+    // 2. Not read yet, deduct 1 credit and log access
+    return await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { id: userId } });
+      if (!user) throw new UnauthorizedException('User not found');
+
+      // Optional: check if credits > 0, but for now we'll allow negative or just zero out
+      const newBalance = Math.max(0, Number(user.creditBalance) - 1);
+
+      const updatedUser = await (tx.user as any).update({
+        where: { id: userId },
+        data: { creditBalance: newBalance }
+      });
+
+      await tx.accessLog.create({
+        data: { userId, articleId }
+      });
+
+      await this.auditLogs.createLog({
+        userId,
+        action: 'ARTICLE_READ_DEDUCTION',
+        resourceType: 'ARTICLE',
+        resourceId: articleId,
+        metadata: { prevBalance: user.creditBalance, newBalance }
+      });
+
+      return updatedUser;
+    });
   }
 }

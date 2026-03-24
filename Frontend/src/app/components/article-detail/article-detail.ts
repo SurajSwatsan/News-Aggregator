@@ -23,16 +23,31 @@ import { AccessService } from '../../services/access.service';
           </button>
           
           <div class="nav-branding">
-            @if (article()) {
-              <div class="source-logo-frame">
-                <img [src]="getFaviconUrl()" alt="Logo" (error)="handleLogoError($event)">
+              <div class="source-logo-frame" *ngIf="article()?.source">
+                <img *ngIf="!logoError() && getLogoUrl()" [src]="getLogoUrl()" 
+                     (error)="handleLogoError()" alt="">
+                <div class="source-initial" *ngIf="logoError() || !getLogoUrl()">
+                  {{ (article()?.source?.name || '?')[0] | uppercase }}
+                </div>
               </div>
-              <span class="nav-source">{{ article().source?.name }}</span>
+              <span class="nav-source">{{ article()?.source?.name }}</span>
               <span class="premium-badge-nav">PREMIUM</span>
-              <span class="nav-pipe">|</span>
-              <span class="nav-title">{{ article().title }}</span>
-            }
-          </div>
+              
+              <div class="nav-pipe">|</div>
+              
+              <!-- Credits Badge (New) -->
+              <div class="credits-badge" *ngIf="auth.isAuthenticated()">
+                <div class="diamond-icon">
+                  <svg viewBox="0 0 24 24" width="12" height="12">
+                    <path d="M12 2L2 12l10 10 10-10L12 2z" fill="currentColor" />
+                  </svg>
+                </div>
+                <span class="credits-text">{{ auth.currentUser()?.creditBalance || 0 }} CREDITS</span>
+              </div>
+
+              <div class="nav-pipe" *ngIf="article()?.title">|</div>
+              <span class="nav-title" *ngIf="article()?.title">{{ article()?.title }}</span>
+            </div>
 
           <div class="nav-actions">
             @if (article()) {
@@ -111,17 +126,64 @@ import { AccessService } from '../../services/access.service';
           <!-- Sidebar -->
           <aside class="article-sidebar">
             <section class="sidebar-section">
-              <h3>Trending Now</h3>
-              <div class="sidebar-item" *ngFor="let item of trendingItems; let i = index">
-                <span class="item-rank">0{{ i + 1 }}</span>
-                <div class="item-content">
-                  <span class="item-title">{{ item.title }}</span>
-                  <div class="item-meta">{{ item.source }} | {{ item.category }}</div>
+              <h3>Trending News</h3>
+              @if (trendingArticles().length > 0) {
+                <div class="sidebar-item" *ngFor="let item of trendingArticles().slice(0, 5); let i = index" [routerLink]="['/article', item.id]">
+                  <span class="item-rank">{{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }}</span>
+                  <div class="item-content">
+                    <span class="item-title">{{ item.title }}</span>
+                    <div class="item-meta">{{ item.source?.name | uppercase }} | {{ item.category || 'GENERAL' }}</div>
+                  </div>
                 </div>
-              </div>
+              } @else {
+                <div class="loading-sidebar">
+                  <div class="mini-spinner"></div>
+                </div>
+              }
             </section>
           </aside>
         </div>
+
+        <!-- Related News Section (Card Style) -->
+        <section class="related-news-section">
+          <div class="section-container">
+            <div class="section-header">
+              <div class="header-line"></div>
+              <h2>Related Stories from Other Publishers</h2>
+              <p>Explore different perspectives on this story from our global network.</p>
+            </div>
+
+            @if (relatedArticles().length > 0) {
+              <div class="related-grid">
+                <div class="related-card" *ngFor="let item of relatedArticles()" [routerLink]="['/article', item.id]">
+                  <div class="card-image-box">
+                    <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" alt="">
+                    <div class="source-badge">{{ item.source?.name }}</div>
+                  </div>
+                  <div class="card-content">
+                    <div class="card-meta">
+                      <span class="category">{{ item.category || 'General' | uppercase }}</span>
+                      <span class="dot"></span>
+                      <span class="date">{{ formatDate(item.postedAt) }}</span>
+                    </div>
+                    <h3 class="card-title">{{ item.title }}</h3>
+                    <p class="card-excerpt">{{ item.synopsis || 'No summary available...' | slice:0:120 }}...</p>
+                    <button class="btn-read-story">
+                      READ STORY
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="no-related-footer">
+                <div class="no-related-pill">NO OTHER PUBLISHERS HAVE COVERED THIS TOPIC YET</div>
+              </div>
+            }
+          </div>
+        </section>
       } @else if (isLoading()) {
         <div class="loading-screen">
           <div class="premium-spinner"></div>
@@ -136,20 +198,18 @@ export class ArticleDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
+  public auth = inject(AuthService); // Changed to public as used in template
   private accessService = inject(AccessService);
 
   article = signal<any>(null);
+  relatedArticles = signal<any[]>([]);
+  trendingArticles = signal<any[]>([]);
   isLoading = signal(true);
   readingProgress = signal(0);
   hasPremiumAccess = signal(false);
+  logoError = signal(false);
 
-  trendingItems = [
-    { title: 'Global Markets Brace for Impact of New Trade Policies', source: 'REUTERS', category: 'FINANCE' },
-    { title: 'SpaceX Successfully Lands Starship on Mars Surface', source: 'TECHCRUNCH', category: 'SPACE' },
-    { title: 'The Future of AI: From Chatbots to Digital Super-Intelligences', source: 'THE VERGE', category: 'TECH' },
-    { title: 'Breakthrough in Nuclear Fusion Research Announced', source: 'BBC NEWS', category: 'SCIENCE' }
-  ];
+  constructor() { }
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
@@ -159,34 +219,74 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.fetchArticle(id);
-    } else {
-      this.router.navigate(['/']);
-    }
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.fetchArticle(id);
+        this.fetchTrending();
+      } else {
+        this.router.navigate(['/']);
+      }
+    });
   }
 
   fetchArticle(id: string) {
     this.isLoading.set(true);
+    this.logoError.set(false);
+    window.scrollTo(0, 0);
     
     this.http.get<any>(`http://localhost:3000/articles/${id}`).subscribe({
-      next: (foundArticle) => {
-        if (foundArticle) {
-          this.article.set(foundArticle);
-          
-          // Check if user has access (for premium features if any)
-          this.accessService.checkAccess(id).subscribe(hasAccess => {
-            this.hasPremiumAccess.set(hasAccess);
-          });
-        } else {
-          this.router.navigate(['/']);
+      next: (foundData) => {
+        this.article.set(foundData.article || foundData);
+        this.relatedArticles.set(foundData.relatedArticles || []);
+        this.isLoading.set(false);
+
+        // Deduct credit if user is logged in
+        if (this.auth.isAuthenticated()) {
+          this.deductCredit(id);
         }
         this.isLoading.set(false);
       },
       error: () => {
         this.router.navigate(['/']);
         this.isLoading.set(false);
+      }
+    });
+  }
+
+  deductCredit(articleId: string) {
+    const userId = this.auth.currentUser()?.id;
+    if (!userId) return;
+
+    this.http.post<any>('http://localhost:3000/auth/deduct-credits', { userId, articleId }).subscribe({
+      next: (updatedUser) => {
+        // Update the global user state with new balance
+        this.auth.currentUser.set(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    });
+  }
+
+  handleLogoError() {
+    this.logoError.set(true);
+  }
+
+  getLogoUrl(): string {
+    const url = this.article()?.source?.homepageUrl || this.article()?.sourceUrl;
+    if (!url) return '';
+    try {
+      const hostname = new URL(url).hostname;
+      return `https://www.google.com/s2/favicons?sz=128&domain=${hostname}`;
+    } catch {
+      return '';
+    }
+  }
+
+  fetchTrending() {
+    this.http.get<any[]>('http://localhost:3000/articles').subscribe({
+      next: (articles) => {
+        // Shuffle or just take latest for "trending" variety
+        this.trendingArticles.set(articles || []);
       }
     });
   }
@@ -213,9 +313,6 @@ export class ArticleDetailComponent implements OnInit {
     }
   }
 
-  handleLogoError(event: any) {
-    event.target.style.display = 'none';
-  }
 
   handleImageError(event: any) {
     event.target.src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000';

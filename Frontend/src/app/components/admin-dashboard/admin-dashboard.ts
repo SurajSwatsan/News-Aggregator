@@ -60,15 +60,10 @@ export class AdminDashboardComponent implements OnInit {
     const users = this.allUsers();
     
     switch (tab) {
-      case 'publishers':
-        return users.filter(u => u.role === 'publisher' && !u.isDeleted);
       case 'readers':
-        // Show ALL readers (including deleted ones) as requested by the user
         return users.filter(u => u.role === 'reader');
-      case 'deleted':
-        return users.filter(u => u.isDeleted);
       default:
-        return users.filter(u => !u.isDeleted);
+        return users;
     }
   });
 
@@ -204,11 +199,6 @@ export class AdminDashboardComponent implements OnInit {
     this.viewingDetails.set(null);
   }
 
-  restoreUser(id: string) {
-    this.http.post(`http://localhost:3000/auth/users/${id}/restore`, {}).subscribe(() => {
-      this.loadUsers();
-    });
-  }
 
   // --- Publisher Actions ---
   sendInvite() {
@@ -221,6 +211,14 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+
+  copyInviteLink() {
+    const link = this.lastInviteLink();
+    if (link) {
+      navigator.clipboard.writeText(link);
+      this.toast.show('Link copied to clipboard!');
+    }
+  }
 
   approveRequest(id: string) {
     this.http.post<any>(`http://localhost:3000/onboarding/approve/${id}`, {}).subscribe({

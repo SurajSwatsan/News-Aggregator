@@ -101,7 +101,7 @@ export class AppService {
   }
 
   async getArticleById(id: string) {
-    return await this.prisma.article.findUnique({
+    const article = await this.prisma.article.findUnique({
       where: { id },
       include: {
         source: {
@@ -112,5 +112,33 @@ export class AppService {
         }
       }
     });
+
+    if (!article) return null;
+
+    let relatedArticles: any[] = [];
+    if (article.clusterId !== null) {
+      relatedArticles = await this.prisma.article.findMany({
+        where: {
+          clusterId: article.clusterId,
+          id: { not: id }, // Exclude current article
+        },
+        include: {
+          source: {
+            select: {
+              name: true,
+            }
+          }
+        },
+        orderBy: {
+          postedAt: 'desc'
+        },
+        take: 5
+      });
+    }
+
+    return {
+      ...article,
+      relatedArticles
+    };
   }
 }
