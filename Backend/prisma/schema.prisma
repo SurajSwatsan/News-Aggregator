@@ -17,6 +17,7 @@ enum OnboardingStatus {
   pending
   registered
   approved
+  confirmed
   rejected
   completed
 }
@@ -28,6 +29,7 @@ model User {
   name           String?
   orgName        String?   @map("org_name")
   orgWebsite     String?   @map("org_website")
+  orgDescription String?   @map("org_description")
   phone          String?
   city           String?
   country        String?
@@ -38,6 +40,8 @@ model User {
   creditBalance  Decimal   @default(0) @map("credit_balance") @db.Decimal(10, 2)
   isDeleted      Boolean   @default(false) @map("is_deleted")
   deletedAt      DateTime? @map("deleted_at")
+  otp            String?   @map("otp")
+  otpExpiresAt   DateTime? @map("otp_expires_at")
   createdAt      DateTime  @default(now()) @map("created_at")
   sources        Source[]
 
@@ -89,16 +93,41 @@ model PublisherOnboarding {
   orgWebsite     String?          @map("org_website")
   rssUrl         String?          @map("rss_url")
   orgDescription String?          @map("org_description")
-  publisherName  String?          @map("publisher_name")
+  publisherFirstName String?          @map("publisher_first_name")
+  publisherLastName  String?          @map("publisher_last_name")
   country        String?
   city           String?
   phone          String?
   businessDoc    String?          @map("business_doc")
   newspaperLicense String?        @map("newspaper_license")
   requestedRole  UserRole         @default(reader) @map("requested_role")
+  otp            String?          @map("otp")
+  otpExpiresAt   DateTime?        @map("otp_expires_at")
   expiresAt      DateTime         @map("expires_at")
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
 
   @@map("publisher_onboarding")
+}
+
+model AccessLog {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  articleId String   @map("article_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, articleId])
+  @@map("access_logs")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?  @map("user_id")
+  action       String
+  resourceType String   @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
 }

@@ -70,6 +70,24 @@ export class MailService {
     return this.sendMail(email, subject, html);
   }
 
+  async sendApprovalLink(email: string, orgName: string, approvalLink: string) {
+    const subject = 'Next-Gen News: Your application has been approved!';
+    const html = `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Great news, ${orgName}!</h2>
+        <p>Your application to join Next-Gen News as a publisher has been approved by our administrators.</p>
+        <p>Please click the button below to confirm your acceptance and move to the next step:</p>
+        <div style="margin: 20px 0;">
+          <a href="${approvalLink}" style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Confirm Approval</a>
+        </div>
+        <p>After clicking, you will receive a secondary email to set your account password.</p>
+        <hr>
+        <p style="font-size: 0.8em; color: #777;">Welcome to the aggregator platform!</p>
+      </div>
+    `;
+    return this.sendMail(email, subject, html);
+  }
+
   async sendActivation(email: string, orgName: string, activationLink: string) {
     const subject = 'Next-Gen News: Set Your Publisher Account Password';
     const html = `
@@ -83,6 +101,28 @@ export class MailService {
         <p>Once set, you will be able to log in to your dashboard immediately.</p>
         <hr>
         <p style="font-size: 0.8em; color: #777;">Welcome aboard!</p>
+      </div>
+    `;
+    return this.sendMail(email, subject, html);
+  }
+
+  async sendOtp(email: string, otp: string) {
+    const subject = 'Your Next-Gen News Verification Code';
+    const html = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #ffb822; padding: 20px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0;">Verification Code</h2>
+        </div>
+        <div style="padding: 30px; text-align: center;">
+          <p style="font-size: 1.1rem; color: #4a5568;">Your one-time verification code is:</p>
+          <div style="display: inline-block; padding: 15px 30px; background-color: #f7fafc; border: 2px dashed #cbd5e1; border-radius: 8px; font-size: 2.5rem; font-weight: 800; color: #2d3748; letter-spacing: 5px; margin: 20px 0;">
+            ${otp}
+          </div>
+          <p style="color: #718096; font-size: 0.9rem;">This code will expire in 10 minutes. Do not share this code with anyone.</p>
+        </div>
+        <div style="background-color: #f8fafc; padding: 15px; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="font-size: 0.8rem; color: #a0aec0; margin: 0;">Next-Gen News Aggregator - Secure Login</p>
+        </div>
       </div>
     `;
     return this.sendMail(email, subject, html);

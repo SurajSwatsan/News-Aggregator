@@ -1,38 +1,67 @@
 <div class="admin-layout">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><path d="M4 14.5a3 3 0 0 1-1-2.4 3 3 0 0 1 1-2.4 3.3 3.3 0 0 1 4.5 0l.5.5.5-.5a3.3 3.3 0 0 1 4.5 0 3 3 0 0 1 1 2.4 3 3 0 0 1-1 2.4L9 21l-5-6.5Z"/><path d="M12 2v4"/><path d="m16.2 4.2 2.8 2.8"/><path d="M18 12h4"/><path d="m16.2 19.8 2.8-2.8"/></svg>
-      <span>Next-Gen Aggregator</span>
+      <div class="logo-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide lucide-zap">
+          <path
+            d="M4 14.5a3 3 0 0 1-1-2.4 3 3 0 0 1 1-2.4 3.3 3.3 0 0 1 4.5 0l.5.5.5-.5a3.3 3.3 0 0 1 4.5 0 3 3 0 0 1 1 2.4 3 3 0 0 1-1 2.4L9 21l-5-6.5Z" />
+          <path d="M12 2v4" />
+          <path d="m16.2 4.2 2.8 2.8" />
+          <path d="M18 12h4" />
+          <path d="m16.2 19.8 2.8-2.8" />
+        </svg>
+      </div>
+      <span>Aggregator Hub</span>
     </div>
 
     <nav class="nav-links">
       <div class="nav-item" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1" />
+          <rect width="7" height="5" x="14" y="3" rx="1" />
+          <rect width="7" height="9" x="14" y="12" rx="1" />
+          <rect width="7" height="5" x="3" y="16" rx="1" />
+        </svg>
         Overview
       </div>
       <div class="nav-item" routerLink="/sources" routerLinkActive="active">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+          <path d="M18 14h-8" />
+          <path d="M15 18h-5" />
+          <path d="M10 6h8v4h-8V6Z" />
+        </svg>
         News Sources
       </div>
       <div class="nav-item" routerLink="/user" routerLinkActive="active">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
         User Management
       </div>
+      <div class="nav-item" routerLink="/audit" routerLinkActive="active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+          <path d="M12 8v4" />
+          <path d="M12 16h.01" />
+        </svg>
+        Audit Logs
+      </div>
     </nav>
-
-    <button class="btn-logout" (click)="onLogout()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-      Sign Out
-    </button>
   </aside>
 
   <main class="main-content">
     <header class="header">
       <h2>{{ headerTitle() }}</h2>
-      <div class="user-profile">
-        <span>{{ user()?.email }}</span>
-        <div class="avatar">A</div>
-      </div>
+      <app-profile-dropdown></app-profile-dropdown>
     </header>
 
     <div class="content-area">
@@ -66,7 +95,8 @@
             <h2>System Health</h2>
             <div class="health-status">
               <div class="pulse-indicator"></div>
-              <p style="color: var(--text-muted)">Scraper workers are currently healthy. Backend processing at 21 articles/min.</p>
+              <p style="color: var(--text-muted)">Scraper workers are currently healthy. Backend processing at 21
+                articles/min.</p>
             </div>
           </div>
 
@@ -89,13 +119,18 @@
       <div *ngIf="activeTab() === 'sources'" class="animate-fade-in">
         <div class="table-container">
           <div class="table-header">
-            <h2>News Sources Management</h2>
             <button class="btn-primary" (click)="loadSources()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M3 21v-5h5" />
+              </svg>
               Refresh List
             </button>
           </div>
-          
+
           <table class="admin-table">
             <thead>
               <tr>
@@ -123,7 +158,11 @@
                 <td>{{ s.createdAt | date:'mediumDate' }}</td>
                 <td>
                   <button class="btn-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                      <path d="m15 5 4 4" />
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -132,172 +171,170 @@
         </div>
       </div>
 
-      <!-- Readers Tab -->
-      <div *ngIf="activeTab() === 'readers'" class="animate-fade-in">
-        <div class="stat-card table-card">
-          <div class="header-with-action">
-            <h2>Active Platform Readers</h2>
-            <div class="badge-status">{{ readers().length }} Users</div>
-          </div>
-          <table class="user-table">
-            <thead>
-              <tr>
-                <th>Reader</th>
-                <th>Joined</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let r of readers()">
-                <td>
-                  <div class="user-cell">
-                    <div class="user-avatar" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">R</div>
-                    <div class="user-meta">
-                      <span class="user-name">{{ r.name || 'Anonymous' }}</span>
-                      <span class="email">{{ r.email }}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>{{ r.createdAt | date:'mediumDate' }}</td>
-                <td><span class="status-dot active"></span> Active</td>
-                <td>
-                  <button class="btn-icon" (click)="editUser(r)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
       <!-- User & Publisher Management Tab -->
       <div *ngIf="activeTab() === 'users'" class="animate-fade-in">
         <div class="user-management-tabs">
           <div class="sub-nav">
             <button [class.active]="usersSubTab() === 'all'" (click)="switchUsersTab('all')">Active Users</button>
-            <button [class.active]="usersSubTab() === 'publishers'" (click)="switchUsersTab('publishers')">Publishers</button>
+            <button [class.active]="usersSubTab() === 'publishers'" (click)="switchUsersTab('publishers')">
+              Publishers
+              <span class="tab-badge" *ngIf="pendingRequests().length > 0">{{ pendingRequests().length }}</span>
+            </button>
             <button [class.active]="usersSubTab() === 'readers'" (click)="switchUsersTab('readers')">Readers</button>
-            <button [class.active]="usersSubTab() === 'approval'" (click)="switchUsersTab('approval')">Approvals</button>
             <button [class.active]="usersSubTab() === 'invite'" (click)="switchUsersTab('invite')">Invite</button>
             <button [class.active]="usersSubTab() === 'deleted'" (click)="switchUsersTab('deleted')">Deleted</button>
           </div>
 
           <!-- Tables & Forms -->
-          <div class="stat-card table-card">
-            <div class="header-with-action">
-              <h2>{{ 
-                usersSubTab() === 'publishers' ? 'Independent Publishers' : 
-                usersSubTab() === 'readers' ? 'Platform Readers' : 
-                usersSubTab() === 'approval' ? 'Pending Publisher Approvals' :
-                usersSubTab() === 'invite' ? 'Invite New Publisher' :
-                usersSubTab() === 'deleted' ? 'Archived Records' : 'All Platform Users'
-              }}</h2>
-              <div class="badge-status" *ngIf="usersSubTab() !== 'invite'">{{ filteredUsers().length }} Total</div>
-            </div>
+          <div class="user-content-wrapper">
+            <!-- Premium Unified Table Card -->
+            <div class="premium-card" *ngIf="['all', 'publishers', 'readers', 'deleted'].includes(usersSubTab())">
+              <div class="card-header">
+                <h3 class="tab-header-title">
+                  {{ usersSubTab() === 'publishers' ? 'Publisher Management (Active & Pending)' : (usersSubTab() | titlecase) + ' Management' }}
+                  <span class="badge-pill">{{ (usersSubTab() === 'publishers' ? publishers() : filteredUsers()).length }} Total</span>
+                </h3>
+              </div>
 
-            <!-- Standard User/Publisher/Reader Tables -->
-            <table class="user-table" *ngIf="['all', 'publishers', 'readers', 'deleted'].includes(usersSubTab())">
-              <thead>
-                <tr>
-                  <th>Identity / Email</th>
-                  <th>Role</th>
-                  <th>{{ usersSubTab() === 'deleted' ? 'Deleted' : 'Joined' }}</th>
-                  <th *ngIf="usersSubTab() === 'publishers'">Balance</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of filteredUsers()">
-                  <td>
-                    <div class="user-cell">
-                      <div class="user-avatar" [class.publisher]="user.role === 'publisher'">
-                        {{ user.email[0].toUpperCase() }}
-                      </div>
-                      <div class="user-meta">
-                        <span class="user-name">{{ user.name || 'Anonymous' }}</span>
-                        <span class="email">{{ user.email }}</span>
-                      </div>
+              <div class="user-card-list">
+                <!-- Grid Header (Integrated) -->
+                <div class="card-header-grid">
+                  <span>Identity / Email</span>
+                  <span>Role</span>
+                  <span>Status</span>
+                  <span>Joined</span>
+                  <span style="text-align: center;">Credits</span>
+                  <span>Actions</span>
+                </div>
+
+                <!-- User Rows -->
+                <div class="user-card"
+                  *ngFor="let user of (usersSubTab() === 'publishers' ? publishers() : filteredUsers())">
+                  <!-- Identity -->
+                  <div class="user-cell">
+                    <div class="user-avatar" [class.publisher]="user.role === 'publisher'"
+                      [style.background]="user.isPending ? '#fef3c7' : ''"
+                      [style.color]="user.isPending ? '#92400e' : ''">
+                      {{ user.email[0].toUpperCase() }}
                     </div>
-                  </td>
-                  <td><span class="role-badge" [class]="user.role">{{ user.role }}</span></td>
-                  <td>{{ (user.isDeleted ? user.deletedAt : user.createdAt) | date:'mediumDate' }}</td>
-                  <td *ngIf="usersSubTab() === 'publishers'">{{ user.creditBalance }} CR</td>
-                  <td>
-                    <div class="action-buttons" *ngIf="!user.isDeleted">
-                      <button class="btn-icon" (click)="editUser(user)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    <div class="user-meta">
+                      <span class="user-name">{{ user.name || 'Anonymous' }}</span>
+                      <span class="email" [title]="user.email">{{ user.email }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Role -->
+                  <div><span class="role-badge" [class]="user.role">{{ user.role }}</span></div>
+
+                  <!-- Status -->
+                  <div>
+                    <span class="status-badge" [class.active]="user.status === 'Active'"
+                      [class.pending]="user.isPending">
+                      {{ user.status }}
+                    </span>
+                  </div>
+
+                  <!-- Joined -->
+                  <div class="user-joined-date">
+                    {{ (user.isDeleted ? user.deletedAt : user.createdAt) | date:'mediumDate' }}
+                  </div>
+
+                  <!-- Credits -->
+                  <div class="user-credits-display">
+                    {{ user.isPending ? '—' : ((user.creditBalance || 0) + ' CR') }}
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="action-buttons">
+                    <!-- Actions for Active Users -->
+                    <div class="action-card" *ngIf="!user.isDeleted && !user.isPending">
+                      <button class="btn-icon" (click)="viewDetails(user)" title="View Details">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path
+                            d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
                       </button>
-                      <button class="btn-icon danger" (click)="deleteUser(user.id)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      <button class="btn-icon" (click)="editUser(user)" title="Edit User">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                          <path d="m15 5 4 4" />
+                        </svg>
+                      </button>
+                      <button class="btn-icon danger" (click)="deleteUser(user.id)" title="Delete User">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
                       </button>
                     </div>
+
+                    <!-- Actions for Pending Requests -->
+                    <div class="action-card" *ngIf="user.isPending">
+                      <button class="btn-icon" (click)="viewDetails(user)" title="View Detailed Info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path
+                            d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      </button>
+                      <button class="btn-approve-sm" (click)="approveRequest(user.id)" title="Approve Publisher">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                        Approve
+                      </button>
+                      <button class="btn-reject-sm" (click)="rejectRequest(user.id)" title="Reject Registration">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M18 6 6 18" />
+                          <path d="m6 6 12 12" />
+                        </svg>
+                        Reject
+                      </button>
+                    </div>
+
+                    <!-- Restore Action for Deleted -->
                     <button class="btn-restore-sm" *ngIf="user.isDeleted" (click)="restoreUser(user.id)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                        <path d="M21 3v5h-5" />
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                        <path d="M3 21v-5h5" />
+                      </svg>
                       Restore
                     </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- Pending Approvals -->
-            <div *ngIf="usersSubTab() === 'approval'">
-              <table class="user-table">
-                <thead>
-                  <tr>
-                    <th>Identity / Email</th>
-                    <th>Role</th>
-                    <th>Joined</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let req of pendingRequests()">
-                    <td>
-                      <div class="user-cell">
-                        <div class="user-avatar" style="background: #eef2ff; color: #6366f1;">
-                          {{ (req.publisherName || req.orgName || '?').split(' ').filter(n => n).map(n => n[0]).join('').toUpperCase().slice(0, 2) }}
-                        </div>
-                        <div class="user-meta">
-                          <span class="user-name">{{ req.publisherName || req.orgName }}</span>
-                          <span class="email">{{ req.email }}</span>
-                          <span class="org-name" *ngIf="req.publisherName && req.orgName" style="font-size: 0.75rem; color: #94a3b8;">{{ req.orgName }}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="role-badge publisher">publisher</span></td>
-                    <td>{{ req.createdAt | date:'mediumDate' }}</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-primary-sm btn-approve-sm" (click)="approveRequest(req.id)">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                          Approve
-                        </button>
-                        <button class="btn-primary-sm btn-reject-sm" (click)="rejectRequest(req.id)">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                          Reject
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <p *ngIf="pendingRequests().length === 0" class="description" style="text-align: center; padding: 2rem;">No pending publisher registrations found.</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
+            <div style="display: none"></div>
             <!-- Invite Tool -->
             <div *ngIf="usersSubTab() === 'invite'" style="padding: 1rem 0;">
-              <p class="description" style="margin-bottom: 2rem;">Generate a unique registration link to invite a new publisher to the platform.</p>
+              <p class="description" style="margin-bottom: 2rem;">Generate a unique registration link to invite a new
+                publisher to the platform.</p>
               <div class="invite-form">
                 <input type="email" [(ngModel)]="inviteEmail" placeholder="Enter publisher email address...">
                 <button class="btn-primary" (click)="sendInvite()">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
                   Generate Invitation
                 </button>
               </div>
-              <div *ngIf="lastInviteLink()" class="invite-result" style="margin-top: 2rem; padding: 1.5rem; background: #f8fafc; border: 1px dashed #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <div *ngIf="lastInviteLink()" class="invite-result"
+                style="margin-top: 2rem; padding: 1.5rem; background: #f8fafc; border: 1px dashed #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
                 <code style="color: #6366f1; font-weight: 600;">{{ lastInviteLink() }}</code>
                 <button class="btn-restore-sm">Copy Link</button>
               </div>
@@ -307,8 +344,77 @@
         </div>
       </div>
 
+      <!-- Audit Logs Tab -->
+      <div *ngIf="activeTab() === 'audit'" class="animate-fade-in">
+        <div class="audit-log-container">
+          <div class="table-header">
+            <div class="header-info">
+              <p class="subtitle">Track administrative actions and security-sensitive events across the platform.</p>
+            </div>
+            <button class="btn-primary" (click)="loadAuditLogs()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+              </svg>
+              Refresh Logs
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table class="admin-table audit-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>User / Resource</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let log of auditLogs()">
+                  <td class="timestamp-cell">
+                    <span class="date">{{ log.createdAt | date:'mediumDate' }}</span>
+                    <span class="time">{{ log.createdAt | date:'shortTime' }}</span>
+                  </td>
+                  <td>
+                    <span class="action-badge" [class]="log.action.toLowerCase()">
+                      <svg *ngIf="log.action.includes('LOGIN')" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                      <svg *ngIf="log.action.includes('ACCESS')" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      {{ log.action.replace('_', ' ') }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="resource-info">
+                      <span class="type">{{ log.resourceType }}</span>
+                      <span class="id" [title]="log.resourceId">{{ log.resourceId ? (log.resourceId.slice(0, 8) + '...') : 'N/A' }}</span>
+                    </div>
+                  </td>
+                  <td class="metadata-cell">
+                    <div class="metadata-preview" *ngIf="log.metadata">
+                      <div *ngFor="let item of log.metadata | keyvalue | slice:0:3" class="metadata-item">
+                        <span class="meta-label">{{ item.key }}:</span> 
+                        <span [title]="item.value">{{ item.value.toString().length > 20 ? (item.value.toString().slice(0, 20) + '...') : item.value }}</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="auditLogs().length === 0">
+                  <td colspan="4" class="empty-state" style="padding: 4rem; text-align: center; color: var(--text-muted);">
+                    <div class="empty-icon" style="margin-bottom: 1rem; opacity: 0.3;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    No audit logs found. Perform actions to see them logged here.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
+
 
   <!-- Edit User Modal -->
   <div class="modal-overlay" *ngIf="editingUser()" (click)="cancelEdit()">
@@ -337,11 +443,20 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="cancelEdit()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
           Cancel
         </button>
         <button class="btn-primary" (click)="saveUser()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
           Save Changes
         </button>
       </div>

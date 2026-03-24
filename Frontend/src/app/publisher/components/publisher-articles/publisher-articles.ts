@@ -1,19 +1,20 @@
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { SafeHtmlPipe } from '../../../pipes/safe-html.pipe';
+import { ToastService } from '../../../services/toast.service';
 import { SocketService } from '../../../services/socket.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-publisher-articles',
   standalone: true,
-  imports: [CommonModule, SafeHtmlPipe],
+  imports: [CommonModule],
   templateUrl: './publisher-articles.html',
   styleUrl: './publisher-articles.css'
 })
 export class PublisherArticlesComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
+  private toast = inject(ToastService);
   private socketService = inject(SocketService);
   private syncSubscription?: Subscription;
   
@@ -85,7 +86,7 @@ export class PublisherArticlesComponent implements OnInit, OnDestroy {
     const baseUrl = 'http://localhost:3000/publisher';
     this.http.post(`${baseUrl}/sync`, {}).subscribe({
       next: (res: any) => {
-        if (!silent) alert(res.message);
+        if (!silent) this.toast.show(res.message);
         // Note: isSyncing is now handled by the WebSocket event for silent mode
         if (!silent) {
           // If manually triggered, we wait for the WS or let it finish
@@ -93,7 +94,7 @@ export class PublisherArticlesComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        if (!silent) alert('Sync failed. Please check your RSS feed URL in settings.');
+        if (!silent) this.toast.show('Sync failed. Please check your RSS feed URL in settings.', 'error');
         this.isSyncing.set(false);
       }
     });

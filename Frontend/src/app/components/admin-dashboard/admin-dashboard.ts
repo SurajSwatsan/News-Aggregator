@@ -2,18 +2,21 @@ import { Component, computed, signal, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/auth';
 import { Router, RouterLink, ActivatedRoute, RouterLinkActive } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from '../../services/toast.service';
+import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, TitleCasePipe, DatePipe],
   templateUrl: './admin-dashboard.html',
-  styleUrl: './admin-dashboard.css'
+  styleUrl: './admin-dashboard.scss'
 })
 export class AdminDashboardComponent implements OnInit {
   private http = inject(HttpClient);
+  private toast = inject(ToastService);
   public authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -29,6 +32,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'readers': return 'Reader Analytics & Management';
       case 'publishers': return 'Publisher Hub';
       case 'users': return 'Platform User Management';
+      case 'audit': return 'Security & Audit Logs';
       default: return 'Unknown Admin Section';
     }
   });
@@ -45,9 +49,11 @@ export class AdminDashboardComponent implements OnInit {
   usersSubTab = signal('all');
   allUsers = signal<any[]>([]);
   editingUser = signal<any | null>(null);
+  viewingDetails = signal<any | null>(null);
   pendingRequests = signal<any[]>([]);
   inviteEmail = signal('');
   lastInviteLink = signal<string | null>(null);
+  auditLogs = signal<any[]>([]);
 
   filteredUsers = computed(() => {
     const tab = this.usersSubTab();
@@ -57,7 +63,8 @@ export class AdminDashboardComponent implements OnInit {
       case 'publishers':
         return users.filter(u => u.role === 'publisher' && !u.isDeleted);
       case 'readers':
-        return users.filter(u => u.role === 'reader' && !u.isDeleted);
+        // Show ALL readers (including deleted ones) as requested by the user
+        return users.filter(u => u.role === 'reader');
       case 'deleted':
         return users.filter(u => u.isDeleted);
       default:
@@ -67,12 +74,26 @@ export class AdminDashboardComponent implements OnInit {
 
   // Data helpers
   publishers = computed(() => {
-    return this.allUsers().filter(u => u.role === 'publisher' && !u.isDeleted);
+    const activeRaw = this.allUsers().filter(u => u.role === 'publisher' && !u.isDeleted);
+    const pendingRaw = this.pendingRequests().filter(p => (p.requestedRole || p.role) === 'publisher');
+
+    // Map email to pending request for quick lookup and deduplication
+    const pendingEmails = new Set(pendingRaw.map(p => p.email.toLowerCase()));
+
+    const active = activeRaw
+        .filter(u => !pendingEmails.has(u.email.toLowerCase())) // Hide active if pending exists
+        .map(u => ({ ...u, status: 'Active', isPending: false }));
+    
+    const pending = pendingRaw.map(p => ({ 
+        ...p,
+        name: p.publisherName || p.orgName || 'New Publisher',
+        isPending: true,
+        status: 'Pending Approval'
+      }));
+
+    return [...pending, ...active];
   });
 
-  readers = computed(() => {
-    return this.allUsers().filter(u => u.role === 'reader' && !u.isDeleted);
-  });
 
   ngOnInit() {
     this.route.url.subscribe(url => {
@@ -85,6 +106,9 @@ export class AdminDashboardComponent implements OnInit {
       } else if (path === 'user') {
         this.activeTab.set('users');
         this.usersSubTab.set('all');
+      } else if (path === 'audit') {
+        this.activeTab.set('audit');
+        this.loadAuditLogs();
       } else {
         this.activeTab.set('overview');
       }
@@ -117,13 +141,21 @@ export class AdminDashboardComponent implements OnInit {
     this.http.get<any[]>('http://localhost:3000/auth/users').subscribe(res => {
       console.log('[AdminHub] Received users:', res.length);
       this.allUsers.set(res);
-      this.totalReaders.set(res.length);
+      // Only count readers for the totalReaders stat, including deleted as requested by user
+      const readerCount = res.filter(u => u.role === 'reader').length;
+      this.totalReaders.set(readerCount);
     });
   }
 
   loadPendingRequests() {
     this.http.get<any[]>('http://localhost:3000/onboarding/requests').subscribe(res => {
       this.pendingRequests.set(res);
+    });
+  }
+
+  loadAuditLogs() {
+    this.http.get<any[]>('http://localhost:3000/admin/audit-logs').subscribe(res => {
+      this.auditLogs.set(res);
     });
   }
 
@@ -157,6 +189,21 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  viewDetails(data: any) {
+    if (data.isPending) {
+      // It's a pending request onboarding object
+      this.viewingDetails.set(data);
+    } else {
+      // It's a completed user - we might want to fetch their onboarding data too if needed
+      // For now just show user data
+      this.viewingDetails.set({ ...data, isUser: true });
+    }
+  }
+
+  closeDetails() {
+    this.viewingDetails.set(null);
+  }
+
   restoreUser(id: string) {
     this.http.post(`http://localhost:3000/auth/users/${id}/restore`, {}).subscribe(() => {
       this.loadUsers();
@@ -170,22 +217,32 @@ export class AdminDashboardComponent implements OnInit {
     this.http.post<any>('http://localhost:3000/onboarding/invite', { email }).subscribe(res => {
       this.lastInviteLink.set(res.inviteLink);
       this.inviteEmail.set('');
-      alert('Invite generated! Copy the link below.');
+      this.toast.show('Invite generated! Link below.');
     });
   }
 
+
   approveRequest(id: string) {
-    this.http.post<any>(`http://localhost:3000/onboarding/approve/${id}`, {}).subscribe(res => {
-      alert('Publisher Approved! Link: ' + res.activationLink);
-      this.loadPendingRequests();
-      this.loadUsers();
+    this.http.post<any>(`http://localhost:3000/onboarding/approve/${id}`, {}).subscribe({
+      next: (res) => {
+        this.toast.show('✅ ' + res.message);
+        this.viewingDetails.set(null);
+        this.loadPendingRequests();
+        this.loadUsers();
+      },
+      error: (err) => {
+        const msg = err.error?.message || 'Failed to approve publisher. Please try again.';
+        this.toast.show('❌ Error: ' + msg, 'error');
+        console.error('[AdminDashboard] Approve failed:', err);
+      }
     });
   }
 
   rejectRequest(id: string) {
     if (confirm('Are you sure you want to reject this registration?')) {
       this.http.post<any>(`http://localhost:3000/onboarding/reject/${id}`, {}).subscribe(() => {
-        alert('Publisher Rejected.');
+        this.toast.show('Publisher Rejected.', 'info');
+        this.viewingDetails.set(null);
         this.loadPendingRequests();
       });
     }

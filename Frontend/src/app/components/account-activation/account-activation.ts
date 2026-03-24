@@ -1,5 +1,6 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ToastService } from '../../services/toast.service';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +15,7 @@ import { HttpClient } from '@angular/common/http';
 export class AccountActivationComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
+  private toast = inject(ToastService);
   private router = inject(Router);
 
   token = signal<string | null>(null);
@@ -28,7 +30,7 @@ export class AccountActivationComponent implements OnInit {
 
   onSubmit() {
     if (this.password !== this.confirmPassword) {
-      alert('Passwords do not match');
+      this.toast.show('Passwords do not match', 'error');
       return;
     }
 
@@ -42,9 +44,10 @@ export class AccountActivationComponent implements OnInit {
         this.isSubmitting.set(false);
         setTimeout(() => this.router.navigate(['/login']), 3000);
       },
-      error: () => {
+      error: (err) => {
         this.isSubmitting.set(false);
-        alert('Failed to set password. The link might be expired or already used.');
+        const msg = err.error?.message || 'Failed to set password. The link might be expired or already used.';
+        this.toast.show(msg, 'error');
       }
     });
   }

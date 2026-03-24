@@ -1,35 +1,102 @@
 <div class="overview-container animate-fade">
-  <div class="metrics-grid">
-    <div *ngFor="let metric of metrics()" class="metric-card-horizontal">
-      <div class="metric-icon-bg">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path [attr.d]="metric.icon"></path>
-        </svg>
-      </div>
-      <div class="metric-info">
-        <span class="metric-label">{{ metric.label }}</span>
-        <div class="metric-value-row">
-          <span class="metric-value">{{ metric.value }}</span>
-          <span class="status-badge positive">+12%</span>
+  <!-- DASHBOARD VIEW -->
+  <ng-container *ngIf="view() === 'dashboard'">
+    <div class="metrics-grid">
+      <div *ngFor="let metric of metrics()" class="metric-card-horizontal">
+        <div class="metric-icon-bg">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path [attr.d]="metric.icon"></path>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">{{ metric.label }}</span>
+          <div class="metric-value-row">
+            <span class="metric-value">{{ metric.value }}</span>
+            <span class="status-badge positive">+12%</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Performance Overview Section -->
-  <div class="chart-section mt-6">
-    <div class="section-header">
-      <h2>Performance Overview</h2>
-      <select class="clean-select-sm">
-        <option>Last 7 Days</option>
-        <option>Last 30 Days</option>
-        <option>Last 90 Days</option>
-      </select>
-    </div>
-    <div class="chart-box">
-      <div class="placeholder-chart">
-        <p>Traffic Analytics Visualization</p>
+    <!-- Performance Overview Section -->
+    <div class="chart-section mt-6">
+      <div class="section-header">
+        <h2>Performance Overview</h2>
+        <select class="clean-select-sm">
+          <option>Last 7 Days</option>
+          <option>Last 30 Days</option>
+          <option>Last 90 Days</option>
+        </select>
+      </div>
+      <div class="chart-box">
+        <div class="placeholder-chart">
+          <p>Traffic Analytics Visualization</p>
+        </div>
       </div>
     </div>
-  </div>
+  </ng-container>
+
+  <!-- FEEDS VIEW -->
+  <ng-container *ngIf="view() === 'feeds'">
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>Manage RSS Feeds</h2>
+        <button class="btn-sync" (click)="triggerSync()" [disabled]="isSyncing()">
+          <span *ngIf="!isSyncing()">Sync All Articles</span>
+          <span *ngIf="isSyncing()">Syncing...</span>
+        </button>
+      </div>
+      
+      <div class="feed-list mt-4">
+        <div class="feed-item" *ngFor="let feed of feeds()">
+          <div class="feed-info">
+            <span class="feed-url">{{ feed.url }}</span>
+            <span class="feed-status status-active">{{ feed.status }}</span>
+          </div>
+          <p class="last-sync">Last sync: {{ feed.lastSync | date:'medium' }}</p>
+        </div>
+
+        <div *ngIf="feeds().length === 0" class="empty-state">
+          <p>No RSS feeds configured yet. Articles will not be imported automatically.</p>
+        </div>
+      </div>
+
+      <div class="add-feed-section mt-6">
+        <h3>Add New Feed</h3>
+        <div class="input-row mt-2">
+          <input type="text" [(ngModel)]="newFeedUrl" placeholder="Enter RSS Feed URL (e.g., https://example.com/rss)" class="clean-input">
+          <button class="btn-primary" (click)="addFeed()" [disabled]="isSaving() || !newFeedUrl">Add Feed</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- SETTINGS VIEW -->
+  <ng-container *ngIf="view() === 'settings'">
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>Newspaper Settings</h2>
+        <button class="btn-primary" (click)="updateSource()" [disabled]="isSaving()">
+          {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+
+      <div class="settings-form mt-4">
+        <div class="form-group">
+          <label>Newspaper Name</label>
+          <input type="text" [(ngModel)]="source().name" class="clean-input">
+        </div>
+
+        <div class="form-group mt-4">
+          <label>Homepage URL</label>
+          <input type="url" [(ngModel)]="source().url" class="clean-input">
+        </div>
+
+        <div class="form-group mt-4">
+          <label>Description</label>
+          <textarea [(ngModel)]="source().description" class="clean-textarea" rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </div>

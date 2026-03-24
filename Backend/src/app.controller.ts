@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Post, Query, Param } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -16,7 +16,15 @@ export class AppController {
   }
 
   @Get('articles')
-  async getArticles(@Query('category') category?: string) {
-    return await this.appService.getPublicArticles(category);
+  async getArticles(
+    @Query('category') category?: string,
+    @Query('q') query?: string,
+  ) {
+    return await this.appService.getPublicArticles(category, query);
+  }
+
+  @Get('articles/:id')
+  async getArticle(@Param('id') id: string) {
+    return await this.appService.getArticleById(id);
   }
 }

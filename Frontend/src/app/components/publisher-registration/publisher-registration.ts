@@ -3,17 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
+import { FloatingInputComponent } from '../common/floating-input/floating-input';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
-  selector: 'app-reader-registration',
+  selector: 'app-publisher-registration',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './reader-registration.html',
-  styleUrl: './reader-registration.css'
+  imports: [CommonModule, FormsModule, RouterLink, FloatingInputComponent],
+  templateUrl: './publisher-registration.html',
+  styleUrl: './publisher-registration.css'
 })
-export class ReaderRegistrationComponent implements OnInit {
+export class GuestPublisherRegistrationComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   email = '';
   username = '';
@@ -21,24 +24,22 @@ export class ReaderRegistrationComponent implements OnInit {
   phone = '';
   password = '';
   
-  // Role selection
-  role = signal<'reader' | 'publisher' | 'admin'>('reader');
+  // Role is fixed for this page
+  role = signal<'publisher'>('publisher');
   
-  toggleUserRole(event: Event) {
-    const isChecked = (event.target as HTMLInputElement).checked;
-    this.role.set(isChecked ? 'publisher' : 'reader');
-  }
-  
-  // Publisher/Admin shared fields
-  publisherName = '';
+  // Publisher shared fields
+  publisherFirstName = '';
+  publisherLastName = '';
   orgName = '';
   orgWebsite = '';
   rssUrl = '';
   orgDescription = '';
   country = '';
   city = '';
-  businessDocName = signal<string | null>(null);
-  licenseDocName = signal<string | null>(null);
+  businessDoc = '';
+  newspaperLicense = '';
+  businessFileName = signal<string | null>(null);
+  licenseFileName = signal<string | null>(null);
 
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
@@ -46,6 +47,19 @@ export class ReaderRegistrationComponent implements OnInit {
 
   ngOnInit() {
     this.checkAdminExists();
+  }
+
+  onFileSelected(event: any, field: 'business' | 'license') {
+    const file = event.target.files[0];
+    if (file) {
+      if (field === 'business') {
+        this.businessFileName.set(file.name);
+        this.businessDoc = file.name;
+      } else {
+        this.licenseFileName.set(file.name);
+        this.newspaperLicense = file.name;
+      }
+    }
   }
 
   checkAdminExists() {
@@ -58,7 +72,6 @@ export class ReaderRegistrationComponent implements OnInit {
   onSubmit(event: Event) {
     event.preventDefault();
     this.errorMessage.set(null);
-
     this.isLoading.set(true);
 
     this.http.post('http://localhost:3000/auth/register', {
@@ -66,22 +79,23 @@ export class ReaderRegistrationComponent implements OnInit {
       username: this.username,
       name: this.name,
       password: this.password,
-      requestedRole: this.role(),
-      isPublisher: this.role() === 'publisher',
+      requestedRole: 'publisher',
+      isPublisher: true,
       orgName: this.orgName,
       orgWebsite: this.orgWebsite,
       rssUrl: this.rssUrl,
       orgDescription: this.orgDescription,
-      publisherName: this.publisherName,
+      publisherFirstName: this.publisherFirstName,
+      publisherLastName: this.publisherLastName,
       country: this.country,
       city: this.city,
       phone: this.phone,
-      businessDoc: this.businessDocName(),
-      newspaperLicense: this.licenseDocName()
+      businessDoc: this.businessDoc,
+      newspaperLicense: this.newspaperLicense
     }).subscribe({
       next: () => {
         this.isLoading.set(false);
-        alert('Registration successful! Please log in.');
+        this.toast.show('Publisher registration submitted! Please wait for admin approval.');
         this.router.navigate(['/login']);
       },
       error: (err) => {

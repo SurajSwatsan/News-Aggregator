@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../auth/auth';
 import { Router, ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { ProfileDropdownComponent } from '../../../components/profile-dropdown/profile-dropdown';
 
 @Component({
   selector: 'app-publisher-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterOutlet],
+  imports: [CommonModule, RouterLink, RouterOutlet, ProfileDropdownComponent],
   templateUrl: './publisher-dashboard.html',
   styleUrl: './publisher-dashboard.css'
 })
@@ -53,8 +54,8 @@ export class PublisherDashboardComponent implements OnInit {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
+
 
   toggleProfileMenu(event: Event) {
     event.stopPropagation();

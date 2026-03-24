@@ -16,18 +16,44 @@ export class AccessService {
     if (!user) return of(false);
     
     return this.http.get<any>(`${this.apiUrl}/access-logs/${user.id}/${articleId}`).pipe(
-      map(res => !!res),
-      catchError(() => of(false))
+      map(res => {
+        if (typeof res === 'object') return !!res.access;
+        return !!res;
+      }),
+      catchError((err) => {
+        console.error('Backend access check failed:', err);
+        return of(false);
+      })
     );
   }
 
   grantAccess(articleId: string) {
     const user = this.auth.currentUser();
-    if (!user) return of(null);
+    if (!user) return of(false);
 
     return this.http.post<any>(`${this.apiUrl}/access-logs`, {
       userId: user.id,
       articleId: articleId
+    }).pipe(
+      tap(() => {
+        // Force refresh user profile to securely get updated credits from database
+        this.auth.refreshProfile().subscribe();
+      }),
+      map(() => true),
+      catchError((err) => {
+        console.error('Grant access backend failed:', err);
+        return of(false);
+      })
+    );
+  }
+
+  addCredits(credits: number) {
+    const user = this.auth.currentUser();
+    if (!user) return of(null);
+
+    return this.http.post<any>(`${this.apiUrl}/auth/add-credits`, {
+      userId: user.id,
+      credits: credits
     }).pipe(
       tap(() => {
         // Refresh user profile to get updated credits

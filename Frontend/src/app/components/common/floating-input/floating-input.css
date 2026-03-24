@@ -1,0 +1,107 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.floating-group {
+  position: relative;
+  width: 100%;
+  margin-top: 10px; /* Space for label floating on top border */
+}
+
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: 1.5px solid #cbd5e1; /* Lighter border like the image */
+  border-radius: 12px;
+  padding: 0 1rem;
+  transition: all 0.2s ease-in-out;
+  min-height: 56px;
+  overflow: visible; /* Important for label to sit on border */
+}
+
+.icon-wrapper {
+  color: #94a3b8;
+  margin-right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.icon-wrapper:empty {
+    display: none;
+}
+
+input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 1rem 0;
+  width: 100%;
+  outline: none;
+}
+
+/* Dark mode support if parent has it */
+:host-context(.dark-theme) input {
+    color: #f8fafc;
+}
+
+.floating-label {
+  position: absolute;
+  left: 3.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: transparent;
+  padding: 0 4px;
+  z-index: 10;
+}
+
+/* Adjust label position if no icon is projected */
+:host:not(:has([icon])) .floating-label {
+    left: 1rem;
+}
+
+/* Floating logic: sit on the border */
+.focused .floating-label,
+.has-value .floating-label {
+  top: 0;
+  left: 12px;
+  transform: translateY(-50%) scale(0.85);
+  background: #ffffff; /* Must match parent card background to hide border */
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #8b5cf6;
+  text-transform: capitalize; /* More natural than all caps */
+}
+
+/* Focused State */
+.focused .input-container {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.08);
+}
+
+.focused .icon-wrapper {
+  color: #8b5cf6;
+}
+
+/* Custom styles for centered inputs (like OTP) */
+.floating-group:has(input[style*="text-align: center"]) .floating-label {
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.floating-group:has(input[style*="text-align: center"]).focused .floating-label,
+.floating-group:has(input[style*="text-align: center"]).has-value .floating-label {
+    top: 0 !important;
+    transform: translate(-50%, -50%) scale(0.85) !important;
+}

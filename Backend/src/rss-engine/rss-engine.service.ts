@@ -24,7 +24,6 @@ export class RSSEngineService {
   ) {}
 
   async syncRSSNews(sourceId: string): Promise<number> {
-    let newCount = 0;
     let aiConsecutiveFailures = 0;
     try {
       const source = await this.prisma.source.findUnique({ where: { id: sourceId } });
@@ -48,9 +47,9 @@ export class RSSEngineService {
 
       this.logger.log(`Syncing RSS news for ${source.name}: ${source.rssUrl}`);
       
-      let feed;
+      let feed: Parser.Output<any>;
       try {
-        feed = await this.parser.parseURL(source.rssUrl);
+        feed = await this.parser.parseURL(source.rssUrl!);
       } catch (parseError) {
         this.logger.warn(`Failed to parse stored RSS URL ${source.rssUrl}: ${parseError.message}. Attempting re-discovery...`);
         const discovered = await this.discoverRssUrl(source.homepageUrl);
@@ -74,9 +73,9 @@ export class RSSEngineService {
 
       this.logger.log(`Parsed feed for ${source.name}: ${feed.items?.length || 0} items found.`);
       
-      const articles = feed.items.map((item: Parser.Item) => {
+      const articles = await Promise.all(feed.items.map(async (item: Parser.Item) => {
         const rawCategory = (item as any).categories?.[0] || (item as any).category || '';
-        const mappedCategory = this.mapCategory(rawCategory, item.title || '', item.contentSnippet || item.content || '');
+        const mappedCategory = await this.mapCategory(rawCategory, item.title || '', item.contentSnippet || item.content || '');
         
         let guid = item.guid;
         if (guid && typeof guid === 'object') {
@@ -87,11 +86,11 @@ export class RSSEngineService {
           title: item.title,
           sourceUrl: item.link || (guid as string) || (item as any).id,
           category: mappedCategory,
-          synopsis: item.contentSnippet || item.content,
+          synopsis: this.stripHtml(item.contentSnippet || item.content || ''),
           imageUrl: this.extractImageFromItem(item),
           postedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
         };
-      });
+      }));
 
       let newCount = 0;
       for (const articleData of articles) {
@@ -109,7 +108,7 @@ export class RSSEngineService {
             if (aiConsecutiveFailures < 3) {
               const startAi = Date.now();
               const aiSummary = await this.aiService.summarize(summary);
-              if (Date.now() - startAi > 9500 || aiSummary.includes('failed')) {
+              if (Date.now() - startAi > 29500 || aiSummary.includes('failed')) {
                 aiConsecutiveFailures++;
               } else {
                 aiConsecutiveFailures = 0; // Reset on success
@@ -120,6 +119,9 @@ export class RSSEngineService {
                summary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
             }
             
+            // Find or create Cluster ID
+            const clusterId = await this.findClusterId(articleData.title || '', summary || '');
+
             await this.prisma.article.create({
               data: {
                 title: articleData.title || 'Untitled',
@@ -129,6 +131,7 @@ export class RSSEngineService {
                 category: articleData.category,
                 sourceId: source.id,
                 postedAt: articleData.postedAt || new Date(),
+                clusterId: clusterId,
               }
             });
             newCount++;
@@ -144,6 +147,69 @@ export class RSSEngineService {
       this.logger.error(`Failed to sync RSS for ${sourceId}: ${error.message}`);
       return 0;
     }
+  }
+
+  private stripHtml(html: string): string {
+    if (!html) return '';
+    try {
+      const $ = cheerio.load(html);
+      return $.text().trim().replace(/\s\s+/g, ' ');
+    } catch (e) {
+      return html.replace(/<[^>]*>?/gm, '');
+    }
+  }
+
+  private async findClusterId(title: string, synopsis: string): Promise<number> {
+    const recentTime = new Date(Date.now() - 24 * 60 * 60 * 1000); // Last 24 hours
+    
+    // 1. Get recent articles that have a clusterId
+    const recentArticles = await this.prisma.article.findMany({
+      where: {
+        postedAt: { gte: recentTime },
+        clusterId: { not: null }
+      },
+      select: {
+        id: true,
+        title: true,
+        synopsis: true,
+        clusterId: true
+      }
+    });
+
+    const words = this.getKeywords(title);
+
+    for (const recent of recentArticles) {
+      const recentWords = this.getKeywords(recent.title);
+      const overlap = words.filter(w => recentWords.includes(w)).length;
+      const ratio = overlap / Math.max(words.length, recentWords.length);
+
+      // Fast check: 40% keyword overlap triggers AI comparison
+      if (ratio > 0.4) {
+        const isSimilar = await this.aiService.areArticlesSimilar(
+          title, synopsis,
+          recent.title, recent.synopsis || ''
+        );
+
+        if (isSimilar) {
+          this.logger.log(`Article "${title}" matches existing cluster ${recent.clusterId}`);
+          return recent.clusterId!;
+        }
+      }
+    }
+
+    // 2. If no match found, generate new clusterId
+    const maxCluster = await this.prisma.article.aggregate({
+      _max: { clusterId: true }
+    });
+
+    return (maxCluster._max.clusterId || 0) + 1;
+  }
+
+  private getKeywords(text: string): string[] {
+    return text.toLowerCase()
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(w => w.length > 3);
   }
 
   private extractImageFromItem(item: any): string | null {
@@ -175,18 +241,37 @@ export class RSSEngineService {
     return $('img').attr('src') || null;
   }
 
-  private mapCategory(raw: string, title: string, content: string): string {
+  private async mapCategory(raw: string, title: string, content: string, skipAi = false): Promise<string> {
     const text = `${raw} ${title} ${content}`.toLowerCase();
-    
-    if (text.match(/tech|gadget|software|ai|internet|silicon|computing|mobile|device/)) return 'Technology';
-    if (text.match(/stock|market|finance|economy|business|corporate|startup|money|bank/)) return 'Business';
-    if (text.match(/politic|election|government|parliament|senate|white house|minister|diplomacy/)) return 'Politics';
-    if (text.match(/sport|cricket|football|olympic|tennis|stadium|match|tournament|fifa/)) return 'Sports';
-    if (text.match(/entertainment|movie|film|actor|music|hollywood|bollywood|celebrity|oscar/)) return 'Entertainment';
-    if (text.match(/health|medical|doctor|virus|vaccine|disease|science|research|study|space|nasa/)) return 'Science';
-    if (text.match(/environment|climate|nature|forest|pollution|recycle|green energy|ocean/)) return 'Environment';
-    if (text.match(/world|international|global|nation|country/)) return 'World';
-    if (text.match(/lifestyle|travel|food|cooking|fashion|luxury|style/)) return 'Lifestyle';
+
+    // 1. Try AI Categorization (Most Accurate)
+    if (!skipAi) {
+      try {
+        const categoriesList = [
+          'Technology', 'Business', 'Politics', 'Sports', 'Entertainment', 
+          'Science', 'Health', 'Sports', 'Lifestyle', 'Environment', 'World', 'Media', 'General'
+        ];
+        
+        const aiCategory = await this.aiService.categorize(title, content, categoriesList);
+        if (aiCategory && categoriesList.includes(aiCategory)) {
+          return aiCategory;
+        }
+      } catch (e) {
+        this.logger.warn(`AI Categorization failed: ${e.message}. Falling back to keyword matching.`);
+      }
+    }
+
+    // 2. Fallback to Keyword Matching (Faster)
+    if (text.match(/\b(tech|gadget|software|ai|internet|silicon|computing|mobile|device)\b/)) return 'Technology';
+    if (text.match(/\b(stock|market|finance|economy|business|corporate|startup|money|bank)\b/)) return 'Business';
+    if (text.match(/\b(politic|election|government|parliament|senate|white house|minister|diplomacy)\b/)) return 'Politics';
+    if (text.match(/\b(sport|cricket|football|olympic|tennis|stadium|match|tournament|fifa|ipl)\b/)) return 'Sports';
+    if (text.match(/\b(entertainment|movie|film|actor|music|hollywood|bollywood|celebrity|oscar)\b/)) return 'Entertainment';
+    if (text.match(/\b(health|medical|doctor|virus|vaccine|disease|science|research|study|space|nasa)\b/)) return 'Science';
+    if (text.match(/\b(environment|climate|nature|forest|pollution|recycle|green energy|ocean)\b/)) return 'Environment';
+    if (text.match(/\b(world|international|global|nation|country)\b/)) return 'World';
+    if (text.match(/\b(lifestyle|travel|food|cooking|fashion|luxury|style)\b/)) return 'Lifestyle';
+    if (text.match(/\b(media|journalism|press|newspaper|broadcast|television|radio)\b/)) return 'Media';
     
     return 'General';
   }
@@ -209,34 +294,24 @@ export class RSSEngineService {
           const url = new URL(homepageUrl);
           finalUrl = `${url.protocol}//${url.host}${rssLink.startsWith('/') ? '' : '/'}${rssLink}`;
         }
-        
-        // Verify Content-Type
-        try {
-          const head = await axios.head(finalUrl, { timeout: 5000 });
-          const contentType = head.headers['content-type'] || '';
-          if (contentType.includes('xml') || contentType.includes('rss')) return finalUrl;
-        } catch {
-          return finalUrl; // Fallback to just returning it
-        }
+        return finalUrl;
       }
 
+      // Try common paths
       const commonPaths = ['/rss', '/feed', '/rss.xml', '/index.xml', '/rss-feed'];
       for (const pathStr of commonPaths) {
         const checkUrl = `${homepageUrl.replace(/\/$/, '')}${pathStr}`;
         try {
           const res = await axios.head(checkUrl, { timeout: 5000 });
           const contentType = res.headers['content-type'] || '';
-          // Avoid HTML landing pages (common for /rss)
           if (contentType.includes('xml') || contentType.includes('rss')) {
             return checkUrl;
           }
         } catch {}
       }
-
-      return null;
     } catch (error) {
-      this.logger.error(`Discovery failed for ${homepageUrl}: ${error.message}`);
-      return null;
+      this.logger.error(`Error discovering RSS URL for ${homepageUrl}: ${error.message}`);
     }
+    return null;
   }
 }

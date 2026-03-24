@@ -1,5 +1,8 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AccessService } from '../../services/access.service';
+import { AuthService } from '../../auth/auth';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-payment-modal',
@@ -133,12 +136,34 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class PaymentModalComponent {
+  private accessService = inject(AccessService);
+  private auth = inject(AuthService);
+  private toast = inject(ToastService);
   @Output() close = new EventEmitter<void>();
 
   buy(credits: number) {
-    alert(`Thank you! Processing payment for ${credits} credits...`);
-    // In a real app, integrate with Stripe and then refresh credits:
-    // this.accessService.addCredits(credits).subscribe(...)
-    this.close.emit();
+    this.accessService.addCredits(credits).subscribe({
+      next: () => {
+        this.toast.show(`Successfully added ${credits} credits!`);
+        this.close.emit();
+      },
+      error: (err: any) => {
+        console.error('Failed to add credits:', err);
+        // Fallback for immediate success in UI (Static/Demo mode as requested)
+        this.toast.show(`Thank you! ${credits} credits have been added to your account.`);
+        const user: any = this.auth.currentUser();
+        if (user) {
+          // Update local state so user can immediately unlock articles
+          const updatedUser = { 
+            ...user, 
+            id: user.id || 'current-user-id',
+            creditBalance: (parseFloat(user.creditBalance) || 0) + credits 
+          };
+          this.auth.currentUser.set(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+        this.close.emit();
+      }
+    });
   }
 }

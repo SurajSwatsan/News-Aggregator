@@ -1,16 +1,175 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserRole, OnboardingStatus } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 
+import { MailService } from '../mail/mail.service';
+
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
+    private mailService: MailService,
+    private auditLogs: AuditLogsService,
   ) { }
+
+  async requestOtp(email: string, name?: string, username?: string, password?: string) {
+    const data = { email, name, username, password };
+    // 1. Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // 2. Try to find user or pending onboarding
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    
+    if (user) {
+      await (this.prisma.user as any).update({
+        where: { id: user.id },
+        data: { otp, otpExpiresAt: expiresAt }
+      });
+    } else {
+      // Check if there's a pending onboarding, or create a temporary one for registration
+      const onboarding = await this.prisma.publisherOnboarding.findFirst({
+        where: { email, status: { not: OnboardingStatus.completed } }
+      });
+
+      if (onboarding) {
+        await this.prisma.publisherOnboarding.update({
+          where: { id: onboarding.id },
+          data: { 
+            otp, 
+            otpExpiresAt: expiresAt,
+            publisherFirstName: name || onboarding.publisherFirstName,
+            username: username || onboarding.username,
+            passwordHash: data.password ? await bcrypt.hash(data.password, 10) : onboarding.passwordHash
+          }
+        });
+      } else {
+      // Create a basic onboarding record for this new email
+      const hashedPassword = data.password ? await bcrypt.hash(data.password, 10) : null;
+      await this.prisma.publisherOnboarding.create({
+        data: {
+          token: crypto.randomUUID(),
+          email,
+          otp,
+          otpExpiresAt: expiresAt,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
+          status: OnboardingStatus.pending,
+          requestedRole: UserRole.reader,
+          publisherFirstName: name,
+          username: username,
+          passwordHash: hashedPassword
+        }
+      });
+      }
+    }
+
+    // 3. Send via email
+    await this.mailService.sendOtp(email, otp);
+    return { message: 'OTP sent successfully' };
+  }
+
+  async verifyOtp(email: string, code: string) {
+    // 1. Check User table
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (user && (user as any).otp === code) {
+      const now = new Date();
+      if ((user as any).otpExpiresAt && (user as any).otpExpiresAt > now) {
+        // Auto-restore if user was deleted
+        const updateData: any = { otp: null, otpExpiresAt: null };
+        if ((user as any).isDeleted) {
+          updateData.isDeleted = false;
+          updateData.deletedAt = null;
+        }
+
+        const updatedUser = await (this.prisma.user as any).update({
+          where: { id: user.id },
+          data: updateData
+        });
+
+        await this.auditLogs.createLog({
+          userId: updatedUser.id,
+          action: 'LOGIN_RESTORED',
+          resourceType: 'USER',
+          resourceId: updatedUser.id,
+          metadata: { email: updatedUser.email, reason: 'OTP verification after soft delete' }
+        });
+
+        await this.auditLogs.createLog({
+          userId: updatedUser.id,
+          action: 'LOGIN_SUCCESS',
+          resourceType: 'USER',
+          resourceId: updatedUser.id,
+          metadata: { email: updatedUser.email, role: updatedUser.role }
+        });
+
+        return { user: updatedUser, type: 'login' };
+      }
+      throw new UnauthorizedException('OTP expired');
+    }
+
+    // 2. Check Onboarding table
+    const onboarding = await this.prisma.publisherOnboarding.findFirst({
+      where: { email, otp: code, status: { not: OnboardingStatus.completed } }
+    });
+
+    if (onboarding) {
+      const now = new Date();
+      if (onboarding.otpExpiresAt && onboarding.otpExpiresAt > now) {
+        // For new readers, we can auto-create the account upon OTP verification if it's a simple flow
+        if (onboarding.requestedRole === UserRole.reader) {
+          let baseUsername = onboarding.username || email.split('@')[0];
+          let finalUsername = baseUsername;
+          let counter = 1;
+
+          // Ensure unique username
+          while (await this.prisma.user.findUnique({ where: { username: finalUsername } })) {
+            finalUsername = `${baseUsername}${counter++}`;
+          }
+
+          const newUser = await this.prisma.user.create({
+            data: {
+              email: onboarding.email,
+              username: finalUsername,
+              name: onboarding.publisherFirstName ? `${onboarding.publisherFirstName} ${onboarding.publisherLastName || ''}`.trim() : (onboarding.orgName || null),
+              role: UserRole.reader,
+              passwordHash: onboarding.passwordHash || 'OTP_USER', 
+              creditBalance: 10
+            }
+          });
+          await this.prisma.publisherOnboarding.update({
+            where: { id: onboarding.id },
+            data: { status: OnboardingStatus.completed, otp: null, otpExpiresAt: null }
+          });
+          await this.auditLogs.createLog({
+            userId: newUser.id,
+            action: 'READER_REGISTERED',
+            resourceType: 'USER',
+            resourceId: newUser.id,
+            metadata: { email: newUser.email, source: 'OTP_REGISTER' }
+          });
+
+          return { user: newUser, type: 'register' };
+        }
+        
+        // For publishers, we just verify and keep them in onboarding
+        await this.auditLogs.createLog({
+          action: 'PUBLISHER_OTP_VERIFIED',
+          resourceType: 'ONBOARDING',
+          resourceId: onboarding.id,
+          metadata: { email: onboarding.email }
+        });
+        return { onboarding, type: 'onboarding_verified' };
+      }
+      throw new UnauthorizedException('OTP expired');
+    }
+
+    throw new UnauthorizedException('Invalid OTP');
+  }
 
   async registerSuperAdmin(data: any) {
     const { email, password, secret } = data;
@@ -49,7 +208,8 @@ export class AuthService {
       orgWebsite,
       rssUrl,
       orgDescription,
-      publisherName,
+      publisherFirstName,
+      publisherLastName,
       country,
       city,
       phone,
@@ -92,16 +252,26 @@ export class AuthService {
         orgWebsite,
         rssUrl,
         orgDescription,
-        publisherName,
+        publisherFirstName,
+        publisherLastName,
         country,
         city,
         phone,
         businessDoc,
         newspaperLicense,
         requestedRole,
+        username,
+        passwordHash: hashedPassword,
         status: OnboardingStatus.registered,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
+    });
+
+    await this.auditLogs.createLog({
+      action: 'REGISTRATION_SUBMITTED',
+      resourceType: 'ONBOARDING',
+      resourceId: email,
+      metadata: { email, requestedRole }
     });
 
     return {
@@ -148,7 +318,7 @@ export class AuthService {
       UNION ALL
       
       SELECT 
-        id, email, publisher_name as name, 
+        id, email, TRIM(CONCAT(publisher_first_name, ' ', publisher_last_name)) as name, 
         org_name as "orgName", 
         org_website as "orgWebsite", 
         phone, city, country, 
@@ -170,13 +340,31 @@ export class AuthService {
 
   async validateUser(email: string, pass: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (user && (user as any).isDeleted) {
-      throw new UnauthorizedException('Account has been deleted');
+    if (!user) return null;
+
+    const passwordMatch = await bcrypt.compare(pass, user.passwordHash);
+    if (!passwordMatch) return null;
+
+    // If account was deleted, restore it upon successful password login
+    if ((user as any).isDeleted) {
+      return await (this.prisma.user as any).update({
+        where: { id: user.id },
+        data: {
+          isDeleted: false,
+          deletedAt: null,
+        },
+      });
     }
-    if (user && await bcrypt.compare(pass, user.passwordHash)) {
-      return user;
-    }
-    return null;
+
+    await this.auditLogs.createLog({
+      userId: user.id,
+      action: 'LOGIN_SUCCESS',
+      resourceType: 'USER',
+      resourceId: user.id,
+      metadata: { email: user.email }
+    });
+
+    return user;
   }
 
   async updateUser(id: string, data: any) {
@@ -195,7 +383,7 @@ export class AuthService {
         return await this.prisma.publisherOnboarding.update({
           where: { id } as any,
           data: {
-            publisherName: data.name,
+            publisherFirstName: data.name,
             requestedRole: data.role as any,
           }
         });
@@ -206,13 +394,22 @@ export class AuthService {
 
   async softDeleteUser(id: string) {
     try {
-      return await (this.prisma.user as any).update({
+      const result = await (this.prisma.user as any).update({
         where: { id: id as any },
         data: {
           isDeleted: true,
           deletedAt: new Date(),
         },
       });
+
+      await this.auditLogs.createLog({
+        action: 'USER_DELETED',
+        resourceType: 'USER',
+        resourceId: id,
+        metadata: { userId: id }
+      });
+
+      return result;
     } catch (e: any) {
       if (e.code === 'P2025') {
         // Simply remove the onboarding request if it's not a user yet
@@ -225,12 +422,39 @@ export class AuthService {
   }
 
   async restoreUser(id: string) {
-    return await (this.prisma.user as any).update({
+    const result = await (this.prisma.user as any).update({
       where: { id: id as any },
       data: {
         isDeleted: false,
         deletedAt: null,
       },
     });
+
+    await this.auditLogs.createLog({
+      action: 'USER_RESTORED',
+      resourceType: 'USER',
+      resourceId: id,
+      metadata: { userId: id }
+    });
+
+    return result;
+  }
+  async addCredits(userId: string, credits: number) {
+    console.log(`Attempting to add ${credits} credits to user ${userId}`);
+    try {
+      const result = await (this.prisma.user as any).update({
+        where: { id: userId },
+        data: {
+          creditBalance: {
+            increment: credits
+          }
+        }
+      });
+      console.log('Credits added successfully:', result.id);
+      return result;
+    } catch (error) {
+      console.error('Error in addCredits:', error);
+      throw error;
+    }
   }
 }
