@@ -77,26 +77,28 @@
     </div>
   </nav>
 
-  <div class="full-width-search">
-    <div class="search-inner">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" class="search-icon-large">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Search for stories, topics, or authors...">
-      <button class="search-submit" (click)="onSearch()">SEARCH</button>
+  <div class="sticky-nav-wrapper">
+    <div class="full-width-search">
+      <div class="search-inner">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" class="search-icon-large">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Search for stories, topics, or authors...">
+        <button class="search-submit" (click)="onSearch()">SEARCH</button>
+      </div>
     </div>
+  
+    <nav class="category-strip">
+      <div class="tabs-wrapper">
+        @for (cat of categories; track cat) {
+        <button class="category-tab" [class.active]="selectedCategory() === cat" (click)="selectCategory(cat)">
+          <span class="tab-text">{{ cat === 'All' ? 'HOME' : cat | uppercase }}</span>
+          <div class="tab-indicator"></div>
+        </button>
+        }
+      </div>
+    </nav>
   </div>
-
-  <nav class="category-strip">
-    <div class="tabs-wrapper">
-      @for (cat of categories; track cat) {
-      <button class="category-tab" [class.active]="selectedCategory() === cat" (click)="selectCategory(cat)">
-        <span class="tab-text">{{ cat === 'All' ? 'HOME' : cat | uppercase }}</span>
-        <div class="tab-indicator"></div>
-      </button>
-      }
-    </div>
-  </nav>
 
   <main class="feed-layout">
     @if (isLoading()) {
@@ -105,81 +107,83 @@
       <p>Curating your global news feed...</p>
     </div>
     } @else {
-      <!-- Hero Section -->
-      @if (selectedCategory() === 'All' && featuredArticle()) {
-      <div class="hero-grid">
-        <div class="hero-featured" [style.background-image]="'url(' + (featuredArticle().imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000') + ')'">
-          <div class="hero-overlay"></div>
-          <div class="hero-content">
-            <span class="hero-tag">FEATURED</span>
-            <h2 class="hero-title">{{ featuredArticle().title }}</h2>
-            <p class="hero-synopsis" [innerHTML]="hasSynopsisText(featuredArticle().synopsis) ? (featuredArticle().synopsis | safeHtml) : 'Featured story: full coverage available below.'"></p>
-            <button (click)="handleArticleAccess(featuredArticle())" class="btn-hero">Full Story</button>
-          </div>
-        </div>
-        <div class="hero-secondary">
-          @for (article of heroArticles(); track article.id) {
-          <article class="secondary-item">
-            <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
-                 alt="" (error)="handleImageError($event)">
-            <div class="secondary-content">
-              <span class="secondary-category">{{ article.category || 'General' }}</span>
-              <h3 class="secondary-title">{{ article.title }}</h3>
-            </div>
-            <button (click)="handleArticleAccess(article)" class="clickable-overlay"></button>
-          </article>
-          }
-        </div>
-      </div>
-      }
-
-      <div class="main-content-area">
-        <div class="news-list">
-          <div class="section-header">
-            <h3>Latest Headlines</h3>
-            <span class="count-badge">{{ (articles() || []).length }} Articles</span>
-          </div>
-          
-          <div class="news-grid">
-            @for (article of articles(); track article.id) {
-            <article class="premium-card">
-              <div class="card-image-wrap">
-                <div class="image-overlay"></div>
-                <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
-                  alt="" (error)="handleImageError($event)">
-                <span class="source-tag">{{ article.source?.name }}</span>
-                @if (article.source?.name === 'HT MEDIA LTD') {
-                  <div class="source-logo-mini">
-                    <img src="https://hindustantimes.com/favicon.ico" alt="" class="mini-logo-img" (error)="handleImageError($event)">
-                  </div>
-                }
+      <div class="layout-grid">
+        <div class="main-body-column">
+          <!-- Hero Section -->
+          @if (selectedCategory() === 'All' && featuredArticle()) {
+          <div class="hero-grid">
+            <div class="hero-featured" [style.background-image]="'url(' + (featuredArticle().imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000') + ')'">
+              <div class="hero-overlay"></div>
+              <div class="hero-content">
+                <span class="hero-tag">FEATURED</span>
+                <h2 class="hero-title">{{ featuredArticle().title }}</h2>
+                <p class="hero-synopsis" [innerHTML]="hasSynopsisText(featuredArticle().synopsis) ? (featuredArticle().synopsis | safeHtml) : 'Featured story: full coverage available below.'"></p>
+                <button (click)="handleArticleAccess(featuredArticle())" class="btn-hero">Full Story</button>
               </div>
-      
-              <div class="card-body">
-                <div class="card-header-meta">
-                  <span class="card-category">{{ article.category || 'General' }}</span>
-                  <span class="card-date">{{ formatDate(article.postedAt) }}</span>
+            </div>
+            <div class="hero-secondary">
+              @for (article of heroArticles(); track article.id) {
+              <article class="secondary-item">
+                <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
+                     alt="" (error)="handleImageError($event)">
+                <div class="secondary-content">
+                  <span class="secondary-category">{{ article.category || 'General' }}</span>
+                  <h3 class="secondary-title">{{ article.title }}</h3>
                 </div>
-                <h3 class="card-title">{{ article.title }}</h3>
-                <p class="card-synopsis" [innerHTML]="hasSynopsisText(article.synopsis) ? (article.synopsis | safeHtml) : 'No synopsis available.'"></p>
-      
-                <footer class="card-action">
-                  <button (click)="handleArticleAccess(article)" class="btn-read">
-                    Read Story
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </footer>
-              </div>
-            </article>
-            } @empty {
-            <div class="empty-feed">
-              <div class="empty-icon">📂</div>
-              <h3>No Articles Found</h3>
-              <p>Try switching categories or check back later.</p>
+                <button (click)="handleArticleAccess(article)" class="clickable-overlay"></button>
+              </article>
+              }
             </div>
-            }
+          </div>
+          }
+
+          <div class="news-list-section">
+            <div class="section-header">
+              <h3>Latest Headlines</h3>
+              <span class="count-badge">{{ (articles() || []).length }} Articles</span>
+            </div>
+            
+            <div class="news-grid">
+              @for (article of articles(); track article.id) {
+              <article class="premium-card">
+                <div class="card-image-wrap">
+                  <div class="image-overlay"></div>
+                  <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
+                    alt="" (error)="handleImageError($event)">
+                  <span class="source-tag">{{ article.source?.name }}</span>
+                  @if (article.source?.name === 'HT MEDIA LTD') {
+                    <div class="source-logo-mini">
+                      <img src="https://hindustantimes.com/favicon.ico" alt="" class="mini-logo-img" (error)="handleImageError($event)">
+                    </div>
+                  }
+                </div>
+        
+                <div class="card-body">
+                  <div class="card-header-meta">
+                    <span class="card-category">{{ article.category || 'General' }}</span>
+                    <span class="card-date">{{ formatDate(article.postedAt) }}</span>
+                  </div>
+                  <h3 class="card-title">{{ article.title }}</h3>
+                  <p class="card-synopsis" [innerHTML]="hasSynopsisText(article.synopsis) ? (article.synopsis | safeHtml) : 'No synopsis available.'"></p>
+        
+                  <footer class="card-action">
+                    <button (click)="handleArticleAccess(article)" class="btn-read">
+                      Read Story
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </footer>
+                </div>
+              </article>
+              } @empty {
+              <div class="empty-feed">
+                <div class="empty-icon">📂</div>
+                <h3>No Articles Found</h3>
+                <p>Try switching categories or check back later.</p>
+              </div>
+              }
+            </div>
           </div>
         </div>
 
