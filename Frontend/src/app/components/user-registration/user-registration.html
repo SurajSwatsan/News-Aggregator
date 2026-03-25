@@ -25,66 +25,115 @@
             }
 
             @if (step() === 1) {
-            <form (submit)="onSubmit($event)" class="register-form">
+            <form [formGroup]="registerForm" (submit)="onSubmit($event)" class="register-form">
                 <div class="form-grid">
-                    <app-floating-input label="E-mail Address" type="email" id="email" name="email" [(ngModel)]="email"
-                        [required]="true" autocomplete="off" class="full-width">
-                    </app-floating-input>
-
-                    <!-- Basic Info -->
-                    <!-- Basic Info -->
-                        <app-floating-input [label]="registrationType() === 'user' ? '1st Name' : '1st Name'" type="text"
-                            id="name" name="name" [(ngModel)]="name" [required]="true">
+                    <div class="field-wrapper full-width">
+                        <app-floating-input label="E-mail Address" type="email" id="email" formControlName="email"
+                            [isInvalid]="isFieldInvalid('email')" [required]="true" autocomplete="off" class="full-width">
                         </app-floating-input>
+                        @if (isFieldInvalid('email')) {
+                            <div class="field-error">
+                                @if (registerForm.get('email')?.errors?.['required']) { <span>Email is required.</span> }
+                                @if (registerForm.get('email')?.errors?.['email']) { <span>Please enter a valid email format.</span> }
+                            </div>
+                        }
+                    </div>
 
-                    <app-floating-input [label]="registrationType() === 'user' ? 'Last Name' : 'Last Name'" type="text"
-                        id="username" name="username" [(ngModel)]="username">
-                    </app-floating-input>
+                    <!-- Basic Info -->
+                    <div class="field-wrapper">
+                        <app-floating-input [label]="'First Name'" type="text"
+                            id="firstName" formControlName="firstName" [isInvalid]="isFieldInvalid('firstName')" [required]="true">
+                        </app-floating-input>
+                        @if (isFieldInvalid('firstName')) {
+                            <div class="field-error">
+                                @if (registerForm.get('firstName')?.errors?.['required']) { <span>First name is required.</span> }
+                                @if (registerForm.get('firstName')?.errors?.['minlength']) { <span>Minimum 2 characters required.</span> }
+                                @if (registerForm.get('firstName')?.errors?.['alphabetOnly']) { <span>Only alphabets allowed.</span> }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="field-wrapper">
+                        <app-floating-input [label]="'Last Name'" type="text"
+                            id="lastName" formControlName="lastName" [isInvalid]="isFieldInvalid('lastName')" [required]="true">
+                        </app-floating-input>
+                        @if (isFieldInvalid('lastName')) {
+                            <div class="field-error">
+                                @if (registerForm.get('lastName')?.errors?.['required']) { <span>Last name is required.</span> }
+                                @if (registerForm.get('lastName')?.errors?.['minlength']) { <span>Minimum 2 characters required.</span> }
+                                @if (registerForm.get('lastName')?.errors?.['alphabetOnly']) { <span>Only alphabets allowed.</span> }
+                            </div>
+                        }
+                    </div>
 
                     @if (registrationType() === 'user') {
-                        <app-floating-input label="Password" type="password" name="password" [(ngModel)]="password"
-                            [required]="true">
-                        </app-floating-input>
+                        <div class="field-wrapper">
+                            <app-floating-input label="Password" type="password" formControlName="password" [isInvalid]="isFieldInvalid('password')" [required]="true">
+                            </app-floating-input>
+                            @if (isFieldInvalid('password')) {
+                                <div class="field-error">
+                                    @if (registerForm.get('password')?.errors?.['required']) { <span>Password is required.</span> }
+                                    @if (registerForm.get('password')?.errors?.['minlength'] && !registerForm.get('password')?.errors?.['required']) { <span>Password must be at least 6 characters.</span> }
+                                    @if (registerForm.get('password')?.errors?.['passwordComplexity'] && !registerForm.get('password')?.errors?.['required']) { <span>Must include uppercase, lowercase, and a number.</span> }
+                                </div>
+                            }
+                        </div>
 
-                        <app-floating-input label="Confirm Password" type="password" name="confirmPassword"
-                            [(ngModel)]="confirmPassword" [required]="true">
-                        </app-floating-input>
+                        <div class="field-wrapper">
+                            <app-floating-input label="Confirm Password" type="password" formControlName="confirmPassword" [isInvalid]="isFieldInvalid('confirmPassword') || (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched)" [required]="true">
+                            </app-floating-input>
+                            @if (isFieldInvalid('confirmPassword') || (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched)) {
+                                <div class="field-error">
+                                    @if (registerForm.get('confirmPassword')?.errors?.['required']) { <span>Please confirm your password.</span> }
+                                    @if (registerForm.errors?.['passwordMismatch'] && !registerForm.get('confirmPassword')?.errors?.['required']) { <span>Passwords do not match.</span> }
+                                </div>
+                            }
+                        </div>
                     }
 
                     @if (registrationType() === 'publisher') {
                     <!-- Publisher Fields -->
                     <div class="section-divider">Organization Details</div>
 
-                    <app-floating-input label="Legal Company Name" type="text" name="orgName" [(ngModel)]="orgName"
-                        [required]="true">
-                    </app-floating-input>
+                    <div class="field-wrapper">
+                        <app-floating-input label="Legal Company Name" type="text" formControlName="orgName" [isInvalid]="isFieldInvalid('orgName')" [required]="true">
+                        </app-floating-input>
+                        @if (isFieldInvalid('orgName')) { <div class="field-error"><span>Company name is required.</span></div> }
+                    </div>
 
-                    <app-floating-input label="Official Website" type="url" name="orgWebsite" [(ngModel)]="orgWebsite"
-                        [required]="true">
-                    </app-floating-input>
+                    <div class="field-wrapper">
+                        <app-floating-input label="Official Website" type="url" formControlName="orgWebsite" [isInvalid]="isFieldInvalid('orgWebsite')" [required]="true">
+                        </app-floating-input>
+                        @if (isFieldInvalid('orgWebsite')) { <div class="field-error"><span>Website is required.</span></div> }
+                    </div>
 
-                    <app-floating-input label="RSS Feed URL (Optional)" type="url" name="rssUrl" [(ngModel)]="rssUrl"
-                        class="full-width">
-                    </app-floating-input>
+                    <div class="field-wrapper full-width">
+                        <app-floating-input label="RSS Feed URL (Optional)" type="url" formControlName="rssUrl" class="full-width">
+                        </app-floating-input>
+                    </div>
 
-                    <app-floating-input label="Company Country" type="text" name="country" [(ngModel)]="country"
-                        [required]="true">
-                    </app-floating-input>
+                    <div class="field-wrapper">
+                        <app-floating-input label="Company Country" type="text" formControlName="country" [isInvalid]="isFieldInvalid('country')" [required]="true">
+                        </app-floating-input>
+                        @if (isFieldInvalid('country')) { <div class="field-error"><span>Country is required.</span></div> }
+                    </div>
 
-                    <app-floating-input label="Headquarters City" type="text" name="city" [(ngModel)]="city"
-                        [required]="true">
-                    </app-floating-input>
+                    <div class="field-wrapper">
+                        <app-floating-input label="Headquarters City" type="text" formControlName="city" [isInvalid]="isFieldInvalid('city')" [required]="true">
+                        </app-floating-input>
+                        @if (isFieldInvalid('city')) { <div class="field-error"><span>City is required.</span></div> }
+                    </div>
 
-                    <app-floating-input label="Business Phone Number" type="tel" name="phone" [(ngModel)]="phone"
-                        [required]="true" class="full-width">
-                    </app-floating-input>
+                    <div class="field-wrapper full-width">
+                        <app-floating-input label="Business Phone Number" type="tel" formControlName="phone" [isInvalid]="isFieldInvalid('phone')" [required]="true" class="full-width">
+                        </app-floating-input>
+                        @if (isFieldInvalid('phone')) { <div class="field-error"><span>Phone number is required.</span></div> }
+                    </div>
 
                     <div class="input-group full-width">
                         <div class="premium-upload" (click)="businessFileInput.click()">
                             <div class="upload-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                     <polyline points="14 2 14 8 20 8"></polyline>
                                     <line x1="12" y1="18" x2="12" y2="12"></line>
@@ -93,20 +142,22 @@
                             </div>
                             <div class="upload-info">
                                 <h4>Business Registration Doc</h4>
-                                <p>{{ businessFileName() ? businessFileName() : 'Click to upload PDF or Image' }}</p>
+                                <p>{{ businessFileName() || 'Click to upload PDF or Image' }}</p>
                             </div>
-                            <input type="file" #businessFileInput (change)="onFileSelected($event, 'business')"
-                                style="display: none">
+                            <input type="file" #businessFileInput (change)="onFileSelected($event, 'business')" style="display: none">
                         </div>
                     </div>
 
-                    <app-floating-input label="Newspaper License Number" type="text" name="newspaperLicense"
-                        [(ngModel)]="newspaperLicense" [required]="true" class="full-width">
-                    </app-floating-input>
-                    @}
+                    <div class="field-wrapper full-width">
+                        <app-floating-input label="Newspaper License Number" type="text" formControlName="newspaperLicense"
+                            [isInvalid]="isFieldInvalid('newspaperLicense')" [required]="true" class="full-width">
+                        </app-floating-input>
+                        @if (isFieldInvalid('newspaperLicense')) { <div class="field-error"><span>License Number is required.</span></div> }
+                    </div>
+                    }
                 </div>
 
-                <button type="submit" class="btn-primary" [disabled]="isLoading() || !email || !name || (registrationType() === 'user' && !password)">
+                <button type="submit" class="btn-primary" [disabled]="isLoading() || registerForm.invalid">
                     <span>{{ isLoading() ? 'Processing...' : (registrationType() === 'user' ? 'Register Now' : 'Submit
                         Application') }}</span>
                     @if (!isLoading()) {
@@ -149,8 +200,8 @@
 
         <div class="image-side">
             <div class="illustration-box">
-                <img [src]="registrationType() === 'user' ? 'registration-illustration.png' : 'publisher-illustration.png'"
-                    [alt]="registrationType() === 'user' ? 'Reader Illustration' : 'Publisher Illustration'"
+                <img [src]="registrationType() === 'user' ? 'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80' : 'https://images.unsplash.com/photo-1495020689067-958852a7765e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'"
+                    [alt]="registrationType() === 'user' ? 'Digital News Reader' : 'News Publisher Content'"
                     class="register-illustration">
                 <div class="quote-box">
                     <h3>{{ registrationType() === 'user' ? 'Stay Ahead of the Curve' : 'Empower Your Voice' }}</h3>

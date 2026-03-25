@@ -17,30 +17,46 @@
       }
 
       @if (step() === 1) {
-        <form (submit)="onLogin($event)" class="login-form">
-          <app-floating-input
-            label="E-mail Address"
-            type="email"
-            id="email"
-            name="email"
-            [(ngModel)]="email"
-            [required]="true"
-            autocomplete="off"
-          >
-          </app-floating-input>
+        <form [formGroup]="loginForm" (submit)="onLogin($event)" class="login-form">
+          <div class="field-wrapper">
+            <app-floating-input
+              label="E-mail Address"
+              type="email"
+              id="email"
+              formControlName="email"
+              [isInvalid]="isFieldInvalid('email')"
+              [required]="true"
+              autocomplete="off"
+            >
+            </app-floating-input>
+            @if (isFieldInvalid('email')) {
+              <div class="field-error">
+                @if (loginForm.get('email')?.errors?.['required']) { <span>Email is required.</span> }
+                @if (loginForm.get('email')?.errors?.['email']) { <span>Please enter a valid email format.</span> }
+              </div>
+            }
+          </div>
 
-          <app-floating-input
-            label="Account Password"
-            type="password"
-            id="password"
-            name="password"
-            [(ngModel)]="password"
-            [required]="true"
-            autocomplete="current-password"
-          >
-          </app-floating-input>
+          <div class="field-wrapper">
+            <app-floating-input
+              label="Account Password"
+              type="password"
+              id="password"
+              formControlName="password"
+              [isInvalid]="isFieldInvalid('password')"
+              [required]="true"
+              autocomplete="current-password"
+            >
+            </app-floating-input>
+            @if (isFieldInvalid('password')) {
+              <div class="field-error">
+                @if (loginForm.get('password')?.errors?.['required']) { <span>Password is required.</span> }
+                @if (loginForm.get('password')?.errors?.['minlength']) { <span>Password must be at least 6 characters.</span> }
+              </div>
+            }
+          </div>
 
-          <button type="submit" class="btn-premium" [disabled]="isLoading() || !email || !password">
+          <button type="submit" class="btn-premium" [disabled]="isLoading() || loginForm.invalid">
             <span>{{ isLoading() ? 'Signing In...' : 'Sign In' }}</span>
             @if (!isLoading()) {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -81,7 +97,7 @@
 
     <div class="image-side">
       <div class="illustration-wrapper">
-        <img src="login-illustration.png" alt="News Reader Illustration" class="login-illustration">
+        <img src="https://images.unsplash.com/photo-1504270997636-07ddfbd48945?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="News Aggregator Content" class="login-illustration">
       </div>
     </div>
   </div>

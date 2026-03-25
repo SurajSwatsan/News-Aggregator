@@ -1,4 +1,4 @@
-<div class="floating-group" [class.focused]="isFocused()" [class.has-value]="value && value.length > 0">
+<div class="floating-group" [class.focused]="isFocused()" [class.has-value]="value && value.length > 0" [class.is-invalid]="isInvalid">
   <div class="input-container">
     <div class="icon-wrapper">
       <ng-content select="[icon]"></ng-content>
