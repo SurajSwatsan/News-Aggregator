@@ -25,6 +25,7 @@ export class FloatingInputComponent implements ControlValueAccessor {
   @Input() required = false;
   @Input() maxlength: number | null = null;
   @Input() customStyle: { [key: string]: any } = {};
+  @Input() isInvalid = false;
 
   value = '';
   isFocused = signal(false);

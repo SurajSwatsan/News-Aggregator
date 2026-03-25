@@ -1,16 +1,46 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../auth/auth';
 import { Router, RouterLink } from '@angular/router';
 import { FloatingInputComponent } from '../common/floating-input/floating-input';
 import { ToastService } from '../../services/toast.service';
 import { HttpClient } from '@angular/common/http';
 
+export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+  const password = control.get('password')?.value;
+  const confirmPassword = control.get('confirmPassword')?.value;
+  if (password && confirmPassword && password !== confirmPassword) {
+    return { passwordMismatch: true };
+  }
+  return null;
+}
+
+export function alphabetValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (value && !/^[a-zA-Z\s]*$/.test(value)) {
+    return { alphabetOnly: true };
+  }
+  return null;
+}
+
+export function passwordComplexityValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value) return null;
+  const hasUpperCase = /[A-Z]/.test(value);
+  const hasLowerCase = /[a-z]/.test(value);
+  const hasNumeric = /[0-9]/.test(value);
+  const passwordValid = hasUpperCase && hasLowerCase && hasNumeric;
+  if (!passwordValid) {
+    return { passwordComplexity: true };
+  }
+  return null;
+}
+
 @Component({
   selector: 'app-user-registration',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FloatingInputComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, FloatingInputComponent],
   templateUrl: './user-registration.html',
   styleUrl: './user-registration.css'
 })
@@ -23,26 +53,14 @@ export class UserRegistrationComponent implements OnInit {
   // Toggle between modes
   registrationType = signal<'user' | 'publisher'>('user');
 
+  registerForm: FormGroup;
+  private fb = inject(FormBuilder);
+
   // Common fields
   email = '';
-  username = '';
-  name = '';
   otp = '';
 
   // Publisher specific fields
-  phone = '';
-  password = '';
-  confirmPassword = '';
-  publisherFirstName = '';
-  publisherLastName = '';
-  orgName = '';
-  orgWebsite = '';
-  rssUrl = '';
-  orgDescription = '';
-  country = '';
-  city = '';
-  businessDoc = '';
-  newspaperLicense = '';
   businessFileName = signal<string | null>(null);
   licenseFileName = signal<string | null>(null);
 
@@ -51,6 +69,29 @@ export class UserRegistrationComponent implements OnInit {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
   adminExists = signal(false);
+
+  constructor() {
+    this.registerForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      firstName: ['', [Validators.required, Validators.minLength(2), alphabetValidator]],
+      lastName: ['', [Validators.required, Validators.minLength(2), alphabetValidator]],
+      password: ['', [Validators.required, Validators.minLength(6), passwordComplexityValidator]],
+      confirmPassword: ['', [Validators.required]],
+      // Publisher fields
+      orgName: [''],
+      orgWebsite: [''],
+      rssUrl: [''],
+      country: [''],
+      city: [''],
+      phone: [''],
+      newspaperLicense: ['']
+    }, { validators: passwordMatchValidator });
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.registerForm.get(field);
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
 
   ngOnInit() {
     this.checkAdminExists();
@@ -71,6 +112,35 @@ export class UserRegistrationComponent implements OnInit {
     this.registrationType.set(type);
     this.errorMessage.set(null);
     this.step.set(1);
+    
+    // Dynamically update validators based on role
+    const isPublisher = type === 'publisher';
+    
+    if (isPublisher) {
+      this.registerForm.get('password')?.clearValidators();
+      this.registerForm.get('confirmPassword')?.clearValidators();
+      
+      this.registerForm.get('orgName')?.setValidators([Validators.required]);
+      this.registerForm.get('orgWebsite')?.setValidators([Validators.required]);
+      this.registerForm.get('country')?.setValidators([Validators.required]);
+      this.registerForm.get('city')?.setValidators([Validators.required]);
+      this.registerForm.get('phone')?.setValidators([Validators.required]);
+      this.registerForm.get('newspaperLicense')?.setValidators([Validators.required]);
+    } else {
+      this.registerForm.get('password')?.setValidators([Validators.required, Validators.minLength(6), passwordComplexityValidator]);
+      this.registerForm.get('confirmPassword')?.setValidators([Validators.required]);
+      
+      this.registerForm.get('orgName')?.clearValidators();
+      this.registerForm.get('orgWebsite')?.clearValidators();
+      this.registerForm.get('country')?.clearValidators();
+      this.registerForm.get('city')?.clearValidators();
+      this.registerForm.get('phone')?.clearValidators();
+      this.registerForm.get('newspaperLicense')?.clearValidators();
+    }
+    
+    Object.keys(this.registerForm.controls).forEach(key => {
+      this.registerForm.get(key)?.updateValueAndValidity();
+    });
   }
 
   onFileSelected(event: any, field: 'business' | 'license') {
@@ -78,16 +148,20 @@ export class UserRegistrationComponent implements OnInit {
     if (file) {
       if (field === 'business') {
         this.businessFileName.set(file.name);
-        this.businessDoc = file.name;
       } else {
         this.licenseFileName.set(file.name);
-        this.newspaperLicense = file.name;
+        this.registerForm.patchValue({ newspaperLicense: file.name });
       }
     }
   }
 
   onSubmit(event: Event) {
     event.preventDefault();
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
+    
     this.errorMessage.set(null);
 
     if (this.registrationType() === 'user') {
@@ -98,16 +172,12 @@ export class UserRegistrationComponent implements OnInit {
   }
 
   private handleUserSubmit() {
-    if (!this.email || !this.name || !this.password) return;
-    
-    if (this.password !== this.confirmPassword) {
-      this.errorMessage.set('Passwords do not match');
-      return;
-    }
-
     this.isLoading.set(true);
 
-    this.authService.requestOtp(this.email, this.name, this.username, this.password).subscribe({
+    const { email, firstName, lastName, password } = this.registerForm.value;
+    this.email = email; // Set property for OTP step display
+
+    this.authService.requestOtp(email, firstName, lastName, password).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.step.set(2);
@@ -121,23 +191,24 @@ export class UserRegistrationComponent implements OnInit {
 
   private handlePublisherSubmit() {
     this.isLoading.set(true);
+    const val = this.registerForm.value;
+
     this.http.post('http://localhost:3000/auth/register', {
-      email: this.email,
-      username: this.username,
-      name: this.name,
+      email: val.email,
+      username: val.lastName,
+      name: val.firstName,
       requestedRole: 'publisher',
       isPublisher: true,
-      orgName: this.orgName,
-      orgWebsite: this.orgWebsite,
-      rssUrl: this.rssUrl,
-      orgDescription: this.orgDescription,
-      publisherFirstName: this.publisherFirstName,
-      publisherLastName: this.publisherLastName,
-      country: this.country,
-      city: this.city,
-      phone: this.phone,
-      businessDoc: this.businessDoc,
-      newspaperLicense: this.newspaperLicense
+      orgName: val.orgName,
+      orgWebsite: val.orgWebsite,
+      rssUrl: val.rssUrl,
+      country: val.country,
+      city: val.city,
+      phone: val.phone,
+      businessDoc: this.businessFileName(),
+      newspaperLicense: val.newspaperLicense,
+      publisherFirstName: val.firstName,
+      publisherLastName: val.lastName
     }).subscribe({
       next: () => {
         this.isLoading.set(false);
