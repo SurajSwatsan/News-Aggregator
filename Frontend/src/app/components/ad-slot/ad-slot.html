@@ -1,0 +1,24 @@
+@if (ad()) {
+  <div class="ad-container" [class]="placementType" (click)="onAdClick()">
+    <div class="ad-label">ADVERTISEMENT</div>
+    <div class="ad-content">
+      @if (ad().adType === 'video') {
+        <video [src]="ad().mediaUrl" autoplay muted loop playsinline (error)="handleMediaError()"></video>
+      } @else if (ad().adType === 'text') {
+        <div class="text-ad-body">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" class="type-icon">
+            <path d="M4 7h16M4 12h16M4 17h10"/>
+          </svg>
+          <span class="sponsored-link">Sponsored Content</span>
+        </div>
+      } @else {
+        <img [src]="ad().mediaUrl" [alt]="ad().title" (error)="handleMediaError()">
+      }
+      <div class="ad-overlay">
+        <span class="ad-title">{{ ad().title }}</span>
+      </div>
+    </div>
+  </div>
+} @else if (isLoading()) {
+  <div class="ad-skeleton" [class]="placementType"></div>
+}

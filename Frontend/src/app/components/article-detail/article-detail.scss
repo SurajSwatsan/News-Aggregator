@@ -483,6 +483,43 @@
         font-weight: 800;
         letter-spacing: 1px;
       }
+
+      .trending-labels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+
+        .trending-pill {
+          font-size: 8px;
+          font-weight: 900;
+          padding: 2px 8px;
+          border-radius: 2px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          &.spike {
+            background: rgba(255, 68, 0, 0.1);
+            color: #ff4400;
+            border: 1px solid rgba(255, 68, 0, 0.2);
+          }
+
+          &.multi {
+            background: rgba(0, 153, 255, 0.1);
+            color: #0099ff;
+            border: 1px solid rgba(0, 153, 255, 0.2);
+          }
+
+          &.hot {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+          }
+        }
+      }
     }
   }
 }

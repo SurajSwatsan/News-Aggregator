@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, computed } from '@angular/core';
+import { Component, signal, inject, OnInit, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -9,12 +9,14 @@ import { AuthService } from '../../auth/auth';
 import { AccessService } from '../../services/access.service';
 import { PaymentModalComponent } from '../payment-modal/payment-modal';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
+import { FooterComponent } from '../footer/footer';
+import { AdSlotComponent } from '../ad-slot/ad-slot';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-news-feed',
   standalone: true,
-  imports: [CommonModule, RouterLink, SafeHtmlPipe, PaymentModalComponent, ProfileDropdownComponent, FormsModule],
+  imports: [CommonModule, RouterLink, SafeHtmlPipe, PaymentModalComponent, ProfileDropdownComponent, FormsModule, FooterComponent, AdSlotComponent],
   templateUrl: './news-feed.html',
   styleUrl: './news-feed.scss'
 })
@@ -36,9 +38,20 @@ export class NewsFeedComponent implements OnInit {
   // Computed properties for specialized layout
   featuredArticle = computed(() => this.articles()[0]);
   heroArticles = computed(() => this.articles().slice(1, 4));
-  trendingArticles = computed(() => this.articles().slice(4, 10));
+  trendingArticles = signal<any[]>([]);
   topArticles = computed(() => this.articles().slice(0, 10)); // Top 10 for the ticker
   currentDate = signal(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+  
+  // Weather & Location Signals
+  temperature = signal<string>('--°C');
+  locationInfo = signal<string>('Detecting...');
+  
+  // Pagination & Infinite Scroll Signals
+  skip = signal<number>(0);
+  pageSize = 30;
+  hasMore = signal<boolean>(true);
+  isFetchingMore = signal<boolean>(false);
+  lastUpdated = signal<string>('');
   
   categories = [
     'All', 'General', 'World', 'Politics', 'Business', 'Technology', 
@@ -60,7 +73,12 @@ export class NewsFeedComponent implements OnInit {
         this.selectedCategory.set('All');
       }
       this.isLoading.set(true);
+      this.articles.set([]); // Reset for new category
+      this.skip.set(0);
+      this.hasMore.set(true);
       this.fetchArticles();
+      this.fetchTrending();
+      this.fetchWeather();
     });
   }
 
@@ -85,6 +103,9 @@ export class NewsFeedComponent implements OnInit {
     let baseUrl = 'http://localhost:3000/articles';
     const params: string[] = [];
     
+    params.push(`skip=${this.skip()}`);
+    params.push(`take=${this.pageSize}`);
+
     if (this.selectedCategory() !== 'All') {
       params.push(`category=${this.selectedCategory()}`);
     }
@@ -99,12 +120,37 @@ export class NewsFeedComponent implements OnInit {
     this.http.get<any[]>(finalUrl).subscribe({
       next: (res) => {
         console.log('[NewsFeed] Received articles:', res.length);
-        this.articles.set(res);
+        if (this.skip() === 0) {
+          this.articles.set(res);
+        } else {
+          this.articles.update(prev => [...prev, ...res]);
+        }
+        
+        this.lastUpdated.set(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
         this.isLoading.set(false);
+        this.isFetchingMore.set(false);
+        
+        if (res.length < this.pageSize) {
+          this.hasMore.set(false);
+        }
       },
       error: (err) => {
         console.error('[NewsFeed] Error fetching articles:', err);
         this.isLoading.set(false);
+        this.isFetchingMore.set(false);
+      }
+    });
+  }
+
+  fetchTrending() {
+    this.http.get<any[]>('http://localhost:3000/articles/trending').subscribe({
+      next: (res) => {
+        this.trendingArticles.set(res || []);
+      },
+      error: (err) => {
+        console.error('[NewsFeed] Error fetching trending:', err);
+        // Fallback to slice logic if API fails
+        this.trendingArticles.set(this.articles().slice(4, 10));
       }
     });
   }
@@ -117,8 +163,32 @@ export class NewsFeedComponent implements OnInit {
     });
   }
 
+  getTimeAgo(date: string): string {
+    const now = new Date();
+    const posted = new Date(date);
+    const diffInSeconds = Math.floor((now.getTime() - posted.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+
+    return this.formatDate(date);
+  }
+
   onSearch() {
     this.isLoading.set(true);
+    this.articles.set([]);
+    this.skip.set(0);
+    this.hasMore.set(true);
+    this.fetchArticles();
+  }
+
+
+  loadMore() {
+    console.log('[NewsFeed] Loading more articles...');
+    this.isFetchingMore.set(true);
+    this.skip.update(s => s + this.pageSize);
     this.fetchArticles();
   }
 
@@ -163,5 +233,45 @@ export class NewsFeedComponent implements OnInit {
     if (!synopsis) return false;
     const stripped = synopsis.replace(/<[^>]*>?/gm, '').trim();
     return stripped.length > 0;
+  }
+
+  fetchWeather() {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          
+          // 1. Fetch Temperature from Open-Meteo
+          const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+          this.http.get<any>(weatherUrl).subscribe({
+            next: (data) => {
+              if (data.current_weather) {
+                this.temperature.set(`${Math.round(data.current_weather.temperature)}°C`);
+              }
+            },
+            error: () => this.temperature.set('N/A')
+          });
+
+          // 2. Fetch Location Name from BigDataCloud (Free, no key required for simple client requests)
+          const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+          this.http.get<any>(geoUrl).subscribe({
+            next: (data) => {
+              const city = data.city || data.locality || data.principalSubdivision || 'LOCAL';
+              this.locationInfo.set(city.toUpperCase());
+            },
+            error: () => this.locationInfo.set('INDIA')
+          });
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+          this.locationInfo.set('INDIA');
+          this.temperature.set('30°C'); // Fallback
+        }
+      );
+    } else {
+      this.locationInfo.set('INDIA');
+      this.temperature.set('30°C'); // Fallback
+    }
   }
 }

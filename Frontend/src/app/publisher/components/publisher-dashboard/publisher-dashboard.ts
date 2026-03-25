@@ -20,7 +20,7 @@ export class PublisherDashboardComponent implements OnInit {
   private elementRef = inject(ElementRef);
 
   isProfileMenuOpen = signal(false);
-  activeTab = signal<'dashboard' | 'articles' | 'analytics' | 'revenue' | 'payouts' | 'settings' | 'feeds'>('dashboard');
+  activeTab = signal<'dashboard' | 'articles' | 'analytics' | 'revenue' | 'payouts' | 'settings' | 'feeds' | 'ads'>('dashboard');
   user = computed(() => this.authService.currentUser());
 
   sourceDetails = signal<any>(null);
@@ -39,6 +39,7 @@ export class PublisherDashboardComponent implements OnInit {
     else if (url.includes('/analytics')) this.activeTab.set('analytics');
     else if (url.includes('/revenue')) this.activeTab.set('revenue');
     else if (url.includes('/payouts')) this.activeTab.set('payouts');
+    else if (url.includes('/ads')) this.activeTab.set('ads');
     else if (url.includes('/feeds')) this.activeTab.set('feeds');
     else if (url.endsWith('/settings')) this.activeTab.set('settings');
     else if (url.includes('/dashboard')) this.activeTab.set('dashboard');

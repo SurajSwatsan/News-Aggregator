@@ -19,8 +19,20 @@ export class AppController {
   async getArticles(
     @Query('category') category?: string,
     @Query('q') query?: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
   ) {
-    return await this.appService.getPublicArticles(category, query);
+    return await this.appService.getPublicArticles(
+      category,
+      query,
+      skip ? parseInt(skip) : undefined,
+      take ? parseInt(take) : undefined
+    );
+  }
+
+  @Get('articles/trending')
+  async getTrending() {
+    return await this.appService.getTrendingArticles();
   }
 
   @Get('articles/:id')

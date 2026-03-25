@@ -6,11 +6,12 @@ import { CommonModule, TitleCasePipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
+import { CreatedAdsComponent } from '../created-ads/created-ads';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, TitleCasePipe, DatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, TitleCasePipe, DatePipe],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss'
 })
@@ -20,21 +21,43 @@ export class AdminDashboardComponent implements OnInit {
   public authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  
+
   user = computed(() => this.authService.currentUser());
   activeTab = signal('overview');
 
   headerTitle = computed(() => {
-    console.log('[AdminHub] Computing header title for tab:', this.activeTab());
     switch (this.activeTab()) {
       case 'overview': return 'Admin System Overview';
       case 'sources': return 'News Sources Management';
-      case 'readers': return 'Reader Analytics & Management';
-      case 'publishers': return 'Publisher Hub';
       case 'users': return 'Platform User Management';
       case 'audit': return 'Security & Audit Logs';
-      default: return 'Unknown Admin Section';
+      case 'ads': return 'Advertising Center';
+      default: return 'Administrative Control Center';
     }
+  });
+
+  headerSubtitle = computed(() => {
+    switch (this.activeTab()) {
+      case 'overview': return 'System Performance & Real-time Activity Hub';
+      case 'sources': return 'Global News Feed & RSS Integration Management';
+      case 'users': return 'Platform User Access & Resource Allocation';
+      case 'audit': return 'Security Trail & System Operation History';
+      case 'ads': return 'Campaign Performance & Asset Delivery Management';
+      default: return 'Administrative Control Center';
+    }
+  });
+
+  breadcrumbTrail = computed(() => {
+    let current = '';
+    switch (this.activeTab()) {
+      case 'overview': current = 'Overview'; break;
+      case 'sources': current = 'News Sources'; break;
+      case 'users': current = 'User Management'; break;
+      case 'audit': current = 'Audit Logs'; break;
+      case 'ads': current = 'Advertising Center'; break;
+      default: current = 'Dashboard'; break;
+    }
+    return { root: 'Platform', current };
   });
 
   // Dashboard Stats
@@ -54,11 +77,27 @@ export class AdminDashboardComponent implements OnInit {
   inviteEmail = signal('');
   lastInviteLink = signal<string | null>(null);
   auditLogs = signal<any[]>([]);
+  isCreatingAd = signal(false);
+  editingAdId = signal<string | null>(null);
+  refreshTrigger = signal(0);
+  isUploadingAdAsset = signal(false);
+  viewingAd = signal<any>(null);
+  newAd = signal({
+    title: '',
+    adType: 'image',
+    mediaUrl: '',
+    targetUrl: '',
+    placementType: 'sidebar',
+    position: 0,
+    isActive: true,
+    startTime: '' as string | null,
+    endTime: '' as string | null
+  });
 
   filteredUsers = computed(() => {
     const tab = this.usersSubTab();
     const users = this.allUsers();
-    
+
     switch (tab) {
       case 'readers':
         return users.filter(u => u.role === 'reader');
@@ -76,15 +115,15 @@ export class AdminDashboardComponent implements OnInit {
     const pendingEmails = new Set(pendingRaw.map(p => p.email.toLowerCase()));
 
     const active = activeRaw
-        .filter(u => !pendingEmails.has(u.email.toLowerCase())) // Hide active if pending exists
-        .map(u => ({ ...u, status: 'Active', isPending: false }));
-    
-    const pending = pendingRaw.map(p => ({ 
-        ...p,
-        name: p.publisherName || p.orgName || 'New Publisher',
-        isPending: true,
-        status: 'Pending Approval'
-      }));
+      .filter(u => !pendingEmails.has(u.email.toLowerCase())) // Hide active if pending exists
+      .map(u => ({ ...u, status: 'Active', isPending: false }));
+
+    const pending = pendingRaw.map(p => ({
+      ...p,
+      name: p.publisherName || p.orgName || 'New Publisher',
+      isPending: true,
+      status: 'Pending Approval'
+    }));
 
     return [...pending, ...active];
   });
@@ -104,6 +143,8 @@ export class AdminDashboardComponent implements OnInit {
       } else if (path === 'audit') {
         this.activeTab.set('audit');
         this.loadAuditLogs();
+      } else if (path === 'ads') {
+        this.activeTab.set('ads');
       } else {
         this.activeTab.set('overview');
       }
@@ -248,5 +289,108 @@ export class AdminDashboardComponent implements OnInit {
 
   onLogout() {
     this.authService.logout();
+  }
+
+  // --- Ad Creation ---
+  openAdModal(ad?: any) {
+    if (ad) {
+      this.editingAdId.set(ad.id);
+      this.newAd.set({
+        title: ad.title,
+        adType: ad.adType,
+        mediaUrl: ad.mediaUrl,
+        targetUrl: ad.targetUrl,
+        placementType: ad.placementType,
+        position: ad.position,
+        isActive: ad.isActive,
+        startTime: ad.startTime ? new Date(ad.startTime).toISOString().slice(0, 16) : '',
+        endTime: ad.endTime ? new Date(ad.endTime).toISOString().slice(0, 16) : ''
+      });
+    } else {
+      this.editingAdId.set(null);
+      this.resetAdForm();
+    }
+    this.isCreatingAd.set(true);
+  }
+
+  closeAdModal() {
+    this.isCreatingAd.set(false);
+    this.editingAdId.set(null);
+  }
+
+  saveGlobalAd() {
+    const adData = this.newAd();
+    if (!adData.title || !adData.targetUrl) {
+      this.toast.show('Title and Target URL are required', 'error');
+      return;
+    }
+
+    const isEditing = !!this.editingAdId();
+    const url = isEditing
+      ? `http://localhost:3000/admin/ads/${this.editingAdId()}`
+      : 'http://localhost:3000/admin/ads';
+
+    const request = isEditing
+      ? this.http.patch(url, adData)
+      : this.http.post(url, adData);
+
+    request.subscribe({
+      next: () => {
+        this.toast.show(isEditing ? 'Campaign updated successfully!' : 'Campaign launched successfully!', 'success');
+        this.isCreatingAd.set(false);
+        this.editingAdId.set(null);
+        this.resetAdForm();
+        this.refreshTrigger.update(v => v + 1);
+      },
+      error: () => this.toast.show(isEditing ? 'Failed to update campaign' : 'Failed to create campaign', 'error')
+    });
+  }
+
+  // --- File Upload ---
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.uploadAdAsset(file);
+    }
+  }
+
+  uploadAdAsset(file: File) {
+    this.isUploadingAdAsset.set(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.http.post<{ url: string }>('http://localhost:3000/admin/ads/upload', formData).subscribe({
+      next: (res) => {
+        this.newAd.update(ad => ({ ...ad, mediaUrl: res.url }));
+        this.isUploadingAdAsset.set(false);
+        this.toast.show('Asset uploaded successfully!', 'success');
+      },
+      error: () => {
+        this.isUploadingAdAsset.set(false);
+        this.toast.show('Failed to upload asset', 'error');
+      }
+    });
+  }
+
+  openAdViewer(ad: any) {
+    this.viewingAd.set(ad);
+  }
+
+  closeAdViewer() {
+    this.viewingAd.set(null);
+  }
+
+  resetAdForm() {
+    this.newAd.set({
+      title: '',
+      adType: 'image',
+      mediaUrl: '',
+      targetUrl: '',
+      placementType: 'sidebar',
+      position: 0,
+      isActive: true,
+      startTime: '',
+      endTime: ''
+    });
   }
 }

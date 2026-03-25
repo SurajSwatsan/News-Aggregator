@@ -14,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AdminController } from './admin/admin.controller';
 import { AiModule } from './ai/ai.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
+import { AdModule } from './ad/ad.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
     OnboardingModule,
     MailModule,
     AuditLogsModule,
+    AdModule,
   ],
   controllers: [AppController, AdminController],
   providers: [AppService],

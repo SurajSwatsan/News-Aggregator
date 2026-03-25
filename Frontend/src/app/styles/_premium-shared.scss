@@ -1,0 +1,72 @@
+// SASS Variables (Legacy $ format for existing styles)
+$primary: #6366f1;
+$primary-hover: #4f46e5;
+$primary-light: #eef2ff;
+$bg-layout: #f8fafc;
+$bg-card: #ffffff;
+$text-main: #0f172a;
+$text-muted: #64748b;
+$text-heading: #1e293b;
+$border-color: #e2e8f0;
+$accent-green: #10b981;
+$accent-red: #ef4444;
+$sidebar-width: 280px;
+
+// Premium UI Design Tokens (CSS Variables)
+:root {
+  --accent: #6366f1;
+  --accent-soft: #eef2ff;
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --info: #3b82f6;
+  --info-soft: #eff6ff;
+  --purple: #8b5cf6;
+  --purple-soft: #f5f3ff;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+}
+
+// Global Premium Mixins
+@mixin premium-item-row {
+  display: grid;
+  padding: 1.25rem 2rem;
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: #f8fafc;
+    transform: scale(1.002);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Shared UI Components
+.premium-inventory-wrapper {
+  background: #fff;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.02);
+  margin-top: 1.5rem;
+}
+
+.premium-grid-header {
+  display: grid;
+  padding: 1.25rem 2rem;
+  background: #fcfcfd;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.premium-item-row {
+  @include premium-item-row;
+}

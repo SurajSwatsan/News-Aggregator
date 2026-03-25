@@ -8,10 +8,12 @@ import { PassportModule } from '@nestjs/passport';
 import { BullModule } from '@nestjs/bullmq';
 import { SyncGateway } from './sync.gateway';
 import { SyncProcessor } from './sync.processor';
+import { AdModule } from '../ad/ad.module';
 
 @Module({
   imports: [
     RSSEngineModule,
+    AdModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     BullModule.registerQueue({
       name: 'sync-articles',

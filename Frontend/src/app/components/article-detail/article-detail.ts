@@ -5,11 +5,13 @@ import { HttpClient } from '@angular/common/http';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { AuthService } from '../../auth/auth';
 import { AccessService } from '../../services/access.service';
+import { FooterComponent } from '../footer/footer';
+import { AdSlotComponent } from '../ad-slot/ad-slot';
 
 @Component({
   selector: 'app-article-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SafeHtmlPipe],
+  imports: [CommonModule, RouterLink, SafeHtmlPipe, FooterComponent, AdSlotComponent],
   template: `
     <div class="reader-container" [style.--source-accent]="getSourceColor()">
       <!-- Sticky Header -->
@@ -121,6 +123,7 @@ import { AccessService } from '../../services/access.service';
                 </div>
               </div>
             </article>
+            <app-ad-slot placementType="header"></app-ad-slot>
           </main>
 
           <!-- Sidebar -->
@@ -133,8 +136,21 @@ import { AccessService } from '../../services/access.service';
                   <div class="item-content">
                     <span class="item-title">{{ item.title }}</span>
                     <div class="item-meta">{{ item.source?.name | uppercase }} | {{ item.category || 'GENERAL' }}</div>
+                    
+                    <div class="trending-labels">
+                      @if (item.isSpike) {
+                        <span class="trending-pill spike">🔥 Sudden Spike</span>
+                      }
+                      @if (item.isMultiSource) {
+                        <span class="trending-pill multi">🌐 Multi-Source</span>
+                      }
+                      @if (item.isHot) {
+                        <span class="trending-pill hot">📈 Hot</span>
+                      }
+                    </div>
                   </div>
                 </div>
+                <app-ad-slot placementType="sidebar"></app-ad-slot>
               } @else {
                 <div class="loading-sidebar">
                   <div class="mini-spinner"></div>
@@ -145,15 +161,15 @@ import { AccessService } from '../../services/access.service';
         </div>
 
         <!-- Related News Section (Card Style) -->
-        <section class="related-news-section">
-          <div class="section-container">
-            <div class="section-header">
-              <div class="header-line"></div>
-              <h2>Related Stories from Other Publishers</h2>
-              <p>Explore different perspectives on this story from our global network.</p>
-            </div>
+        @if (relatedArticles().length > 0) {
+          <section class="related-news-section">
+            <div class="section-container">
+              <div class="section-header">
+                <div class="header-line"></div>
+                <h2>Related Stories from Other Publishers</h2>
+                <p>Explore different perspectives on this story from our global network.</p>
+              </div>
 
-            @if (relatedArticles().length > 0) {
               <div class="related-grid">
                 <div class="related-card" *ngFor="let item of relatedArticles()" [routerLink]="['/article', item.id]">
                   <div class="card-image-box">
@@ -177,19 +193,16 @@ import { AccessService } from '../../services/access.service';
                   </div>
                 </div>
               </div>
-            } @else {
-              <div class="no-related-footer">
-                <div class="no-related-pill">NO OTHER PUBLISHERS HAVE COVERED THIS TOPIC YET</div>
-              </div>
-            }
-          </div>
-        </section>
+            </div>
+          </section>
+        }
       } @else if (isLoading()) {
         <div class="loading-screen">
           <div class="premium-spinner"></div>
           <p>AUTHENTICATING PREMIUM ACCESS...</p>
         </div>
       }
+      <app-footer></app-footer>
     </div>
   `,
   styleUrl: './article-detail.scss'
@@ -283,10 +296,16 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   fetchTrending() {
-    this.http.get<any[]>('http://localhost:3000/articles').subscribe({
-      next: (articles) => {
-        // Shuffle or just take latest for "trending" variety
-        this.trendingArticles.set(articles || []);
+    this.http.get<any[]>('http://localhost:3000/articles/trending').subscribe({
+      next: (res) => {
+        this.trendingArticles.set(res || []);
+      },
+      error: (err) => {
+        console.error('[ArticleDetail] Error fetching trending:', err);
+        // Fallback to latest articles if API fails
+        this.http.get<any[]>('http://localhost:3000/articles').subscribe({
+          next: (articles) => this.trendingArticles.set(articles || [])
+        });
       }
     });
   }

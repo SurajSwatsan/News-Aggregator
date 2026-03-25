@@ -133,3 +133,24 @@ model AuditLog {
 
   @@map("audit_logs")
 }
+
+model Advertisement {
+  id            String   @id @default(uuid()) @map("ad_uuid")
+  title         String
+  adType        String   @map("ad_type")
+  mediaUrl      String   @map("media_url")
+  targetUrl     String   @map("target_url")
+  placementType String   @map("placement_type")
+  position      Int      @default(0)
+  createdBy     String   @map("created_by")
+  status        String   @default("pending")
+  isActive      Boolean  @default(true) @map("is_active")
+  impressions   Int      @default(0)
+  clicks        Int      @default(0)
+  startDate     DateTime? @map("start_date")
+  endDate       DateTime? @map("end_date")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("advertisements")
+}

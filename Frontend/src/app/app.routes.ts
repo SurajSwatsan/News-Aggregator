@@ -63,6 +63,7 @@ export const routes: Routes = [
   { path: 'readers', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'user', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'audit', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
+  { path: 'ads', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { 
     path: 'publisher', 
     loadChildren: () => import('./publisher/publisher.routes').then(m => m.publisherRoutes),

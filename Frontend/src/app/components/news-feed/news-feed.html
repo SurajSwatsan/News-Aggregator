@@ -1,4 +1,5 @@
 <div class="news-container">
+  <app-ad-slot placementType="header"></app-ad-slot>
   <!-- Breaking News Ticker -->
   <div class="ticker-wrap">
     <div class="ticker-label">BREAKING</div>
@@ -21,7 +22,7 @@
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" class="weather-icon">
             <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2" />
           </svg>
-          32°C INDIA
+          {{ temperature() }} {{ locationInfo() }}
         </span>
       </div>
       <div class="utility-right">
@@ -44,11 +45,11 @@
   <nav class="masthead">
     <div class="masthead-content">
       <div class="masthead-left">
-        <button class="menu-trigger" aria-label="Menu">
+        <!-- <button class="menu-trigger" aria-label="Menu">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
             <path d="M3 12h18M3 6h18M3 18h11" />
           </svg>
-        </button>
+        </button> -->
       </div>
 
       <div class="nav-brand-centered">
@@ -60,18 +61,18 @@
 
       <div class="masthead-right">
         <div class="social-icons">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="social-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="social-icon">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="social-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="social-icon">
             <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
           </svg>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
           </svg>
         </div>
         @if (!currentUser()) {
-          <a routerLink="/register-publisher" class="btn-partner">Partner with Us</a>
+          <a routerLink="/register-publisher" class="btn-partner">PARTNER WITH US</a>
         }
       </div>
     </div>
@@ -100,6 +101,8 @@
     </nav>
   </div>
 
+
+
   <main class="feed-layout">
     @if (isLoading()) {
     <div class="loading-overlay">
@@ -126,6 +129,7 @@
               <article class="secondary-item">
                 <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
                      alt="" (error)="handleImageError($event)">
+                <div class="secondary-overlay"></div>
                 <div class="secondary-content">
                   <span class="secondary-category">{{ article.category || 'General' }}</span>
                   <h3 class="secondary-title">{{ article.title }}</h3>
@@ -136,10 +140,18 @@
             </div>
           </div>
           }
+          @if (selectedCategory() === 'All') {
+            <app-ad-slot placementType="in-feed"></app-ad-slot>
+          }
 
           <div class="news-list-section">
             <div class="section-header">
-              <h3>Latest Headlines</h3>
+              <div class="header-left">
+                <h3>Latest Headlines</h3>
+                @if (lastUpdated()) {
+                  <span class="last-updated">LAST UPDATED AT {{ lastUpdated() }}</span>
+                }
+              </div>
               <span class="count-badge">{{ (articles() || []).length }} Articles</span>
             </div>
             
@@ -161,7 +173,7 @@
                 <div class="card-body">
                   <div class="card-header-meta">
                     <span class="card-category">{{ article.category || 'General' }}</span>
-                    <span class="card-date">{{ formatDate(article.postedAt) }}</span>
+                    <span class="card-date">{{ getTimeAgo(article.postedAt) }}</span>
                   </div>
                   <h3 class="card-title">{{ article.title }}</h3>
                   <p class="card-synopsis" [innerHTML]="hasSynopsisText(article.synopsis) ? (article.synopsis | safeHtml) : 'No synopsis available.'"></p>
@@ -184,6 +196,25 @@
               </div>
               }
             </div>
+
+            @if (hasMore()) {
+              <div class="see-more-wrapper">
+                @if (isFetchingMore()) {
+                  <div class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                } @else {
+                  <button class="btn-see-more" (click)="loadMore()">
+                    SEE MORE
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+                    </svg>
+                  </button>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -194,14 +225,32 @@
               @for (article of trendingArticles(); track article.id; let i = $index) {
               <div class="trending-item">
                 <span class="trending-rank">0{{ i + 1 }}</span>
+                <div class="trending-image-wrap">
+                  <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
+                       alt="" (error)="handleImageError($event)">
+                </div>
                 <div class="trending-info">
                   <h5 class="trending-headline"><button class="trending-link" (click)="handleArticleAccess(article)">{{ article.title }}</button></h5>
                   <span class="trending-meta">{{ article.source?.name }}</span>
+                  
+                  <div class="trending-labels">
+                    @if (article.isSpike) {
+                      <span class="trending-pill spike">🔥 Sudden Spike</span>
+                    }
+                    @if (article.isMultiSource) {
+                      <span class="trending-pill multi">🌐 Multi-Source</span>
+                    }
+                    @if (article.isHot) {
+                      <span class="trending-pill hot">📈 Hot</span>
+                    }
+                  </div>
                 </div>
               </div>
               }
             </div>
           </div>
+
+          <app-ad-slot placementType="sidebar"></app-ad-slot>
 
           <div class="sidebar-section partner-card">
             <h4>Become a Partner</h4>
@@ -216,4 +265,6 @@
   @if (showPaymentModal()) {
     <app-payment-modal (close)="showPaymentModal.set(false)"></app-payment-modal>
   }
+  
+  <app-footer></app-footer>
 </div>

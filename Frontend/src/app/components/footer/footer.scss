@@ -1,0 +1,150 @@
+.premium-footer {
+  background: #000;
+  color: #fff;
+  padding: 5rem 0 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Inter', sans-serif;
+}
+
+.footer-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 4%;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 4rem;
+  margin-bottom: 5rem;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    gap: 3rem;
+  }
+}
+
+.footer-brand {
+  flex: 1;
+  max-width: 400px;
+
+  h2 {
+    font-family: 'Lora', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1.5px;
+    white-space: nowrap;
+    background: linear-gradient(to bottom, #ffffff 30%, #a0a0a0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .tagline {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #666;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+}
+
+.footer-links-grid {
+  flex: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-column {
+  h4 {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1.5px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      margin-bottom: 0.8rem;
+
+      a {
+        color: #777;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: color 0.3s;
+
+        &:hover {
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+.social-links {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 1rem;
+
+  a {
+    color: #555;
+    transition: all 0.3s;
+
+    &:hover {
+      color: white;
+      transform: translateY(-3px);
+    }
+  }
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.legal-text {
+  max-width: 700px;
+  
+  p {
+    font-size: 0.75rem;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.footer-meta {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #222;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
