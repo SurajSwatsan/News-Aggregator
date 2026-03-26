@@ -107,4 +107,14 @@ export class AuthController {
   async deductCredits(@Body() body: { userId: string, articleId: string }) {
     return this.authService.deductArticleCredit(body.userId, body.articleId);
   }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    return this.authService.requestPasswordReset(body.email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() body: { token: string, password: string }) {
+    return this.authService.resetPassword(body.token, body.password);
+  }
 }

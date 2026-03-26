@@ -510,4 +510,70 @@ export class AuthService {
       return updatedUser;
     });
   }
+
+  async requestPasswordReset(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // For security, don't reveal if user exists
+      return { message: 'If an account exists with this email, a reset link has been sent.' };
+    }
+
+    const resetToken = crypto.randomUUID();
+    const expires = new Date(Date.now() + 3600000); // 1 hour
+
+    await (this.prisma.user as any).update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: expires,
+      },
+    });
+
+    const resetLink = `http://localhost:4200/reset-password?token=${resetToken}`;
+    await this.mailService.sendPasswordReset(email, resetLink);
+
+    await this.auditLogs.createLog({
+      userId: user.id,
+      action: 'PASSWORD_RESET_REQUESTED',
+      resourceType: 'USER',
+      resourceId: user.id,
+      metadata: { email }
+    });
+
+    return { message: 'If an account exists with this email, a reset link has been sent.' };
+  }
+
+  async resetPassword(token: string, newPass: string) {
+    const user = await (this.prisma.user as any).findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { gte: new Date() },
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Password reset token is invalid or has expired.');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+
+    await (this.prisma.user as any).update({
+      where: { id: user.id },
+      data: {
+        passwordHash: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+
+    await this.auditLogs.createLog({
+      userId: user.id,
+      action: 'PASSWORD_RESET_SUCCESS',
+      resourceType: 'USER',
+      resourceId: user.id,
+      metadata: { email: user.email }
+    });
+
+    return { message: 'Your password has been reset successfully.' };
+  }
 }

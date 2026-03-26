@@ -48,6 +48,9 @@
               autocomplete="current-password"
             >
             </app-floating-input>
+            <div class="field-utils">
+              <a routerLink="/forgot-password" class="forgot-link">Forgot your password?</a>
+            </div>
             @if (isFieldInvalid('password')) {
               <div class="field-error">
                 @if (loginForm.get('password')?.errors?.['required']) { <span>Password is required.</span> }

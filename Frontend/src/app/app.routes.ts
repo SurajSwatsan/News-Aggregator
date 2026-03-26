@@ -56,6 +56,8 @@ const publicGuard = () => true;
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'forgot-password', loadComponent: () => import('./components/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent) },
+  { path: 'reset-password', loadComponent: () => import('./components/reset-password/reset-password').then(m => m.ResetPasswordComponent) },
   { path: 'article/:id', component: ArticleDetailComponent },
   { path: 'admin',
  component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },

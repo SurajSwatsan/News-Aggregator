@@ -107,4 +107,12 @@ export class AuthService {
     // Redirect all users to home page on logout
     this.router.navigate(['/']);
   }
+
+  forgotPassword(email: string) {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string) {
+    return this.http.post<any>(`${this.apiUrl}/reset-password`, { token, password });
+  }
 }

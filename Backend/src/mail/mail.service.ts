@@ -127,4 +127,27 @@ export class MailService {
     `;
     return this.sendMail(email, subject, html);
   }
+
+  async sendPasswordReset(email: string, resetLink: string) {
+    const subject = 'Reset Your Next-Gen News Password';
+    const html = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #0f172a; padding: 20px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0;">Password Reset Request</h2>
+        </div>
+        <div style="padding: 30px;">
+          <p style="font-size: 1.1rem; color: #1e293b;">Hello,</p>
+          <p style="color: #475569; line-height: 1.6;">We received a request to reset the password for your Next-Gen News account. If you didn't make this request, you can safely ignore this email.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" style="background-color: #0f172a; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+          </div>
+          <p style="color: #718096; font-size: 0.9rem;">This link will expire in 1 hour for security reasons.</p>
+        </div>
+        <div style="background-color: #f8fafc; padding: 15px; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">&copy; 2026 Next-Gen News Aggregator</p>
+        </div>
+      </div>
+    `;
+    return this.sendMail(email, subject, html);
+  }
 }
