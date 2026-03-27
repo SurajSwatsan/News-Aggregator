@@ -1,36 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 
 :host {
-  --primary: #dc2626; /* Premium Red */
+  --primary: #dc2626;
+  /* Premium Red */
   --primary-hover: #b91c1c;
   --primary-glow: rgba(220, 38, 38, 0.4);
   --text-main: #f8f9fa;
   --text-secondary: #888;
   --bg-page: #0a0a0b;
-  --card-bg: rgba(17, 17, 20, 0.75); /* Translucent for glassmorphism */
+  --card-bg: rgba(17, 17, 20, 0.75);
+  /* Translucent for glassmorphism */
   --border: rgba(255, 255, 255, 0.08);
   --input-bg: #16161a;
   --font-serif: 'Lora', serif;
   --font-sans: 'Inter', system-ui, sans-serif;
-  --shadow-premium: 
+  --shadow-premium:
     0 30px 80px -20px rgba(0, 0, 0, 0.9),
     0 10px 20px -5px rgba(0, 0, 0, 0.5),
-    inset 0 1px 1px rgba(255, 255, 255, 0.1); /* Brighter inset for glass edge */
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  /* Brighter inset for glass edge */
   --card-radius: 20px;
 }
 
 .login-wrapper {
   height: 100vh;
   width: 100vw;
-  overflow: hidden; /* Disable scrolling */
+  overflow: hidden;
+  /* Disable scrolling */
   /* Trending 4K Digital/Abstract Tech Background */
-  background: 
+  background:
     linear-gradient(135deg, rgba(10, 10, 11, 0.95) 0%, rgba(10, 10, 11, 0.8) 100%),
     url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=3840&q=80') center/cover no-repeat fixed;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2vh 2vw; /* Use viewport units for padding */
+  padding: 2vh 2vw;
+  /* Use viewport units for padding */
   font-family: var(--font-sans);
   color: var(--text-main);
   box-sizing: border-box;
@@ -43,8 +48,10 @@
   -webkit-backdrop-filter: blur(25px);
   width: 100%;
   max-width: 1000px;
-  height: 90vh; /* Constrain height */
-  max-height: 600px; /* Don't get too tall on large screens */
+  height: 90vh;
+  /* Constrain height */
+  max-height: 600px;
+  /* Don't get too tall on large screens */
   border-radius: var(--card-radius);
   box-shadow: var(--shadow-premium);
   border: 1px solid var(--border);
@@ -86,12 +93,14 @@
 }
 
 .form-header {
-  margin-top: 2rem; /* Give space for absolute back btn */
+  margin-top: 2rem;
+  /* Give space for absolute back btn */
 }
 
 .form-header h1 {
   font-family: var(--font-serif);
-  font-size: 2.8rem; /* Scaled down slightly */
+  font-size: 2.8rem;
+  /* Scaled down slightly */
   font-weight: 700;
   color: var(--text-main);
   margin-bottom: 0.5rem;
@@ -101,7 +110,8 @@
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 1rem; /* Scaled down slightly */
+  font-size: 1rem;
+  /* Scaled down slightly */
   margin-bottom: 2rem;
   line-height: 1.5;
   max-width: 400px;
@@ -123,32 +133,64 @@ app-floating-input {
 .field-wrapper {
   margin-bottom: 1.25rem;
 }
+
 .field-wrapper app-floating-input {
-  margin-bottom: 0.25rem; /* overrides the main gap */
+  margin-bottom: 0.25rem;
+  /* overrides the main gap */
 }
+
+.field-utils {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.forgot-link {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.forgot-link:hover {
+  color: var(--primary);
+}
+
 .field-error {
-  color: #ef4444; /* Standard alert red */
+  color: #ef4444;
+  /* Standard alert red */
   font-size: 0.75rem;
   font-weight: 600;
   margin-left: 0.5rem;
   margin-top: 0.2rem;
   animation: slideDown 0.2s ease-out;
 }
+
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Make inputs slightly smaller */
 app-floating-input::ng-deep .input-field {
-    height: 50px !important;
+  height: 50px !important;
 }
 
 .btn-premium {
   background: linear-gradient(135deg, var(--primary) 0%, #a81c1c 100%);
   color: #ffffff;
   border: none;
-  height: 54px; /* Scaled down */
+  height: 54px;
+  /* Scaled down */
   width: 100%;
   border-radius: 12px;
   font-weight: 900;
@@ -176,7 +218,8 @@ app-floating-input::ng-deep .input-field {
 }
 
 .footer-links {
-  margin-top: auto; /* Push to bottom naturally */
+  margin-top: auto;
+  /* Push to bottom naturally */
   padding-top: 1.5rem;
   padding-bottom: 1rem;
   text-align: left;
@@ -242,14 +285,15 @@ app-floating-input::ng-deep .input-field {
   height: 100%;
   object-fit: cover;
   border-radius: 20px;
-  filter: brightness(0.9) contrast(1.05); /* Clean, modern digital look */
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  filter: brightness(0.9) contrast(1.05);
+  /* Clean, modern digital look */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s;
 }
 
 .login-illustration:hover {
-    transform: scale(1.02);
-    filter: brightness(1.05) contrast(1.1);
+  transform: scale(1.02);
+  filter: brightness(1.05) contrast(1.1);
 }
 
 .error-msg {
@@ -267,102 +311,95 @@ app-floating-input::ng-deep .input-field {
 }
 
 .btn-link {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-weight: 900;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-    cursor: pointer;
-    margin-top: 1rem;
-    display: block;
-    width: 100%;
-    text-align: center;
-    transition: all 0.3s;
-}
-
-.btn-link:hover {
-    color: var(--text-main);
-    transform: translateY(-1px);
-}
-
-.field-utils {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.forgot-link {
-  font-size: 0.75rem;
+  background: transparent;
+  border: none;
   color: var(--text-secondary);
-  text-decoration: none;
-  font-weight: 600;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-top: 1rem;
+  display: block;
+  width: 100%;
+  text-align: center;
   transition: all 0.3s;
 }
 
-.forgot-link:hover {
-  color: var(--primary);
+.btn-link:hover {
+  color: var(--text-main);
+  transform: translateY(-1px);
 }
+
+
 
 @media (max-width: 992px) {
   .login-wrapper {
-      padding: 1rem;
-      overflow-y: auto; /* Allow scrolling on small screens if needed */
-      height: auto;
-      min-height: 100vh;
+    padding: 1rem;
+    overflow-y: auto;
+    /* Allow scrolling on small screens if needed */
+    height: auto;
+    min-height: 100vh;
   }
+
   .login-card {
     flex-direction: column;
     max-width: 500px;
-    height: auto; /* Let it grow naturally */
+    height: auto;
+    /* Let it grow naturally */
     max-height: none;
     border-radius: 16px;
     margin: 1rem auto;
   }
+
   .image-side {
     display: none;
   }
+
   .form-side {
     padding: 3rem 2rem;
   }
+
   .back-home {
     left: 2rem;
     top: 2rem;
   }
+
   .form-header h1 {
-      font-size: 2.2rem;
+    font-size: 2.2rem;
   }
 }
 
 /* Mobile Devices */
 @media (max-width: 576px) {
   .login-wrapper {
-      padding: 0.5rem;
+    padding: 0.5rem;
   }
+
   .login-card {
-      margin: 0.5rem auto;
-      border-radius: 12px;
+    margin: 0.5rem auto;
+    border-radius: 12px;
   }
+
   .form-side {
-      padding: 2.5rem 1.5rem 1.5rem;
+    padding: 2.5rem 1.5rem 1.5rem;
   }
+
   .back-home {
-      top: 1.5rem;
-      left: 1.5rem;
-      font-size: 0.7rem;
+    top: 1.5rem;
+    left: 1.5rem;
+    font-size: 0.7rem;
   }
+
   .form-header h1 {
-      font-size: 1.8rem;
+    font-size: 1.8rem;
   }
+
   .subtitle {
-      font-size: 0.9rem;
+    font-size: 0.9rem;
   }
+
   .btn-premium {
-      height: 48px;
+    height: 48px;
   }
 }
-
-
-
