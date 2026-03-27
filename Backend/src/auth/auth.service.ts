@@ -7,6 +7,7 @@ import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 
 import { MailService } from '../mail/mail.service';
+import { PaginatedResult } from '../common/pagination.dto';
 
 @Injectable()
 export class AuthService {
@@ -296,10 +297,22 @@ export class AuthService {
     return !!pendingAdmin;
   }
 
-  async getUsers() {
+  async getUsers(page: number = 1, limit: number = 10): Promise<PaginatedResult<any>> {
+    const skip = (page - 1) * limit;
+
+    const totalCountResults: any = await this.prisma.$queryRawUnsafe(`
+      SELECT COUNT(*)::int as count FROM (
+        SELECT id FROM users
+        UNION ALL
+        SELECT id FROM publisher_onboarding
+        WHERE email NOT IN (SELECT email FROM users) AND status != 'rejected'
+      ) as combined
+    `);
+    const total = totalCountResults[0].count;
+
     // We use raw SQL to bypass Prisma Client generation locks (EPERM errors) 
     // and to merge pending onboarding users into the main list.
-    const users = await this.prisma.$queryRawUnsafe(`
+    const data = await this.prisma.$queryRawUnsafe(`
       SELECT 
         id, email, 
         COALESCE(first_name, '') as "firstName", 
@@ -313,6 +326,7 @@ export class AuthService {
         role::text, 
         credit_balance as "creditBalance", 
         created_at as "createdAt",
+        deleted_at as "deletedAt",
         is_deleted as "isDeleted",
         CASE WHEN is_deleted THEN 'Deleted' ELSE 'Active' END as status
       FROM users
@@ -332,15 +346,29 @@ export class AuthService {
         requested_role::text as role, 
         0 as "creditBalance", 
         created_at as "createdAt",
+        NULL as "deletedAt",
         false as "isDeleted",
         status::text as status
       FROM publisher_onboarding
       WHERE email NOT IN (SELECT email FROM users) AND status != 'rejected'
       
       ORDER BY "createdAt" DESC
+      LIMIT ${limit} OFFSET ${skip}
     `);
 
-    return users;
+    return {
+      data: data as any[],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
+
+  async getUserById(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (user) return user;
+    return this.prisma.publisherOnboarding.findUnique({ where: { id } as any });
   }
 
   async validateUser(email: string, pass: string) {

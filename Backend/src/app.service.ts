@@ -27,75 +27,41 @@ export class AppService {
   }
 
   async getPublicArticles(category?: string, query?: string, skip: number = 0, take: number = 12) {
-    const sources = await this.prisma.source.findMany({ where: { isActive: true } });
-    const perSourceLimit = skip + take + 10; 
+    const where: any = {};
     
-    const articlePromises = sources.map(source => {
-      const where: any = { sourceId: source.id };
-      
-      if (category && category !== 'All') {
-        where.category = category;
-      }
+    if (category && category !== 'All') {
+      where.category = category;
+    }
 
-      if (query) {
-        where.OR = [
-          { title: { contains: query, mode: 'insensitive' } },
-          { synopsis: { contains: query, mode: 'insensitive' } }
-        ];
-      }
+    if (query) {
+      where.OR = [
+        { title: { contains: query, mode: 'insensitive' } },
+        { synopsis: { contains: query, mode: 'insensitive' } },
+        { source: { name: { contains: query, mode: 'insensitive' } } }
+      ];
+    }
 
-      return this.prisma.article.findMany({
-        where,
-        include: {
-          source: {
-            select: {
-              name: true,
-              homepageUrl: true,
-            }
+    const articles = await this.prisma.article.findMany({
+      where,
+      include: {
+        source: {
+          select: {
+            name: true,
+            homepageUrl: true,
           }
-        },
-        orderBy: {
-          postedAt: 'desc'
-        },
-        take: perSourceLimit
-      });
+        }
+      },
+      orderBy: {
+        postedAt: 'desc'
+      },
+      take: skip + take + 100 // Get enough for de-duplication
     });
 
-    const results = await Promise.all(articlePromises);
-    const flattened = results.flat();
-    
-    const uniqueArticles = this.deDuplicate(flattened);
+    const uniqueArticles = this.deDuplicate(articles, 'postedAt');
     
     return uniqueArticles
       .sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
       .slice(skip, skip + take);
-  }
-
-  private deDuplicate(articles: any[]): any[] {
-    const clusterMap = new Map<number, any>();
-    const uniqueArticles: any[] = [];
-
-    for (const article of articles) {
-      if (article.clusterId === null) {
-        // This shouldn't happen with the new ingestion logic, but as a fallback:
-        uniqueArticles.push(article);
-        continue;
-      }
-
-      const existing = clusterMap.get(article.clusterId);
-      if (!existing || article.postedAt.getTime() > existing.postedAt.getTime()) {
-        clusterMap.set(article.clusterId, article);
-      }
-    }
-
-    return [...uniqueArticles, ...Array.from(clusterMap.values())];
-  }
-
-  private getKeywords(text: string): string[] {
-    return text.toLowerCase()
-      .replace(/[^\w\s]/g, '')
-      .split(/\s+/)
-      .filter(w => w.length > 3); // Only consider words longer than 3 chars for better matching
   }
 
   async getArticleById(id: string) {
@@ -104,6 +70,7 @@ export class AppService {
       include: {
         source: {
           select: {
+            id: true,
             name: true,
             homepageUrl: true,
           }
@@ -114,37 +81,87 @@ export class AppService {
     if (!article) return null;
 
     let relatedArticles: any[] = [];
+    
+    // 1. Cluster-based related (priority: other publishers)
     if (article.clusterId !== null) {
-      relatedArticles = await this.prisma.article.findMany({
+      const clusterArticles = await this.prisma.article.findMany({
         where: {
           clusterId: article.clusterId,
-          id: { not: id }, // Exclude current article
+          id: { not: id },
         },
-        include: {
-          source: {
-            select: {
-              name: true,
-            }
-          }
-        },
-        orderBy: {
-          postedAt: 'desc'
-        },
-        take: 5
+        include: { source: { select: { id: true, name: true } } },
+        orderBy: { postedAt: 'desc' },
+        take: 10 // Get more to allow diversity filtering
       });
+
+      // Prioritize "Other Publishers"
+      const otherPublishers = clusterArticles.filter(a => a.sourceId !== article.sourceId);
+      const samePublisher = clusterArticles.filter(a => a.sourceId === article.sourceId);
+      
+      relatedArticles = [...otherPublishers, ...samePublisher].slice(0, 6);
+    }
+
+    // 2. Keyword-based fallback (if cluster is thin)
+    if (relatedArticles.length < 6) {
+      const keywords = this.getKeywords(article.title);
+      const filteredKeywords = keywords.filter(w => !['breaking', 'update', 'latest', 'live', 'amid', 'reports', 'claims', 'arrests', 'action'].includes(w));
+      const searchTerms = filteredKeywords.length > 0 ? filteredKeywords : keywords.slice(0, 2);
+
+      if (searchTerms.length > 0) {
+        let additional = await this.prisma.article.findMany({
+          where: {
+            id: { notIn: [id, ...relatedArticles.map(a => a.id)] },
+            OR: searchTerms.map(term => ({ title: { contains: term, mode: 'insensitive' } }))
+          },
+          include: { source: { select: { id: true, name: true } } },
+          orderBy: { postedAt: 'desc' },
+          take: 20 // Get more for ranking
+        });
+
+        // Rank by mutual keyword count
+        const rankedResults = additional.map(item => {
+          const itemKeywords = this.getKeywords(item.title);
+          const commonCount = itemKeywords.filter(w => keywords.includes(w)).length;
+          
+          // Boost items from other publishers
+          const diversityBoost = item.sourceId !== article.sourceId ? 1.5 : 1.0;
+          const score = commonCount * diversityBoost;
+          
+          return { ...item, score };
+        })
+        .filter(item => item.score > 0.5) // Remove very weak matches
+        .sort((a, b) => b.score - a.score);
+        
+        relatedArticles = [...relatedArticles, ...rankedResults].slice(0, 8);
+      }
     }
 
     return {
       ...article,
-      relatedArticles
+      relatedArticles: relatedArticles.slice(0, 8)
     };
+  }
+
+  private getKeywords(text: string): string[] {
+    const stopWords = new Set([
+      'the', 'this', 'that', 'with', 'from', 'brought', 'shares', 'warns', 'shows', 
+      'tells', 'will', 'your', 'says', 'about', 'amid', 'could', 'would', 'after', 
+      'before', 'while', 'during', 'must', 'they', 'them', 'their', 'when', 'where', 
+      'been', 'were', 'have', 'than', 'into', 'action', 'says', 'calls', 'seeks', 
+      'claims', 'reports', 'take', 'make', 'just', 'more', 'some', 'over', 'back',
+      'last', 'next', 'been', 'being', 'been', 'also', 'only', 'very', 'been',
+      'horoscope', 'zodiac', 'daily', 'tomorrow', 'yesterday'
+    ]);
+    return text.toLowerCase()
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(w => w.length > 3 && !stopWords.has(w));
   }
 
   async getTrendingArticles() {
     const twelveHoursAgo = new Date();
     twelveHoursAgo.setHours(twelveHoursAgo.getHours() - 12);
 
-    // Fetch articles from last 7 days to keep trending relevant
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -157,12 +174,9 @@ export class AppService {
           select: { name: true }
         }
       },
-      take: 100 // Sample 100 recent articles
+      take: 100 
     });
 
-    // Since AccessLog is a separate model without a direct relation in prisma schema 
-    // (it has articleId as a field but no @relation Article), we'll aggregate manually.
-    
     const trendingList = await Promise.all(articles.map(async (article) => {
       const totalViews = await this.prisma.accessLog.count({
         where: { articleId: article.id }
@@ -182,8 +196,6 @@ export class AppService {
         });
       }
 
-      // Calculate Trending Score
-      // Weights: Cluster (Multi-source) = 5, Total Views = 1, Recent Pulse = 10
       const score = (totalViews * 1) + (clusterSize * 5) + (recentViews * 10);
 
       return {
@@ -198,8 +210,39 @@ export class AppService {
       };
     }));
 
-    return trendingList
+    const uniqueTrending = this.deDuplicate(trendingList, 'score');
+
+    return uniqueTrending
       .sort((a, b) => b.score - a.score)
       .slice(0, 10);
+  }
+
+  private deDuplicate(articles: any[], sortBy: 'postedAt' | 'score' = 'postedAt'): any[] {
+    const clusterMap = new Map<number, any>();
+    const uniqueArticles: any[] = [];
+
+    for (const article of articles) {
+      if (article.clusterId === null) {
+        uniqueArticles.push(article);
+        continue;
+      }
+
+      const existing = clusterMap.get(article.clusterId);
+      
+      let shouldReplace = !existing;
+      if (existing) {
+        if (sortBy === 'postedAt') {
+          shouldReplace = article.postedAt.getTime() > existing.postedAt.getTime();
+        } else {
+          shouldReplace = article.score > existing.score;
+        }
+      }
+
+      if (shouldReplace) {
+        clusterMap.set(article.clusterId, article);
+      }
+    }
+
+    return [...uniqueArticles, ...Array.from(clusterMap.values())];
   }
 }

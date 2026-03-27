@@ -90,6 +90,28 @@ export class CreatedAdsComponent implements OnInit {
     });
   }
 
+  approveAd(id: string) {
+    this.http.put(`http://localhost:3000/admin/ads/${id}/status`, { status: 'active', isActive: true }).subscribe({
+      next: () => {
+        this.toast.show('Campaign Approved & Activated', 'success');
+        this.loadAds();
+      },
+      error: () => this.toast.show('Failed to approve campaign', 'error')
+    });
+  }
+
+  rejectAd(id: string) {
+    if (confirm('Are you sure you want to reject this campaign?')) {
+      this.http.put(`http://localhost:3000/admin/ads/${id}/status`, { status: 'rejected', isActive: false }).subscribe({
+        next: () => {
+          this.toast.show('Campaign Rejected', 'info');
+          this.loadAds();
+        },
+        error: () => this.toast.show('Failed to reject campaign', 'error')
+      });
+    }
+  }
+
   deleteAd(id: string) {
     if (confirm('Permanently delete this advertising campaign?')) {
       this.http.delete(`http://localhost:3000/admin/ads/${id}`).subscribe({

@@ -6,6 +6,9 @@ export class AdService {
   constructor(private prisma: PrismaService) {}
 
   async createAd(data: any, creatorId: string) {
+    // Admin ads are automatically set to active and bypass the workflow
+    const initialStatus = creatorId === 'ADMIN' ? 'active' : (data.status || 'pending');
+    
     return this.prisma.advertisement.create({
       data: {
         title: data.title,
@@ -15,7 +18,7 @@ export class AdService {
         placementType: data.placement_type || data.placementType,
         position: data.position || 0,
         createdBy: creatorId,
-        status: data.status || 'active',
+        status: initialStatus,
         isActive: data.is_active !== undefined ? data.is_active : true,
         startTime: data.startTime ? new Date(data.startTime) : null,
         endTime: data.endTime ? new Date(data.endTime) : null,
@@ -40,7 +43,10 @@ export class AdService {
     return this.prisma.advertisement.findMany({
       where: {
         isActive: true,
-        status: 'active',
+        OR: [
+          { status: 'active' },
+          { createdBy: 'ADMIN' } // Admin ads are always available if active
+        ],
         ...(placementType ? { placementType } : {}),
       },
       orderBy: { position: 'asc' },

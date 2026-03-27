@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Patch, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Patch, Delete, UseGuards, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -6,6 +6,7 @@ import { AdService } from '../ad/ad.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminGuard } from '../auth/admin.guard';
+import { PaginatedResult } from '../common/pagination.dto';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -16,18 +17,38 @@ export class AdminController {
   ) {}
 
   @Get('sources')
-  async getAllSources() {
-    return this.prisma.source.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        owner: {
-          select: {
-            email: true,
-            orgName: true
+  async getAllSources(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10'
+  ): Promise<PaginatedResult<any>> {
+    const p = parseInt(page);
+    const l = parseInt(limit);
+    const skip = (p - 1) * l;
+
+    const [data, total] = await Promise.all([
+      this.prisma.source.findMany({
+        skip,
+        take: l,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          owner: {
+            select: {
+              email: true,
+              orgName: true
+            }
           }
         }
-      }
-    });
+      }),
+      this.prisma.source.count()
+    ]);
+
+    return {
+      data,
+      total,
+      page: p,
+      limit: l,
+      totalPages: Math.ceil(total / l)
+    };
   }
 
   @Get('stats')

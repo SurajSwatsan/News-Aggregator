@@ -177,27 +177,34 @@ export class RSSEngineService {
     });
 
     const words = this.getKeywords(title);
+    this.logger.debug(`Keywords for "${title}": [${words.join(', ')}]`);
 
     for (const recent of recentArticles) {
       const recentWords = this.getKeywords(recent.title);
       const overlap = words.filter(w => recentWords.includes(w)).length;
       const ratio = overlap / Math.max(words.length, recentWords.length);
 
-      // Fast check: 40% keyword overlap triggers AI comparison
-      if (ratio > 0.4) {
+      // Fast check: 50% keyword overlap (increased from 0.4) triggers AI comparison
+      if (ratio >= 0.5) {
+        this.logger.log(`High keyword overlap (${(ratio * 100).toFixed(1)}%) between "${title}" and "${recent.title}". Triggering AI check...`);
         const isSimilar = await this.aiService.areArticlesSimilar(
           title, synopsis,
           recent.title, recent.synopsis || ''
         );
 
         if (isSimilar) {
-          this.logger.log(`Article "${title}" matches existing cluster ${recent.clusterId}`);
+          this.logger.log(`✅ Similarity CONFIRMED by AI. Article matches cluster ${recent.clusterId}`);
           return recent.clusterId!;
+        } else {
+          this.logger.log(`❌ Similarity REJECTED by AI for overlapping titles: "${title}" vs "${recent.title}"`);
         }
+      } else if (ratio > 0.1) {
+        this.logger.debug(`Low overlap (${(ratio * 100).toFixed(1)}%) with "${recent.title}". Skipping AI check.`);
       }
     }
 
     // 2. If no match found, generate new clusterId
+    this.logger.log(`No matching clusters found for "${title}". Generating new ID.`);
     const maxCluster = await this.prisma.article.aggregate({
       _max: { clusterId: true }
     });
@@ -206,10 +213,19 @@ export class RSSEngineService {
   }
 
   private getKeywords(text: string): string[] {
+    const stopWords = new Set([
+      'the', 'this', 'that', 'with', 'from', 'brought', 'shares', 'warns', 'shows', 
+      'tells', 'will', 'your', 'says', 'about', 'amid', 'could', 'would', 'after', 
+      'before', 'while', 'during', 'must', 'they', 'them', 'their', 'when', 'where', 
+      'been', 'were', 'have', 'than', 'into', 'action', 'says', 'calls', 'seeks', 
+      'claims', 'reports', 'take', 'make', 'just', 'more', 'some', 'over', 'back',
+      'last', 'next', 'been', 'being', 'been', 'also', 'only', 'very', 'been',
+      'horoscope', 'zodiac', 'daily', 'tomorrow', 'yesterday'
+    ]);
     return text.toLowerCase()
       .replace(/[^\w\s]/g, '')
       .split(/\s+/)
-      .filter(w => w.length > 3);
+      .filter(w => w.length > 3 && !stopWords.has(w));
   }
 
   private extractImageFromItem(item: any): string | null {
@@ -249,7 +265,7 @@ export class RSSEngineService {
       try {
         const categoriesList = [
           'Technology', 'Business', 'Politics', 'Sports', 'Entertainment', 
-          'Science', 'Health', 'Sports', 'Lifestyle', 'Environment', 'World', 'Media', 'General'
+          'Science', 'Health', 'Sports', 'Lifestyle', 'Environment', 'World', 'Media', 'Agriculture', 'Crime', 'General'
         ];
         
         const aiCategory = await this.aiService.categorize(title, content, categoriesList);
@@ -267,8 +283,11 @@ export class RSSEngineService {
     if (text.match(/\b(politic|election|government|parliament|senate|white house|minister|diplomacy)\b/)) return 'Politics';
     if (text.match(/\b(sport|cricket|football|olympic|tennis|stadium|match|tournament|fifa|ipl)\b/)) return 'Sports';
     if (text.match(/\b(entertainment|movie|film|actor|music|hollywood|bollywood|celebrity|oscar)\b/)) return 'Entertainment';
-    if (text.match(/\b(health|medical|doctor|virus|vaccine|disease|science|research|study|space|nasa)\b/)) return 'Science';
+    if (text.match(/\b(health|medical|doctor|virus|vaccine|disease|hospital|patient|surgery|remedy)\b/)) return 'Health';
+    if (text.match(/\b(science|research|study|space|nasa|astronomy|physics|biology|chemistry)\b/)) return 'Science';
+    if (text.match(/\b(crime|arrest|police|murder|theft|robbery|scam|fraud|jail|prison|scandal|investigation|kidnap)\b/)) return 'Crime';
     if (text.match(/\b(environment|climate|nature|forest|pollution|recycle|green energy|ocean)\b/)) return 'Environment';
+    if (text.match(/\b(farmer|farming|agriculture|crop|harvest|basmati|wheat|rice|irrigation|soil|livestock|dairy)\b/)) return 'Agriculture';
     if (text.match(/\b(world|international|global|nation|country)\b/)) return 'World';
     if (text.match(/\b(lifestyle|travel|food|cooking|fashion|luxury|style)\b/)) return 'Lifestyle';
     if (text.match(/\b(media|journalism|press|newspaper|broadcast|television|radio)\b/)) return 'Media';

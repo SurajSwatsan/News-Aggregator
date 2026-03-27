@@ -112,6 +112,11 @@
     } @else {
       <div class="layout-grid">
         <div class="main-body-column">
+          <!-- Premium In-Feed Ad (Slot 0) -->
+          <div class="in-feed-ad-wrapper top-ad-margin">
+            <app-ad-slot placementType="in-feed" [index]="0"></app-ad-slot>
+          </div>
+
           <!-- Hero Section -->
           @if (selectedCategory() === 'All' && featuredArticle()) {
           <div class="hero-grid">
@@ -140,9 +145,6 @@
             </div>
           </div>
           }
-          @if (selectedCategory() === 'All') {
-            <app-ad-slot placementType="in-feed"></app-ad-slot>
-          }
 
           <div class="news-list-section">
             <div class="section-header">
@@ -156,7 +158,7 @@
             </div>
             
             <div class="news-grid">
-              @for (article of articles(); track article.id) {
+              @for (article of articles(); track article.id; let i = $index) {
               <article class="premium-card">
                 <div class="card-image-wrap">
                   <div class="image-overlay"></div>
@@ -188,6 +190,12 @@
                   </footer>
                 </div>
               </article>
+
+              @if ((i + 1) % 10 === 0) {
+                <div class="in-feed-ad-wrapper">
+                  <app-ad-slot placementType="in-feed" [index]="(i + 1) / 10"></app-ad-slot>
+                </div>
+              }
               } @empty {
               <div class="empty-feed">
                 <div class="empty-icon">📂</div>
@@ -209,7 +217,7 @@
                   <button class="btn-see-more" (click)="loadMore()">
                     SEE MORE
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+                      <path d="M6 9l6 6 6-6" />
                     </svg>
                   </button>
                 }
@@ -262,9 +270,47 @@
     }
   </main>
   
-  @if (showPaymentModal()) {
-    <app-payment-modal (close)="showPaymentModal.set(false)"></app-payment-modal>
+  @if (selectedCategory() === 'All' && spotlightCategories().length > 0) {
+    <div class="spotlight-container">
+      @for (spotlight of spotlightCategories(); track spotlight.name) {
+        <section class="spotlight-row">
+          <div class="spotlight-header-row">
+            <div class="spotlight-header" (click)="selectCategory(spotlight.name)">
+              <h2>{{ spotlight.name === 'Crime' ? 'City Crime' : spotlight.name }}</h2>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </div>
+            <div class="spotlight-nav">
+              <button class="nav-btn prev" (click)="scrollSpotlight('scroll-' + spotlight.name, 'left')">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <button class="nav-btn next" (click)="scrollSpotlight('scroll-' + spotlight.name, 'right')">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="spotlight-scroll-container" [id]="'scroll-' + spotlight.name">
+            <div class="spotlight-grid">
+              @for (item of spotlight.articles; track item.id) {
+                <article class="spotlight-card" (click)="handleArticleAccess(item)">
+                  <div class="spotlight-image-box">
+                    <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
+                         alt="" (error)="handleImageError($event)">
+                  </div>
+                  <h3 class="spotlight-item-title">{{ item.title }}</h3>
+                </article>
+              }
+            </div>
+          </div>
+        </section>
+      }
+    </div>
   }
-  
+
   <app-footer></app-footer>
 </div>

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Patch, Param, Delete, UnauthorizedException, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Patch, Param, Delete, UnauthorizedException, Req, UseGuards, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -31,8 +31,11 @@ export class AuthController {
   }
 
   @Get('users')
-  async getUsers() {
-    return this.authService.getUsers();
+  async getUsers(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10'
+  ) {
+    return this.authService.getUsers(parseInt(page), parseInt(limit));
   }
 
   @Post('login')
@@ -83,10 +86,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: any) {
-    const user = await this.authService.getUsers().then(users => 
-      (users as any[]).find(u => u.id === req.user.id)
-    );
-    return user;
+    return this.authService.getUserById(req.user.id);
   }
 
   @Patch('users/:id')

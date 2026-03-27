@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { AuditLogsService } from './audit-logs.service';
 
 @Controller('admin/audit-logs')
@@ -6,7 +6,10 @@ export class AuditLogsController {
   constructor(private readonly auditLogsService: AuditLogsService) {}
 
   @Get()
-  async getLogs() {
-    return this.auditLogsService.getAllLogs();
+  async getLogs(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10'
+  ) {
+    return this.auditLogsService.getAllLogs(parseInt(page), parseInt(limit));
   }
 }

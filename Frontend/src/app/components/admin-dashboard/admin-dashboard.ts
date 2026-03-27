@@ -77,11 +77,26 @@ export class AdminDashboardComponent implements OnInit {
   inviteEmail = signal('');
   lastInviteLink = signal<string | null>(null);
   auditLogs = signal<any[]>([]);
-  isCreatingAd = signal(false);
-  editingAdId = signal<string | null>(null);
   refreshTrigger = signal(0);
   isUploadingAdAsset = signal(false);
   viewingAd = signal<any>(null);
+  isCreatingAd = signal(false);
+  editingAdId = signal<string | null>(null);
+
+  // Pagination Signals
+  pageSize = 10;
+  sourcesPage = signal(1);
+  sourcesTotal = signal(0);
+  sourcesTotalPages = signal(0);
+
+  usersPage = signal(1);
+  usersTotal = signal(0);
+  usersTotalPages = signal(0);
+
+  auditPage = signal(1);
+  auditTotal = signal(0);
+  auditTotalPages = signal(0);
+
   newAd = signal({
     title: '',
     adType: 'image',
@@ -168,18 +183,24 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadSources() {
-    this.http.get<any[]>('http://localhost:3000/admin/sources').subscribe(res => {
-      this.sources.set(res);
+    const page = this.sourcesPage();
+    this.http.get<any>(`http://localhost:3000/admin/sources?page=${page}&limit=${this.pageSize}`).subscribe(res => {
+      this.sources.set(res.data);
+      this.sourcesTotal.set(res.total);
+      this.sourcesTotalPages.set(res.totalPages);
+      // Update global stat if needed, though this is now sync with total
+      this.activeSources.set(res.total);
     });
   }
 
   loadUsers() {
-    this.http.get<any[]>('http://localhost:3000/auth/users').subscribe(res => {
-      console.log('[AdminHub] Received users:', res.length);
-      this.allUsers.set(res);
-      // Only count readers for the totalReaders stat, including deleted as requested by user
-      const readerCount = res.filter(u => u.role === 'reader').length;
-      this.totalReaders.set(readerCount);
+    const page = this.usersPage();
+    this.http.get<any>(`http://localhost:3000/auth/users?page=${page}&limit=${this.pageSize}`).subscribe(res => {
+      this.allUsers.set(res.data);
+      this.usersTotal.set(res.total);
+      this.usersTotalPages.set(res.totalPages);
+      // For reader total stat, keep it simple by fetching from stats endpoint or filtering if page is large
+      this.loadStats();
     });
   }
 
@@ -190,9 +211,31 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadAuditLogs() {
-    this.http.get<any[]>('http://localhost:3000/admin/audit-logs').subscribe(res => {
-      this.auditLogs.set(res);
+    const page = this.auditPage();
+    this.http.get<any>(`http://localhost:3000/admin/audit-logs?page=${page}&limit=${this.pageSize}`).subscribe(res => {
+      this.auditLogs.set(res.data);
+      this.auditTotal.set(res.total);
+      this.auditTotalPages.set(res.totalPages);
     });
+  }
+
+  // --- Pagination Actions ---
+  setPageSources(p: number) {
+    if (p < 1 || p > this.sourcesTotalPages()) return;
+    this.sourcesPage.set(p);
+    this.loadSources();
+  }
+
+  setPageUsers(p: number) {
+    if (p < 1 || p > this.usersTotalPages()) return;
+    this.usersPage.set(p);
+    this.loadUsers();
+  }
+
+  setPageAudit(p: number) {
+    if (p < 1 || p > this.auditTotalPages()) return;
+    this.auditPage.set(p);
+    this.loadAuditLogs();
   }
 
   // --- User Actions ---

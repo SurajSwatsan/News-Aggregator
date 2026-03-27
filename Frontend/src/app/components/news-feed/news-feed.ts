@@ -34,29 +34,31 @@ export class NewsFeedComponent implements OnInit {
   selectedCategory = signal<string>('All');
   showPaymentModal = signal(false);
   currentUser = this.auth.currentUser;
-  
+
   // Computed properties for specialized layout
   featuredArticle = computed(() => this.articles()[0]);
   heroArticles = computed(() => this.articles().slice(1, 4));
   trendingArticles = signal<any[]>([]);
   topArticles = computed(() => this.articles().slice(0, 10)); // Top 10 for the ticker
   currentDate = signal(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-  
+
   // Weather & Location Signals
   temperature = signal<string>('--°C');
   locationInfo = signal<string>('Detecting...');
-  
+
   // Pagination & Infinite Scroll Signals
   skip = signal<number>(0);
-  pageSize = 30;
+  pageSize = 26;
   hasMore = signal<boolean>(true);
   isFetchingMore = signal<boolean>(false);
   lastUpdated = signal<string>('');
-  
+
   categories = [
-    'All', 'General', 'World', 'Politics', 'Business', 'Technology', 
-    'Science', 'Health', 'Sports', 'Entertainment', 'Lifestyle', 'Environment'
+    'All', 'General', 'World', 'Politics', 'Business', 'Technology',
+    'Science', 'Health', 'Agriculture', 'Sports', 'Crime', 'Entertainment', 'Lifestyle', 'Environment'
   ];
+
+  spotlightCategories = signal<any[]>([]);
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -79,7 +81,39 @@ export class NewsFeedComponent implements OnInit {
       this.fetchArticles();
       this.fetchTrending();
       this.fetchWeather();
+
+      if (this.selectedCategory() === 'All') {
+        this.fetchSpotlightCategories();
+      }
     });
+  }
+
+  fetchSpotlightCategories() {
+    const spotlights = ['Crime', 'Health', 'Sports', 'Entertainment'];
+    const requests = spotlights.map(cat =>
+      this.http.get<any[]>(`http://localhost:3000/articles?category=${cat}&take=12`)
+    );
+
+    import('rxjs').then(({ forkJoin }) => {
+      forkJoin(requests).subscribe(results => {
+        const spotlightData = spotlights.map((name, index) => ({
+          name,
+          articles: results[index] || []
+        })).filter(s => s.articles.length > 0);
+        this.spotlightCategories.set(spotlightData);
+      });
+    });
+  }
+
+  scrollSpotlight(id: string, direction: 'left' | 'right') {
+    const el = document.getElementById(id);
+    if (el) {
+      const scrollAmount = 600;
+      el.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   }
 
   logout() {
@@ -96,27 +130,27 @@ export class NewsFeedComponent implements OnInit {
 
   fetchArticles() {
     console.log('[NewsFeed] Fetching articles for category:', this.selectedCategory(), 'query:', this.searchQuery);
-    
+
     // Use the api root from environment (which usually points to http://localhost:3000/api)
     // But since AppController is at root, we might need to adjust.
     // Let's use whatever is working, but add logging.
     let baseUrl = 'http://localhost:3000/articles';
     const params: string[] = [];
-    
+
     params.push(`skip=${this.skip()}`);
     params.push(`take=${this.pageSize}`);
 
     if (this.selectedCategory() !== 'All') {
       params.push(`category=${this.selectedCategory()}`);
     }
-    
+
     if (this.searchQuery) {
       params.push(`q=${encodeURIComponent(this.searchQuery.trim())}`);
     }
-    
+
     const finalUrl = params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl;
     console.log('[NewsFeed] Requesting URL:', finalUrl);
-    
+
     this.http.get<any[]>(finalUrl).subscribe({
       next: (res) => {
         console.log('[NewsFeed] Received articles:', res.length);
@@ -125,11 +159,11 @@ export class NewsFeedComponent implements OnInit {
         } else {
           this.articles.update(prev => [...prev, ...res]);
         }
-        
+
         this.lastUpdated.set(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
         this.isLoading.set(false);
         this.isFetchingMore.set(false);
-        
+
         if (res.length < this.pageSize) {
           this.hasMore.set(false);
         }
@@ -202,18 +236,16 @@ export class NewsFeedComponent implements OnInit {
     // 1. Check if user already has access to this article
     this.accessService.checkAccess(article.id).subscribe(hasAccess => {
       if (hasAccess) {
-        // Already unlocked, just navigate
-        this.toast.show('Accessing premium story (previously unlocked)', 'info');
+        // Already unlocked, just navigate silently
         this.router.navigate(['/article', article.id]);
       } else {
         // 2. Not unlocked - check credit balance (handle string/number decimal)
         const balance = Number(user.creditBalance);
-        
+
         if (balance >= 1) {
           // 3. Has credits - deduct (grantAccess) and then navigate
           this.accessService.grantAccess(article.id).subscribe(success => {
             if (success) {
-              this.toast.show('Premium Story Unlocked! (1 Credit used)');
               this.router.navigate(['/article', article.id]);
             }
           });
@@ -241,7 +273,7 @@ export class NewsFeedComponent implements OnInit {
         (position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-          
+
           // 1. Fetch Temperature from Open-Meteo
           const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
           this.http.get<any>(weatherUrl).subscribe({

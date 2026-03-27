@@ -128,6 +128,19 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
 
           <!-- Sidebar -->
           <aside class="article-sidebar">
+            @if (relatedArticles().length > 0) {
+              <section class="sidebar-section topic-related">
+                <h3>More on this Topic</h3>
+                <div class="sidebar-item" *ngFor="let item of relatedArticles().slice(0, 4); let i = index" [routerLink]="['/article', item.id]">
+                  <div class="item-content">
+                    <span class="item-title">{{ item.title }}</span>
+                    <div class="item-meta">{{ item.source?.name | uppercase }} | {{ item.category || 'GENERAL' }}</div>
+                  </div>
+                </div>
+                <div class="sidebar-divider"></div>
+              </section>
+            }
+
             <section class="sidebar-section">
               <h3>Trending News</h3>
               @if (trendingArticles().length > 0) {
@@ -173,7 +186,8 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
               <div class="related-grid">
                 <div class="related-card" *ngFor="let item of relatedArticles()" [routerLink]="['/article', item.id]">
                   <div class="card-image-box">
-                    <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" alt="">
+                    <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
+                         (error)="handleImageError($event)" alt="">
                     <div class="source-badge">{{ item.source?.name }}</div>
                   </div>
                   <div class="card-content">

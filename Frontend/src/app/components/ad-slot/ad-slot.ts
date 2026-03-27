@@ -13,6 +13,7 @@ export class AdSlotComponent implements OnInit {
   private http = inject(HttpClient);
 
   @Input() placementType: string = 'sidebar'; // 'header', 'sidebar', 'in-feed'
+  @Input() index: number = 0; // To support rotation (0, 1, 2, ...)
   
   ad = signal<any>(null);
   isLoading = signal(true);
@@ -25,9 +26,10 @@ export class AdSlotComponent implements OnInit {
     this.http.get<any[]>(`http://localhost:3000/ads/active?placement=${this.placementType}`).subscribe({
       next: (ads) => {
         if (ads && ads.length > 0) {
-          // Pick a random one or the first one based on position
-          this.ad.set(ads[0]);
-          this.trackImpression(ads[0].id);
+          // Use the index to rotate through available ads
+          const adIndex = this.index % ads.length;
+          this.ad.set(ads[adIndex]);
+          this.trackImpression(ads[adIndex].id);
         }
         this.isLoading.set(false);
       },

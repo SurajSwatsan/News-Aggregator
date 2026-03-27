@@ -112,8 +112,11 @@ import { ToastService } from '../../../services/toast.service';
             </div>
 
             <div class="col-status">
-              <div class="status-badge-simple" [class.active]="ad.isActive">
-                {{ ad.isActive ? 'Active' : 'Paused' }}
+              <div class="status-badge-refined" [class]="ad.status">
+                {{ ad.status | titlecase }}
+              </div>
+              <div class="status-sub-label" *ngIf="ad.status === 'active' || ad.status === 'ACTIVE'">
+                {{ ad.isActive ? 'Delivering' : 'Paused' }}
               </div>
             </div>
 
@@ -124,7 +127,8 @@ import { ToastService } from '../../../services/toast.service';
               <button class="icon-btn-refined" (click)="openAdModal(ad)" title="Modify">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
               </button>
-              <button class="icon-btn-refined toggle" [class.is-active]="ad.isActive" (click)="toggleAd(ad)" [title]="ad.isActive ? 'Suspend' : 'Resume'">
+              <button class="icon-btn-refined toggle" [class.is-active]="ad.isActive" (click)="toggleAd(ad)" 
+                [title]="ad.isActive ? 'Suspend' : 'Resume'" [disabled]="ad.status !== 'active' && ad.status !== 'ACTIVE'">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                   <rect x="6" y="6" width="12" height="12" rx="2" *ngIf="ad.isActive"/>
                   <path d="M8 5v14l11-7L8 5z" *ngIf="!ad.isActive"/>
@@ -327,8 +331,14 @@ import { ToastService } from '../../../services/toast.service';
     .stat-mini-table.highlight .val { color: #f59e0b; }
     .stat-divider { width: 1px; height: 18px; background: #e2e8f0; }
 
-    .status-badge-simple { font-size: 0.75rem; font-weight: 700; color: #64748b; }
-    .status-badge-simple.active { color: #059669; }
+    .status-badge-refined { 
+      padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; 
+      text-transform: uppercase; display: inline-block;
+    }
+    .status-badge-refined.pending { background: #fef3c7; color: #d97706; }
+    .status-badge-refined.approved { background: #dcfce7; color: #059669; }
+    .status-badge-refined.rejected { background: #fecaca; color: #dc2626; }
+    .status-sub-label { font-size: 0.6rem; font-weight: 700; color: #94a3b8; margin-top: 2px; text-transform: uppercase; }
 
     .action-set { display: flex; justify-content: flex-end; gap: 0.375rem; }
     .icon-btn-refined { 
@@ -476,7 +486,7 @@ export class PublisherAdsComponent implements OnInit {
   }
 
   calculateStats(adsList: any[]) {
-    const active = adsList.filter(a => a.isActive).length;
+    const active = adsList.filter(a => a.isActive && (a.status === 'active' || a.status === 'ACTIVE')).length;
     const imps = adsList.reduce((acc, curr) => acc + (curr.impressions || 0), 0);
     const clicks = adsList.reduce((acc, curr) => acc + (curr.clicks || 0), 0);
     const ctrVal = imps > 0 ? ((clicks / imps) * 100).toFixed(2) : '0.00';
