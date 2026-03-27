@@ -139,75 +139,77 @@
       <div *ngIf="activeTab() === 'sources'" class="animate-fade-in">
 
         <div class="premium-inventory-wrapper" *ngIf="sources().length > 0">
-          <!-- Source Grid Header -->
-          <div class="premium-grid-header cols-sources">
-            <span>Source / Gateway</span>
-            <span>Organization</span>
-            <span>Delivery State</span>
-            <span>Integration Date</span>
-            <span class="text-right">Management</span>
-          </div>
+          <div class="premium-scroll-area">
+            <!-- Source Grid Header -->
+            <div class="premium-grid-header cols-sources">
+              <span>Source / Gateway</span>
+              <span>Organization</span>
+              <span>Delivery State</span>
+              <span>Integration Date</span>
+              <span class="text-right">Management</span>
+            </div>
 
-          <!-- Rows List (Non-scrollable, Paginated) -->
-          <div class="premium-item-row cols-sources" *ngFor="let s of sources()">
-            <div class="identity-cell">
-              <div class="source-avatar">
-                {{ s.name[0].toUpperCase() }}
+            <!-- Rows List (Non-scrollable, Paginated) -->
+            <div class="premium-item-row cols-sources" *ngFor="let s of sources()">
+              <div class="identity-cell">
+                <div class="source-avatar">
+                  {{ s.name[0].toUpperCase() }}
+                </div>
+                <div class="meta" style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                  <span class="main-name text-truncate-cell"
+                    style="font-weight: 700; color: var(--text-heading); font-size: 0.95rem;">
+                    {{ s.name }}
+                  </span>
+                  <span class="sub-link text-truncate-cell"
+                    style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;"
+                    [title]="s.homepageUrl">
+                    {{ s.homepageUrl }}
+                  </span>
+                </div>
               </div>
-              <div class="meta" style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-                <span class="main-name text-truncate-cell"
-                  style="font-weight: 700; color: var(--text-heading); font-size: 0.95rem;">
-                  {{ s.name }}
-                </span>
-                <span class="sub-link text-truncate-cell"
-                  style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;"
-                  [title]="s.homepageUrl">
-                  {{ s.homepageUrl }}
-                </span>
+
+              <div class="org-cell">
+                {{ s.owner?.orgName || 'Aggregator Node' }}
               </div>
-            </div>
 
-            <div class="org-cell">
-              {{ s.owner?.orgName || 'Aggregator Node' }}
-            </div>
-
-            <div>
-              <div class="status-indicator-refined" [class.active]="s.isActive">
-                <span class="dot" [style.background]="s.isActive ? 'var(--success)' : '#94a3b8'"></span>
-                <span class="text" [style.color]="s.isActive ? 'var(--success)' : '#64748b'">
-                  {{ s.isActive ? 'Active' : 'Paused' }}
-                </span>
+              <div>
+                <div class="status-indicator-refined" [class.active]="s.isActive">
+                  <span class="dot" [style.background]="s.isActive ? 'var(--success)' : '#94a3b8'"></span>
+                  <span class="text" [style.color]="s.isActive ? 'var(--success)' : '#64748b'">
+                    {{ s.isActive ? 'Active' : 'Paused' }}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
-              {{ s.createdAt | date:'mediumDate' }}
-            </div>
+              <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                {{ s.createdAt | date:'mediumDate' }}
+              </div>
 
-            <div class="action-set">
-              <button class="btn-icon-premium" title="View Source">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              </button>
-              <button class="btn-icon-premium" title="Edit Source">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                  <path d="m15 5 4 4" />
-                </svg>
-              </button>
-              <button class="btn-icon-premium danger" title="Delete Source">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                </svg>
-              </button>
+              <div class="action-set">
+                <button class="btn-icon-premium" title="View Source">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+                <button class="btn-icon-premium" title="Edit Source">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    <path d="m15 5 4 4" />
+                  </svg>
+                </button>
+                <button class="btn-icon-premium danger" title="Delete Source">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -264,84 +266,99 @@
           <!-- Tables & Forms -->
           <div class="user-content-wrapper">
             <!-- Premium Unified Table Card -->
-            <div class="premium-inventory-wrapper" *ngIf="['all', 'publishers', 'readers'].includes(usersSubTab())">
-              <!-- Grid Header -->
-              <div class="premium-grid-header cols-users">
-                <span>Identity / Email</span>
-                <span>Access Level</span>
-                <span>Current State</span>
-                <span class="text-right">Management</span>
-              </div>
-
-              <!-- Rows List (Non-scrollable, Paginated) -->
-              <div class="premium-item-row cols-users"
-                *ngFor="let user of (usersSubTab() === 'publishers' ? publishers() : filteredUsers())">
-                <!-- Identity -->
-                <div class="identity-cell">
-                  <div class="user-avatar-refined"
-                    [style.background]="user.isPending ? 'var(--purple-soft)' : (user.role === 'publisher' ? 'var(--accent-soft)' : 'var(--info-soft)')"
-                    [style.color]="user.isPending ? 'var(--purple)' : (user.role === 'publisher' ? 'var(--accent)' : 'var(--info)')">
-                    {{ (user.name || user.email)[0].toUpperCase() }}
+              <div class="premium-inventory-wrapper" *ngIf="['all', 'publishers', 'readers'].includes(usersSubTab())">
+                <div class="premium-scroll-area">
+                  <!-- Grid Header -->
+                  <div class="premium-grid-header cols-users">
+                    <span>Identity / Email</span>
+                    <span>Access Level</span>
+                    <span>Current State</span>
+                    <span class="text-right">Management</span>
                   </div>
-                  <div class="meta" style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-                    <span class="main-name text-truncate-cell"
-                      style="font-weight: 700; color: var(--text-heading); font-size: 0.95rem;">
-                      {{ user.name || 'Anonymous User' }}
-                    </span>
-                    <span class="sub-link text-truncate-cell"
-                      style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">
-                      {{ user.email }}
-                    </span>
+
+                  <!-- Rows List (Non-scrollable, Paginated) -->
+                  <div class="premium-item-row cols-users"
+                    *ngFor="let user of (usersSubTab() === 'publishers' ? publishers() : filteredUsers())">
+                    <!-- Identity -->
+                    <div class="identity-cell">
+                      <div class="user-avatar-refined"
+                        [style.background]="user.isPending ? 'var(--purple-soft)' : (user.role === 'publisher' ? 'var(--accent-soft)' : 'var(--info-soft)')"
+                        [style.color]="user.isPending ? 'var(--purple)' : (user.role === 'publisher' ? 'var(--accent)' : 'var(--info)')">
+                        {{ (user.name || user.email)[0].toUpperCase() }}
+                      </div>
+                      <div class="meta" style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                        <span class="main-name text-truncate-cell"
+                          style="font-weight: 700; color: var(--text-heading); font-size: 0.95rem;">
+                          {{ user.name || 'Anonymous User' }}
+                        </span>
+                        <span class="sub-link text-truncate-cell"
+                          style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">
+                          {{ user.email }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Access Level -->
+                    <div style="display: flex; align-items: center;">
+                      <span class="premium-badge" [class.badge-publisher]="user.role === 'publisher'"
+                        [class.badge-admin]="user.role === 'admin'">
+                        {{ user.role === 'publisher' ? 'Publisher' : (user.role === 'admin' ? 'Root Access' : 'Reader') }}
+                      </span>
+                    </div>
+
+                    <!-- State -->
+                    <div style="display: flex; align-items: center;">
+                      <div class="status-indicator-refined" [class.active]="user.status === 'Active'">
+                        <span class="dot"
+                          [style.background]="user.status === 'Active' ? 'var(--success)' : (user.status === 'Deleted' ? 'var(--danger)' : '#f59e0b')"></span>
+                        <span class="text"
+                          [style.color]="user.status === 'Active' ? 'var(--success)' : (user.status === 'Deleted' ? 'var(--danger)' : '#d97706')">
+                          {{ user.status }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Management -->
+                    <div class="action-set">
+                      <button class="btn-icon-premium" (click)="viewDetails(user)" title="View Details">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      </button>
+                      <button class="btn-approve-sm" *ngIf="user.isPending" (click)="approveRequest(user.id)" title="Approve Publisher">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Accept
+                      </button>
+                      <button class="btn-reject-sm" *ngIf="user.isPending" (click)="rejectRequest(user.id)" title="Reject Publisher">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Reject
+                      </button>
+                      <button class="btn-icon-premium" *ngIf="!user.isPending" (click)="editUser(user)"
+                        title="Edit Permissions">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                          <path d="m15 5 4 4" />
+                        </svg>
+                      </button>
+                      <button class="btn-icon-premium danger" (click)="deleteUser(user.id)" title="Remove Resource">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <!-- Access Level -->
-                <div style="display: flex; align-items: center;">
-                  <span class="premium-badge" [class.badge-publisher]="user.role === 'publisher'"
-                    [class.badge-admin]="user.role === 'admin'">
-                    {{ user.role === 'publisher' ? 'Publisher' : (user.role === 'admin' ? 'Root Access' : 'Reader') }}
-                  </span>
-                </div>
-
-                <!-- State -->
-                <div style="display: flex; align-items: center;">
-                  <div class="status-indicator-refined" [class.active]="user.status === 'Active'">
-                    <span class="dot"
-                      [style.background]="user.status === 'Active' ? 'var(--success)' : (user.status === 'Deleted' ? 'var(--danger)' : '#f59e0b')"></span>
-                    <span class="text"
-                      [style.color]="user.status === 'Active' ? 'var(--success)' : (user.status === 'Deleted' ? 'var(--danger)' : '#d97706')">
-                      {{ user.status }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Management -->
-                <div class="action-set">
-                  <button class="btn-icon-premium" (click)="viewDetails(user)" title="View Details">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                  <button class="btn-icon-premium" *ngIf="!user.isPending" (click)="editUser(user)"
-                    title="Edit Permissions">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                      <path d="m15 5 4 4" />
-                    </svg>
-                  </button>
-                  <button class="btn-icon-premium danger" (click)="deleteUser(user.id)" title="Remove Resource">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 6h18" />
-                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
 
               <!-- Premium Pagination (Users) -->
               <div class="premium-pagination">
@@ -460,53 +477,55 @@
         </div>
 
         <div class="premium-inventory-wrapper" *ngIf="auditLogs().length > 0">
-          <!-- Grid Header -->
-          <div class="premium-grid-header cols-audit">
-            <span>Timestamp / Event</span>
-            <span>Administrator</span>
-            <span>Operation Details</span>
-            <span class="text-right">Resource Signature</span>
-          </div>
-
-          <!-- Rows List (Non-scrollable, Paginated) -->
-          <div class="premium-item-row cols-audit" *ngFor="let log of auditLogs()"
-            [style.border-left]="log.action.includes('Delete') ? '4px solid var(--danger)' : (log.action.includes('Approve') ? '4px solid var(--success)' : 'none')">
-
-            <div class="time-cell" style="display: flex; flex-direction: column; gap: 2px;">
-              <span style="font-weight: 700; color: var(--text-heading); font-size: 0.9rem;">
-                {{ log.createdAt | date:'MMM d, y, h:mm a' }}
-              </span>
-              <span style="font-size: 0.75rem; color: var(--text-muted);">
-                {{ log.createdAt | date:'EEEE' }}
-              </span>
+          <div class="premium-scroll-area">
+            <!-- Grid Header -->
+            <div class="premium-grid-header cols-audit">
+              <span>Timestamp / Event</span>
+              <span>Administrator</span>
+              <span>Operation Details</span>
+              <span class="text-right">Resource Signature</span>
             </div>
 
-            <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">
-              Admin Node
-            </div>
+            <!-- Rows List (Non-scrollable, Paginated) -->
+            <div class="premium-item-row cols-audit" *ngFor="let log of auditLogs()"
+              [style.border-left]="log.action.includes('Delete') ? '4px solid var(--danger)' : (log.action.includes('Approve') ? '4px solid var(--success)' : 'none')">
 
-            <div class="details-cell" style="display: flex; align-items: center; gap: 1rem;">
-              <span class="action-badge-refined"
-                [style.background]="log.action.includes('Delete') ? 'var(--danger-soft)' : (log.action.includes('Approve') ? 'var(--success-soft)' : 'var(--info-soft)')"
-                [style.color]="log.action.includes('Delete') ? 'var(--danger)' : (log.action.includes('Approve') ? 'var(--success)' : 'var(--info)')"
-                style="padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">
-                {{ log.action.replace('_', ' ') }}
-              </span>
-              <span
-                style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
-                [title]="log.details">
-                {{ log.details }}
-              </span>
-            </div>
+              <div class="time-cell" style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-weight: 700; color: var(--text-heading); font-size: 0.9rem;">
+                  {{ log.createdAt | date:'MMM d, y, h:mm a' }}
+                </span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                  {{ log.createdAt | date:'EEEE' }}
+                </span>
+              </div>
 
-            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
-              <span
-                style="font-size: 0.75rem; font-weight: 800; color: var(--text-heading); background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">{{
-                log.resourceType }}</span>
-              <span style="font-family: monospace; font-size: 0.7rem; color: var(--text-muted);"
-                [title]="log.resourceId">
-                ID: {{ log.resourceId ? log.resourceId.substring(0, 12) : 'N/A' }}
-              </span>
+              <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">
+                Admin Node
+              </div>
+
+              <div class="details-cell" style="display: flex; align-items: center; gap: 1rem;">
+                <span class="action-badge-refined"
+                  [style.background]="log.action.includes('Delete') ? 'var(--danger-soft)' : (log.action.includes('Approve') ? 'var(--success-soft)' : 'var(--info-soft)')"
+                  [style.color]="log.action.includes('Delete') ? 'var(--danger)' : (log.action.includes('Approve') ? 'var(--success)' : 'var(--info)')"
+                  style="padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">
+                  {{ log.action.replace('_', ' ') }}
+                </span>
+                <span
+                  style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                  [title]="log.details">
+                  {{ log.details }}
+                </span>
+              </div>
+
+              <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+                <span
+                  style="font-size: 0.75rem; font-weight: 800; color: var(--text-heading); background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">{{
+                  log.resourceType }}</span>
+                <span style="font-family: monospace; font-size: 0.7rem; color: var(--text-muted);"
+                  [title]="log.resourceId">
+                  ID: {{ log.resourceId ? log.resourceId.substring(0, 12) : 'N/A' }}
+                </span>
+              </div>
             </div>
           </div>
 

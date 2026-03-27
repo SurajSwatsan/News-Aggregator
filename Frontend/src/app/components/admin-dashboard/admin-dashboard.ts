@@ -137,6 +137,7 @@ export class AdminDashboardComponent implements OnInit {
       ...p,
       name: p.publisherName || p.orgName || 'New Publisher',
       isPending: true,
+      role: 'publisher',
       status: 'Pending Approval'
     }));
 

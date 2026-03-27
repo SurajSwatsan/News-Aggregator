@@ -97,7 +97,7 @@ export class UserRegistrationComponent implements OnInit {
     this.checkAdminExists();
     // Default to publisher if arriving via /register-publisher
     if (this.router.url.includes('register-publisher')) {
-      this.registrationType.set('publisher');
+      this.onTypeChange('publisher');
     }
   }
 

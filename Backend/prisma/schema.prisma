@@ -63,6 +63,7 @@ model Source {
   ownerId          String?   @map("owner_id")
   owner            User?     @relation(fields: [ownerId], references: [id])
   isActive         Boolean   @default(true) @map("is_active")
+  priority         Int       @default(0)
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
   articles         Article[]

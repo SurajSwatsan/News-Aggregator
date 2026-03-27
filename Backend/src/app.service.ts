@@ -48,6 +48,7 @@ export class AppService {
           select: {
             name: true,
             homepageUrl: true,
+            priority: true,
           }
         }
       },
@@ -57,10 +58,39 @@ export class AppService {
       take: skip + take + 100 // Get enough for de-duplication
     });
 
-    const uniqueArticles = this.deDuplicate(articles, 'postedAt');
+    // Calculate cluster sizes for the batch
+    const clusterIds = articles.map(a => a.clusterId).filter(id => id !== null) as number[];
+    const clusterCounts = await this.prisma.article.groupBy({
+      by: ['clusterId'],
+      where: { clusterId: { in: clusterIds } },
+      _count: { _all: true }
+    });
+    const clusterSizeMap = new Map(clusterCounts.map(c => [c.clusterId, c._count._all]));
+
+    // Calculate Importance Score for each article
+    const scoredArticles = articles.map(article => {
+      const clusterSize = article.clusterId ? (clusterSizeMap.get(article.clusterId) || 1) : 1;
+      const sourcePriority = (article.source as any).priority || 0;
+      
+      // Recency Score: Linear decay over 48 hours (max 100 points)
+      const hoursOld = (Date.now() - article.postedAt.getTime()) / (1000 * 60 * 60);
+      const recencyScore = Math.max(0, 100 - (hoursOld * 2)); 
+      
+      // Quality Score: Based on manually set source priority (max ~200 points)
+      const qualityScore = sourcePriority * 50;
+      
+      // Impact Score: Based on how many sources covered the story (max ~150 points)
+      const impactScore = Math.min(6, clusterSize) * 25;
+
+      const importanceScore = recencyScore + qualityScore + impactScore;
+      
+      return { ...article, importanceScore, clusterSize };
+    });
+
+    const uniqueArticles = this.deDuplicate(scoredArticles, 'score');
     
     return uniqueArticles
-      .sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
+      .sort((a, b) => b.importanceScore - a.importanceScore)
       .slice(skip, skip + take);
   }
 
@@ -218,7 +248,7 @@ export class AppService {
   }
 
   private deDuplicate(articles: any[], sortBy: 'postedAt' | 'score' = 'postedAt'): any[] {
-    const clusterMap = new Map<number, any>();
+    const clusterMap = new Map<number, any[]>();
     const uniqueArticles: any[] = [];
 
     for (const article of articles) {
@@ -227,22 +257,36 @@ export class AppService {
         continue;
       }
 
-      const existing = clusterMap.get(article.clusterId);
+      if (!clusterMap.has(article.clusterId)) {
+        clusterMap.set(article.clusterId, []);
+      }
+      clusterMap.get(article.clusterId)!.push(article);
+    }
+
+    // For each cluster, decide how many and which ones to show
+    const deduplicatedClusters = Array.from(clusterMap.values()).map(clusterGroup => {
+      // Sort by score or date
+      clusterGroup.sort((a, b) => {
+        if (sortBy === 'postedAt') return b.postedAt.getTime() - a.postedAt.getTime();
+        return (b.importanceScore || b.score) - (a.importanceScore || a.score);
+      });
+
+      const best = clusterGroup[0];
+      const clusterSize = best.clusterSize || clusterGroup.length;
       
-      let shouldReplace = !existing;
-      if (existing) {
-        if (sortBy === 'postedAt') {
-          shouldReplace = article.postedAt.getTime() > existing.postedAt.getTime();
-        } else {
-          shouldReplace = article.score > existing.score;
+      // Logic for "Multiple Times": 
+      // If a story is huge (impact > 125pts or 4+ sources) and there is another high-priority source available
+      if (clusterSize >= 4 && clusterGroup.length > 1) {
+        const secondBest = clusterGroup[1];
+        // Only show second if it's from a different source and has decent quality
+        if (secondBest.sourceId !== best.sourceId && (secondBest.importanceScore || 0) > 150) {
+          return [best, secondBest];
         }
       }
 
-      if (shouldReplace) {
-        clusterMap.set(article.clusterId, article);
-      }
-    }
+      return [best];
+    }).flat();
 
-    return [...uniqueArticles, ...Array.from(clusterMap.values())];
+    return [...uniqueArticles, ...deduplicatedClusters];
   }
 }
