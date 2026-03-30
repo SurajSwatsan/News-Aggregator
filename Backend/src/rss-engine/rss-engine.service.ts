@@ -73,9 +73,8 @@ export class RSSEngineService {
 
       this.logger.log(`Parsed feed for ${source.name}: ${feed.items?.length || 0} items found.`);
       
-      const articles = await Promise.all(feed.items.map(async (item: Parser.Item) => {
+      const articleDataList = feed.items.map((item: Parser.Item) => {
         const rawCategory = (item as any).categories?.[0] || (item as any).category || '';
-        const mappedCategory = await this.mapCategory(rawCategory, item.title || '', item.contentSnippet || item.content || '');
         
         let guid = item.guid;
         if (guid && typeof guid === 'object') {
@@ -85,62 +84,78 @@ export class RSSEngineService {
         return {
           title: item.title,
           sourceUrl: item.link || (guid as string) || (item as any).id,
-          category: mappedCategory,
-          synopsis: this.stripHtml(item.contentSnippet || item.content || ''),
+          rawCategory,
+          content: item.contentSnippet || item.content || '',
           imageUrl: this.extractImageFromItem(item),
           postedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
         };
-      }));
+      });
 
       let newCount = 0;
-      for (const articleData of articles) {
+      
+      // Use Promise.all with a simple concurrency limit approach if needed, 
+      // but here we just process them to avoid blocking the whole loop.
+      await Promise.all(articleDataList.map(async (data) => {
         try {
-          if (!articleData.sourceUrl) continue;
+          if (!data.sourceUrl) return;
 
           const existing = await this.prisma.article.findUnique({ 
-            where: { sourceUrl: articleData.sourceUrl } 
+            where: { sourceUrl: data.sourceUrl } 
           });
 
-          if (!existing) {
-            let summary = articleData.synopsis || articleData.title || '';
-            
-            // Generate Summary using Llama 3 (if not failing consistently)
-            if (aiConsecutiveFailures < 3) {
+          if (existing) return;
+
+          // Language Detection: Skip AI for non-English content to prevent timeouts
+          const isEnglish = /^[a-zA-Z0-9\s.,!?'"()-]+$/.test(data.title || '');
+          
+          let summary = data.content ? this.stripHtml(data.content) : (data.title || '');
+          let category = 'General';
+
+          if (isEnglish && aiConsecutiveFailures < 3) {
+            try {
+              // Categorization (Fast fallback)
+              const mappedCategory = await this.mapCategory(data.rawCategory, data.title || '', data.content, false);
+              category = mappedCategory;
+
+              // Summarization
               const startAi = Date.now();
               const aiSummary = await this.aiService.summarize(summary);
-              if (Date.now() - startAi > 29500 || aiSummary.includes('failed')) {
+              if (Date.now() - startAi > 15000 || aiSummary.toLowerCase().includes('failed')) {
                 aiConsecutiveFailures++;
               } else {
-                aiConsecutiveFailures = 0; // Reset on success
+                aiConsecutiveFailures = 0;
                 summary = aiSummary;
               }
-            } else {
-               // Too many failures, skip AI to save time
-               summary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+            } catch (aiErr) {
+              this.logger.warn(`AI processing intermittent failure: ${aiErr.message}`);
+              aiConsecutiveFailures++;
             }
-            
-            // Find or create Cluster ID
-            const clusterId = await this.findClusterId(articleData.title || '', summary || '');
-
-            await this.prisma.article.create({
-              data: {
-                title: articleData.title || 'Untitled',
-                sourceUrl: articleData.sourceUrl,
-                imageUrl: articleData.imageUrl,
-                synopsis: summary,
-                category: articleData.category,
-                sourceId: source.id,
-                postedAt: articleData.postedAt || new Date(),
-                clusterId: clusterId,
-              }
-            });
-            newCount++;
+          } else {
+            // Non-English or AI failing: Fallback to keyword matching only
+            category = await this.mapCategory(data.rawCategory, data.title || '', data.content, true);
+            summary = summary.length > 250 ? summary.substring(0, 250) + '...' : summary;
           }
+          
+          const clusterId = await this.findClusterId(data.title || '', summary || '');
+
+          await this.prisma.article.create({
+            data: {
+              title: data.title || 'Untitled',
+              sourceUrl: data.sourceUrl,
+              imageUrl: data.imageUrl,
+              synopsis: summary,
+              category: category,
+              sourceId: source.id,
+              postedAt: data.postedAt || new Date(),
+              clusterId: clusterId,
+            }
+          });
+          newCount++;
         } catch (articleError) {
-          this.logger.error(`Error processing article ${articleData?.sourceUrl}: ${articleError.message}`);
-          continue;
+          this.logger.error(`Error processing article ${data?.sourceUrl}: ${articleError.message}`);
         }
-      }
+      }));
+
       this.logger.log(`Finished ${source.name}. Added ${newCount} new articles.`);
       return newCount;
     } catch (error) {
