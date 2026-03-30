@@ -151,6 +151,9 @@ export class OnboardingService {
   }
 
   async confirmPublisherApproval(token: string) {
+    // Trim any stray quotes that might have been included from terminal copy-paste
+    token = token.replace(/["']/g, '');
+
     const onboarding = await this.prisma.publisherOnboarding.findUnique({
       where: { token }
     });

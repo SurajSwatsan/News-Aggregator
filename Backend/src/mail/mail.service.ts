@@ -24,6 +24,7 @@ export class MailService {
     try {
       if (isDev) {
         console.log('--- [DEV MODE] EMAIL LOGGED ---');
+        console.log('From:', this.configService.get<string>('SMTP_FROM') || 'Next-Gen News <noreply@nextgennews.com>');
         console.log('To:', to);
         console.log('Subject:', subject);
         console.log('Content:', html);
