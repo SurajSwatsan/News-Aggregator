@@ -25,8 +25,9 @@ export class AiService {
 
       const summary = response.data?.response?.trim();
       return summary || text.substring(0, 200) + '...';
-    } catch (error) {
-      this.logger.error(`Llama 3 summarization failed: ${error.message}`);
+    } catch (error: any) {
+      const errMsg = error?.response?.data?.error || error?.message || error?.code || String(error);
+      this.logger.warn(`Llama 3 summarization bypassed: ${errMsg}`);
       // Fallback to simple truncation
       return text.length > 200 ? text.substring(0, 200) + '...' : text;
     }
@@ -65,8 +66,9 @@ export class AiService {
       this.logger.debug(`Similarity check result: ${answer}`);
       
       return answer === 'YES';
-    } catch (error) {
-      this.logger.error(`Llama 3 similarity check failed: ${error.message}`);
+    } catch (error: any) {
+      const errMsg = error?.response?.data?.error || error?.message || error?.code || String(error);
+      this.logger.warn(`Llama 3 similarity check bypassed: ${errMsg}`);
       return false; // Default to not similar on failure
     }
   }
@@ -94,8 +96,9 @@ export class AiService {
       this.logger.debug(`AI Categorization result: ${category}`);
       
       return category || null;
-    } catch (error) {
-      this.logger.error(`Llama 3 categorization failed: ${error.message}`);
+    } catch (error: any) {
+      const errMsg = error?.response?.data?.error || error?.message || error?.code || String(error);
+      this.logger.warn(`Llama 3 categorization bypassed: ${errMsg}`);
       return null;
     }
   }

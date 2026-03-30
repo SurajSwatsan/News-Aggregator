@@ -136,7 +136,10 @@
                      alt="" (error)="handleImageError($event)">
                 <div class="secondary-overlay"></div>
                 <div class="secondary-content">
-                  <span class="secondary-category">{{ article.category || 'General' }}</span>
+                  <div class="secondary-meta">
+                    <span class="secondary-category">{{ article.category || 'General' }}</span>
+                    <span class="secondary-source">{{ article.source?.name }}</span>
+                  </div>
                   <h3 class="secondary-title">{{ article.title }}</h3>
                 </div>
                 <button (click)="handleArticleAccess(article)" class="clickable-overlay"></button>
@@ -164,7 +167,6 @@
                   <div class="image-overlay"></div>
                   <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
                     alt="" (error)="handleImageError($event)">
-                  <span class="source-tag">{{ article.source?.name }}</span>
                   @if (article.source?.name === 'HT MEDIA LTD') {
                     <div class="source-logo-mini">
                       <img src="https://hindustantimes.com/favicon.ico" alt="" class="mini-logo-img" (error)="handleImageError($event)">
@@ -176,6 +178,7 @@
                   <div class="card-header-meta">
                     <span class="card-category">{{ article.category || 'General' }}</span>
                     <span class="card-date">{{ getTimeAgo(article.postedAt) }}</span>
+                    <span class="card-source">{{ article.source?.name }}</span>
                   </div>
                   <h3 class="card-title">{{ article.title }}</h3>
                   <p class="card-synopsis" [innerHTML]="hasSynopsisText(article.synopsis) ? (article.synopsis | safeHtml) : 'No synopsis available.'"></p>

@@ -61,15 +61,22 @@
 .profile-dropdown {
     position: absolute;
     top: calc(100% + 15px);
-    right: -10px;
+    right: 0;
     width: 320px;
     background: white;
     border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
     border: 1px solid #f1f5f9;
     overflow: hidden;
-    z-index: 2000;
+    z-index: 9999;
     color: var(--text-primary);
+}
+
+@media (max-width: 480px) {
+    .profile-dropdown {
+        width: 260px;
+        right: -5vw;
+    }
 }
 
 .dropdown-header-premium {

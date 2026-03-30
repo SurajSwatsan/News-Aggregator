@@ -47,8 +47,7 @@ export class AppService {
         source: {
           select: {
             name: true,
-            homepageUrl: true,
-            priority: true,
+            homepageUrl: true
           }
         }
       },
@@ -70,7 +69,7 @@ export class AppService {
     // Calculate Importance Score for each article
     const scoredArticles = articles.map(article => {
       const clusterSize = article.clusterId ? (clusterSizeMap.get(article.clusterId) || 1) : 1;
-      const sourcePriority = (article.source as any).priority || 0;
+      const sourcePriority = (article.source as any)?.priority || 0;
       
       // Recency Score: Linear decay over 48 hours (max 100 points)
       const hoursOld = (Date.now() - article.postedAt.getTime()) / (1000 * 60 * 60);

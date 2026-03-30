@@ -682,12 +682,34 @@ $border-subtle: rgba(255, 255, 255, 0.08);
     padding: 1.5rem;
   }
 
+  .secondary-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
   .secondary-category {
     color: $accent-red;
     font-weight: 900;
     font-size: 0.7rem;
     text-transform: uppercase;
-    margin-bottom: 0.5rem;
+  }
+
+  .secondary-source {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
   }
 
   .secondary-title {
@@ -823,26 +845,9 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   }
 }
 
-.source-tag {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: white;
-  color: black;
-  padding: 0.25rem 0.75rem;
-  font-weight: 900;
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  border-radius: 2px;
-
-  @media (max-width: 320px) {
-    font-size: 0.5rem;
-    padding: 0.2rem 0.5rem;
-  }
-}
-
 .card-header-meta {
   display: flex;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 0.75rem;
   font-size: 0.75rem;
@@ -851,6 +856,25 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   @media (max-width: 320px) {
     gap: 0.5rem;
     flex-wrap: wrap;
+  }
+}
+
+.card-source {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -1059,12 +1083,21 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   }
 
   .trending-meta {
-    display: block;
+    display: inline-block;
     margin-top: 0.5rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #666;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.6rem;
+    font-weight: 800;
     text-transform: uppercase;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
   }
 
   .trending-labels {
@@ -1187,9 +1220,41 @@ $border-subtle: rgba(255, 255, 255, 0.08);
     background: rgba(13, 13, 15, 0.98) !important;
     backdrop-filter: blur(25px) saturate(200%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 40px 120px -20px rgba(0, 0, 0, 0.95);
+    box-shadow: 0 40px 120px -20px rgba(0, 0, 0, 0.95) !important;
     border-radius: 20px !important;
     width: clamp(280px, 90vw, 340px) !important;
+  }
+  
+  .dropdown-header-premium {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  
+  .user-display-name { color: #ffffff !important; }
+  .user-display-email { color: #94a3b8 !important; }
+  .menu-item { color: #94a3b8 !important; }
+  
+  .menu-item:hover { 
+    background: rgba(255, 255, 255, 0.05) !important; 
+    color: #ffffff !important;
+  }
+  
+  .menu-item:hover .menu-icon { color: #ffffff !important; }
+  .menu-divider { background: rgba(255, 255, 255, 0.08) !important; }
+  
+  .premium-select {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+  }
+  
+  .premium-select option {
+    background: #111 !important;
+    color: #fff !important;
+  }
+  
+  .logout-link:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
   }
 }
 

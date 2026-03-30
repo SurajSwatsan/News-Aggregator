@@ -8,7 +8,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   @Post('register-superadmin')
   async registerSuperAdmin(@Body() body: any) {
@@ -44,7 +44,7 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    
+
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
@@ -65,7 +65,7 @@ export class AuthController {
   @Post('verify-otp')
   async verifyOtp(@Body() body: { email: string, code: string }) {
     const result = await this.authService.verifyOtp(body.email, body.code);
-    
+
     const user = (result as any).user;
     if (!user) {
       return result; // For onboarding cases that need more info
