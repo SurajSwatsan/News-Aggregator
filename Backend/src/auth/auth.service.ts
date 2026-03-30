@@ -26,12 +26,12 @@ export class AuthService {
 
     // 2. Try to find user or pending onboarding
     const user = await this.prisma.user.findUnique({ where: { email } });
-    
+
     if (user) {
       await (this.prisma.user as any).update({
         where: { id: user.id },
-        data: { 
-          otp, 
+        data: {
+          otp,
           otpExpiresAt: expiresAt,
           passwordHash: data.password ? await bcrypt.hash(data.password, 10) : user.passwordHash
         }
@@ -45,8 +45,8 @@ export class AuthService {
       if (onboarding) {
         await this.prisma.publisherOnboarding.update({
           where: { id: onboarding.id },
-          data: { 
-            otp, 
+          data: {
+            otp,
             otpExpiresAt: expiresAt,
             firstName: name || onboarding.firstName,
             lastName: username || onboarding.lastName,
@@ -54,22 +54,22 @@ export class AuthService {
           }
         });
       } else {
-      // Create a basic onboarding record for this new email
-      const hashedPassword = data.password ? await bcrypt.hash(data.password, 10) : null;
-      await this.prisma.publisherOnboarding.create({
-        data: {
-          token: crypto.randomUUID(),
-          email,
-          otp,
-          otpExpiresAt: expiresAt,
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
-          status: OnboardingStatus.pending,
-          requestedRole: UserRole.reader,
-          firstName: name,
-          lastName: username,
-          passwordHash: hashedPassword
-        }
-      });
+        // Create a basic onboarding record for this new email
+        const hashedPassword = data.password ? await bcrypt.hash(data.password, 10) : null;
+        await this.prisma.publisherOnboarding.create({
+          data: {
+            token: crypto.randomUUID(),
+            email,
+            otp,
+            otpExpiresAt: expiresAt,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
+            status: OnboardingStatus.pending,
+            requestedRole: UserRole.reader,
+            firstName: name,
+            lastName: username,
+            passwordHash: hashedPassword
+          }
+        });
       }
     }
 
@@ -144,7 +144,7 @@ export class AuthService {
               lastName: onboarding.lastName,
               name: onboarding.firstName ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim() : (onboarding.orgName || null),
               role: UserRole.reader,
-              passwordHash: onboarding.passwordHash || 'OTP_USER', 
+              passwordHash: onboarding.passwordHash || 'OTP_USER',
               creditBalance: 10
             }
           });
@@ -162,7 +162,7 @@ export class AuthService {
 
           return { user: newUser, type: 'register' };
         }
-        
+
         // For publishers, we just verify and keep them in onboarding
         await this.auditLogs.createLog({
           action: 'PUBLISHER_OTP_VERIFIED',
@@ -429,7 +429,7 @@ export class AuthService {
     try {
       // 1. Fetch user to check role and current deletion status
       const user = await this.prisma.user.findUnique({ where: { id } });
-      
+
       if (!user) {
         // Not a user, check onboarding
         return await this.prisma.publisherOnboarding.delete({ where: { id } });
@@ -439,14 +439,14 @@ export class AuthService {
       if (user.role === 'admin' || user.isDeleted) {
         // Clear associated data
         await this.prisma.accessLog.deleteMany({ where: { userId: id } });
-        
+
         // Delete the User
         const result = await this.prisma.user.delete({ where: { id } });
-        
+
         // ALSO delete the onboarding record to prevent it from reappearing in the list
         try {
           await this.prisma.publisherOnboarding.delete({ where: { id } });
-        } catch (e) {}
+        } catch (e) { }
 
         await this.auditLogs.createLog({
           action: 'USER_PERMANENTLY_DELETED',

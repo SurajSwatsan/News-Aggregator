@@ -260,7 +260,9 @@ export class ArticleDetailComponent implements OnInit {
   fetchArticle(id: string) {
     this.isLoading.set(true);
     this.logoError.set(false);
-    window.scrollTo(0, 0);
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     
     this.http.get<any>(`http://localhost:3000/articles/${id}`).subscribe({
       next: (foundData) => {

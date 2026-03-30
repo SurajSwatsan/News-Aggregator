@@ -7,7 +7,6 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth';
 import { AccessService } from '../../services/access.service';
-import { PaymentModalComponent } from '../payment-modal/payment-modal';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
 import { FooterComponent } from '../footer/footer';
 import { AdSlotComponent } from '../ad-slot/ad-slot';
@@ -16,7 +15,7 @@ import { ToastService } from '../../services/toast.service';
 @Component({
   selector: 'app-news-feed',
   standalone: true,
-  imports: [CommonModule, RouterLink, SafeHtmlPipe, PaymentModalComponent, ProfileDropdownComponent, FormsModule, FooterComponent, AdSlotComponent],
+  imports: [CommonModule, RouterLink, SafeHtmlPipe, ProfileDropdownComponent, FormsModule, FooterComponent, AdSlotComponent],
   templateUrl: './news-feed.html',
   styleUrl: './news-feed.scss'
 })
@@ -268,7 +267,7 @@ export class NewsFeedComponent implements OnInit {
   }
 
   fetchWeather() {
-    if ('geolocation' in navigator) {
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
