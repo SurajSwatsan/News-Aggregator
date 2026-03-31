@@ -29,12 +29,15 @@ export class PublisherService {
     };
   }
 
-  async getArticles(userId: string) {
+  async getArticles(userId: string, search?: string) {
     const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
     if (!source) throw new NotFoundException('No news source found for this publisher');
 
     return this.prisma.article.findMany({
-      where: { sourceId: source.id },
+      where: { 
+        sourceId: source.id,
+        ...(search ? { title: { contains: search, mode: 'insensitive' } } : {})
+      },
       orderBy: { postedAt: 'desc' },
       take: 50,
     });
@@ -67,7 +70,7 @@ export class PublisherService {
     return {
       name: source.name,
       url: source.homepageUrl,
-      description: '', // Schema doesn't have description yet
+      description: source.description || '',
     };
   }
 
@@ -75,12 +78,28 @@ export class PublisherService {
     const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
     if (!source) throw new NotFoundException('No news source found for this publisher');
 
-    return this.prisma.source.update({
-      where: { id: source.id },
-      data: {
-        name: data.name,
-        homepageUrl: data.url,
-      }
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Update Source details
+      const updatedSource = await tx.source.update({
+        where: { id: source.id },
+        data: {
+          name: data.name,
+          homepageUrl: data.url,
+          description: data.description,
+        }
+      });
+
+      // 2. Sync to User for Profile consistency
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          orgName: data.name,
+          orgWebsite: data.url,
+          orgDescription: data.description
+        }
+      });
+
+      return updatedSource;
     });
   }
 
@@ -95,9 +114,20 @@ export class PublisherService {
     const source = await this.prisma.source.findFirst({ where: { ownerId: userId } });
     if (!source) throw new NotFoundException('No news source found for this publisher');
 
-    return this.prisma.source.update({
-      where: { id: source.id },
-      data: { rssUrl: url }
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Update Source RSS URL
+      const updatedSource = await tx.source.update({
+        where: { id: source.id },
+        data: { rssUrl: url }
+      });
+
+      // 2. Sync to User for Profile consistency
+      await tx.user.update({
+        where: { id: userId },
+        data: { rssUrl: url }
+      });
+
+      return updatedSource;
     });
   }
 

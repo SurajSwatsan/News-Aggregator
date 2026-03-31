@@ -36,40 +36,6 @@
     </div>
   </ng-container>
 
-  <!-- FEEDS VIEW -->
-  <ng-container *ngIf="view() === 'feeds'">
-    <div class="settings-card">
-      <div class="card-header">
-        <h2>Manage RSS Feeds</h2>
-        <button class="btn-sync" (click)="triggerSync()" [disabled]="isSyncing()">
-          <span *ngIf="!isSyncing()">Sync All Articles</span>
-          <span *ngIf="isSyncing()">Syncing...</span>
-        </button>
-      </div>
-      
-      <div class="feed-list mt-4">
-        <div class="feed-item" *ngFor="let feed of feeds()">
-          <div class="feed-info">
-            <span class="feed-url">{{ feed.url }}</span>
-            <span class="feed-status status-active">{{ feed.status }}</span>
-          </div>
-          <p class="last-sync">Last sync: {{ feed.lastSync | date:'medium' }}</p>
-        </div>
-
-        <div *ngIf="feeds().length === 0" class="empty-state">
-          <p>No RSS feeds configured yet. Articles will not be imported automatically.</p>
-        </div>
-      </div>
-
-      <div class="add-feed-section mt-6">
-        <h3>Add New Feed</h3>
-        <div class="input-row mt-2">
-          <input type="text" [(ngModel)]="newFeedUrl" placeholder="Enter RSS Feed URL (e.g., https://example.com/rss)" class="clean-input">
-          <button class="btn-primary" (click)="addFeed()" [disabled]="isSaving() || !newFeedUrl">Add Feed</button>
-        </div>
-      </div>
-    </div>
-  </ng-container>
 
   <!-- SETTINGS VIEW -->
   <ng-container *ngIf="view() === 'settings'">

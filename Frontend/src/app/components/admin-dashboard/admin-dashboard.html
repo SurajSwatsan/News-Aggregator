@@ -65,6 +65,34 @@
         </svg>
         Advertisements
       </div>
+      <div class="nav-item collapsible" (click)="isMasterExpanded.set(!isMasterExpanded())" [class.expanded]="isMasterExpanded()">
+        <div class="nav-item-main">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" 
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3" />
+            <path d="M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3" />
+            <path d="M4 12h16" />
+            <path d="M2 8h20" />
+            <path d="M2 16h20" />
+          </svg>
+          <span>Master</span>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" 
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="chevron">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </div>
+
+      <div class="sub-menu" *ngIf="isMasterExpanded()">
+        <div class="sub-item" routerLink="/master" [queryParams]="{tab: 'countries'}" routerLinkActive="active">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+           Country Master
+        </div>
+        <div class="sub-item" routerLink="/master" [queryParams]="{tab: 'cities'}" routerLinkActive="active">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"/></svg>
+           City Master
+        </div>
+      </div>
     </nav>
   </aside>
 
@@ -562,6 +590,9 @@
         <app-created-ads (createRequested)="openAdModal()" (editRequested)="openAdModal($event)"
           (viewRequested)="openAdViewer($event)" [refreshTrigger]="refreshTrigger()">
         </app-created-ads>
+      </div>
+      <div *ngIf="activeTab() === 'master'" class="animate-fade-in">
+        <app-master></app-master>
       </div>
     </div>
   </main>

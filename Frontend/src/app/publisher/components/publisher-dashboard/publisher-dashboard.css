@@ -326,6 +326,10 @@
   font-weight: 700;
 }
 
+.tab-item svg {
+  flex-shrink: 0;
+}
+
 /* Content Area */
 .content-wrapper {
   padding: 1.5rem 3rem; /* Increased side padding */

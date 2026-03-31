@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { AuthService } from '../../auth/auth';
 import { AccessService } from '../../services/access.service';
-import { FooterComponent } from '../footer/footer';
+import { FooterComponent } from '../common/footer/footer';
 import { AdSlotComponent } from '../ad-slot/ad-slot';
 
 @Component({
@@ -32,7 +32,7 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
                   {{ (article()?.source?.name || '?')[0] | uppercase }}
                 </div>
               </div>
-              <span class="nav-source">{{ article()?.source?.name }}</span>
+              <span class="nav-source" [routerLink]="['/source', article()?.source?.id]" style="cursor: pointer;">{{ article()?.source?.name }}</span>
               <span class="premium-badge-nav">PREMIUM</span>
               
               <div class="nav-pipe">|</div>
@@ -84,7 +84,7 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
                       <img [src]="getFaviconUrl()" alt="">
                     </div>
                     <div class="author-text">
-                      <span class="byline">Published by <strong>{{ article().source?.name }} Editorial</strong></span>
+                      <span class="byline">Published by <strong [routerLink]="['/source', article()?.source?.id]" style="cursor: pointer; color: var(--profile-accent);">{{ article().source?.name }} Editorial</strong></span>
                       <span class="dateline">{{ formatDate(article().postedAt) }} • {{ getReadingTime() }} MIN READ</span>
                     </div>
                   </div>
@@ -163,7 +163,9 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
                     </div>
                   </div>
                 </div>
-                <app-ad-slot placementType="sidebar"></app-ad-slot>
+                <app-ad-slot placementType="sidebar" [index]="0"></app-ad-slot>
+                <div style="margin-top: 20px;"></div>
+                <app-ad-slot placementType="sidebar" [index]="1"></app-ad-slot>
               } @else {
                 <div class="loading-sidebar">
                   <div class="mini-spinner"></div>

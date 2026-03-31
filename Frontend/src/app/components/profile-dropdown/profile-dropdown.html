@@ -1,6 +1,6 @@
 <div class="nav-right" (click)="$event.stopPropagation()">
     <div class="profile-trigger" (click)="toggleProfileMenu($event)" [class.active]="isProfileMenuOpen()">
-        <div class="avatar-sm">{{ getAvatarInitials(user()?.name || user()?.email) }}</div>
+        <div class="avatar-sm">{{ getAvatarInitials(user()) }}</div>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"
             [class.rotate]="isProfileMenuOpen()">
@@ -12,15 +12,15 @@
     @if (isProfileMenuOpen()) {
     <div class="profile-dropdown animate-fade-in">
         <div class="dropdown-header-premium">
-            <div class="avatar-pill">{{ getAvatarInitials(user()?.name || user()?.email) }}</div>
+            <div class="avatar-pill">{{ getAvatarInitials(user()) }}</div>
             <div class="user-info">
-                <div class="user-display-name">{{ (user()?.name || 'News Reader') | uppercase }}</div>
+                <div class="user-display-name">{{ (user()?.firstName && user()?.lastName ? user()?.firstName + ' ' + user()?.lastName : (user()?.name || 'News Reader')) | uppercase }}</div>
                 <div class="user-display-email">{{ user()?.email | lowercase }}</div>
             </div>
         </div>
 
         <div class="dropdown-menu-list">
-            <a class="menu-item" (click)="isProfileMenuOpen.set(false)" [routerLink]="user()?.role === 'admin' ? '/user' : (user()?.role === 'publisher' ? '/publisher/settings' : '/')">
+            <a class="menu-item" (click)="isProfileMenuOpen.set(false)" [routerLink]="user()?.role === 'admin' ? '/user' : (user()?.role === 'publisher' ? '/publisher/profile' : '/')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="menu-icon">
@@ -28,14 +28,6 @@
                     <circle cx="12" cy="7" r="4" />
                 </svg>
                 <span>MY PROFILE</span>
-            </a>
-            <a *ngIf="user()?.role === 'publisher'" class="menu-item" (click)="isProfileMenuOpen.set(false)" routerLink="/publisher/feeds">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                    class="menu-icon">
-                    <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
-                </svg>
-                <span>FEEDS</span>
             </a>
             <a class="menu-item" (click)="isProfileMenuOpen.set(false)" [routerLink]="user()?.role === 'admin' ? '/user' : (user()?.role === 'publisher' ? '/publisher/settings' : '/')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"

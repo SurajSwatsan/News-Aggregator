@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth';
 import { AccessService } from '../../services/access.service';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
-import { FooterComponent } from '../footer/footer';
+import { FooterComponent } from '../common/footer/footer';
 import { AdSlotComponent } from '../ad-slot/ad-slot';
 import { ToastService } from '../../services/toast.service';
 
@@ -209,12 +209,19 @@ export class NewsFeedComponent implements OnInit {
     return this.formatDate(date);
   }
 
+  private searchTimeout: any;
   onSearch() {
-    this.isLoading.set(true);
-    this.articles.set([]);
-    this.skip.set(0);
-    this.hasMore.set(true);
-    this.fetchArticles();
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    this.searchTimeout = setTimeout(() => {
+      this.isLoading.set(true);
+      this.articles.set([]);
+      this.skip.set(0);
+      this.hasMore.set(true);
+      this.fetchArticles();
+    }, 400); // 400ms debounce
   }
 
 

@@ -19,12 +19,12 @@ export class MailService {
   }
 
   async sendMail(to: string, subject: string, html: string) {
-    const isDev = this.configService.get<string>('SMTP_USER') === 'your-email@gmail.com' || !this.configService.get('SMTP_USER');
+    const logOnly = this.configService.get<string>('SMTP_LOG_ONLY') === 'true';
 
     try {
-      if (isDev) {
+      if (logOnly) {
         console.log('--- [DEV MODE] EMAIL LOGGED ---');
-        console.log('From:', this.configService.get<string>('SMTP_FROM') || 'Next-Gen News <noreply@nextgennews.com>');
+        console.log('From:', this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('SMTP_USER') || 'Next-Gen News <noreply@nextgennews.com>');
         console.log('To:', to);
         console.log('Subject:', subject);
         console.log('Content:', html);
@@ -33,20 +33,23 @@ export class MailService {
       }
 
       const info = await this.transporter.sendMail({
-        from: this.configService.get<string>('SMTP_FROM'),
+        from: this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('SMTP_USER'),
         to,
         subject,
         html,
       });
       console.log('--- EMAIL SENT ---');
+      console.log('From:', this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('SMTP_USER') || 'Next-Gen News <noreply@nextgennews.com>');
       console.log('To:', to);
       console.log('Subject:', subject);
+      console.log('Content:', html);
       console.log('Message sent: %s', info.messageId);
+      console.log('-------------------------------');
       return info;
     } catch (error) {
       console.error('Error sending email:', error);
-      // In Dev mode, we return success even if transport fails (e.g. invalid host)
-      if (isDev) {
+      // In Log-only mode, we return success even if transport fails (e.g. invalid host or credentials)
+      if (logOnly) {
         return { messageId: 'dev-fallback-' + Date.now() };
       }
       return null;

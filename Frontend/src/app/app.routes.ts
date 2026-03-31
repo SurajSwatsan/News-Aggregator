@@ -5,11 +5,12 @@ import { isPlatformBrowser } from '@angular/common';
 
 import { AuthService } from './auth/auth';
 import { NewsFeedComponent } from './components/news-feed/news-feed';
-import { LoginComponent } from './components/login/login';
+import { LoginComponent } from './auth/login/login';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard';
-import { AccountActivationComponent } from './components/account-activation/account-activation';
-import { UserRegistrationComponent } from './components/user-registration/user-registration';
+import { AccountActivationComponent } from './auth/account-activation/account-activation';
+import { UserRegisterComponent } from './auth/user-register/user-register';
 import { ArticleDetailComponent } from './components/article-detail/article-detail';
+import { SourceProfileComponent } from './components/source-profile/source-profile';
 import { PublisherRegistrationComponent } from './publisher/components/publisher-registration/publisher-registration';
 import { publisherGuard } from './publisher/publisher.guard';
 
@@ -56,28 +57,31 @@ const publicGuard = () => true;
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'forgot-password', loadComponent: () => import('./components/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent) },
-  { path: 'reset-password', loadComponent: () => import('./components/reset-password/reset-password').then(m => m.ResetPasswordComponent) },
+  { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent) },
+  { path: 'reset-password', loadComponent: () => import('./auth/reset-password/reset-password').then(m => m.ResetPasswordComponent) },
   { path: 'article/:id', component: ArticleDetailComponent },
+  { path: 'source/:id', component: SourceProfileComponent },
   { path: 'admin',
+
  component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'sources', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'readers', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'user', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'audit', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'ads', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
+  { path: 'master', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { 
     path: 'publisher', 
     loadChildren: () => import('./publisher/publisher.routes').then(m => m.publisherRoutes),
     canActivate: [publisherGuard]
   },
   { path: 'article', redirectTo: 'publisher/articles', pathMatch: 'full' },
-  { path: 'register-publisher', component: UserRegistrationComponent },
+  { path: 'register-publisher', component: UserRegisterComponent },
   { path: 'onboarding', component: PublisherRegistrationComponent, canActivate: [publicGuard] },
   // ✅ confirm-approval and activate-account are PUBLIC token pages — never redirect logged-in users
-  { path: 'confirm-approval', canActivate: [publicGuard], loadComponent: () => import('./components/confirm-approval/confirm-approval').then(m => m.ConfirmApprovalComponent) },
+  { path: 'confirm-approval', canActivate: [publicGuard], loadComponent: () => import('./auth/confirm-approval/confirm-approval').then(m => m.ConfirmApprovalComponent) },
   { path: 'activate-account', component: AccountActivationComponent, canActivate: [publicGuard] },
-  { path: 'register', component: UserRegistrationComponent },
+  { path: 'register', component: UserRegisterComponent },
   { path: ':category', component: NewsFeedComponent, canActivate: [rootRedirection] },
   { path: '', component: NewsFeedComponent, canActivate: [rootRedirection] }
 ];

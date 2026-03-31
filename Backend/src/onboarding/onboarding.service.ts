@@ -56,6 +56,7 @@ export class OnboardingService {
     orgDescription: string,
     publisherFirstName?: string,
     publisherLastName?: string,
+    publisherName?: string,
     country?: string,
     city?: string,
     phone?: string,
@@ -76,8 +77,8 @@ export class OnboardingService {
         orgWebsite: data.orgWebsite,
         rssUrl: finalRssUrl,
         orgDescription: data.orgDescription,
-        firstName: data.publisherFirstName,
-        lastName: data.publisherLastName,
+        firstName: data.publisherFirstName || (data.publisherName ? data.publisherName.split(' ')[0] : undefined),
+        lastName: data.publisherLastName || (data.publisherName ? data.publisherName.split(' ').slice(1).join(' ') : undefined),
         country: data.country,
         city: data.city,
         phone: data.phone,
@@ -167,7 +168,7 @@ export class OnboardingService {
       where: { email: onboarding.email }
     });
 
-    if (existingUser) {
+    if (existingUser && !(existingUser as any).isDeleted) {
       throw new BadRequestException('This email is already registered. Please log in to your existing account.');
     }
 
@@ -287,12 +288,16 @@ export class OnboardingService {
 
     // Use a transaction to ensure all or nothing
     const result = await this.prisma.$transaction(async (tx) => {
-      // Create the User
-      const user = await tx.user.create({
-        data: {
-          email: onboarding.email,
+      // Create or Update the User (Restore if soft-deleted)
+      const user = await tx.user.upsert({
+        where: { email: onboarding.email },
+        update: {
           username,
-          name: onboarding.firstName ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim() : (onboarding.orgName || null),
+          name: onboarding.requestedRole === 'publisher' && onboarding.orgName 
+            ? onboarding.orgName 
+            : (onboarding.firstName ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim() : (onboarding.orgName || null)),
+          firstName: onboarding.firstName,
+          lastName: onboarding.lastName,
           orgName: onboarding.orgName,
           orgWebsite: onboarding.orgWebsite,
           orgDescription: onboarding.orgDescription,
@@ -301,6 +306,30 @@ export class OnboardingService {
           country: onboarding.country,
           businessDoc: onboarding.businessDoc,
           newspaperLicense: onboarding.newspaperLicense,
+          rssUrl: onboarding.rssUrl,
+          passwordHash,
+          role: onboarding.requestedRole,
+          creditBalance: onboarding.requestedRole === UserRole.admin ? 1000 : (onboarding.requestedRole === UserRole.publisher ? 0 : 10),
+          isDeleted: false,
+          deletedAt: null
+        },
+        create: {
+          email: onboarding.email,
+          username,
+          firstName: onboarding.firstName,
+          lastName: onboarding.lastName,
+          name: onboarding.requestedRole === 'publisher' && onboarding.orgName 
+            ? onboarding.orgName 
+            : (onboarding.firstName ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim() : (onboarding.orgName || null)),
+          orgName: onboarding.orgName,
+          orgWebsite: onboarding.orgWebsite,
+          orgDescription: onboarding.orgDescription,
+          phone: onboarding.phone,
+          city: onboarding.city,
+          country: onboarding.country,
+          businessDoc: onboarding.businessDoc,
+          newspaperLicense: onboarding.newspaperLicense,
+          rssUrl: onboarding.rssUrl,
           passwordHash,
           role: onboarding.requestedRole,
           creditBalance: onboarding.requestedRole === UserRole.admin ? 1000 : (onboarding.requestedRole === UserRole.publisher ? 0 : 10),
@@ -313,6 +342,7 @@ export class OnboardingService {
           name: onboarding.orgName || 'Unknown Organization',
           homepageUrl: onboarding.orgWebsite || '',
           rssUrl: onboarding.rssUrl,
+          description: onboarding.orgDescription,
           ownerId: user.id,
           isActive: true,
           scrapingInterval: 60,

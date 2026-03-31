@@ -6,12 +6,13 @@ import { CommonModule, TitleCasePipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
-import { CreatedAdsComponent } from '../created-ads/created-ads';
+import { CreatedAdsComponent } from '../common/created-ads/created-ads';
+import { MasterComponent } from '../master/master';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, TitleCasePipe, DatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, MasterComponent, TitleCasePipe, DatePipe],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss'
 })
@@ -24,6 +25,7 @@ export class AdminDashboardComponent implements OnInit {
 
   user = computed(() => this.authService.currentUser());
   activeTab = signal('overview');
+  isMasterExpanded = signal(false);
 
   headerTitle = computed(() => {
     switch (this.activeTab()) {
@@ -32,6 +34,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'users': return 'Platform User Management';
       case 'audit': return 'Security & Audit Logs';
       case 'ads': return 'Advertising Center';
+      case 'master': return 'Master Data Management';
       default: return 'Administrative Control Center';
     }
   });
@@ -43,6 +46,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'users': return 'Platform User Access & Resource Allocation';
       case 'audit': return 'Security Trail & System Operation History';
       case 'ads': return 'Campaign Performance & Asset Delivery Management';
+      case 'master': return 'Platform-wide Geography & Metadata Configuration';
       default: return 'Administrative Control Center';
     }
   });
@@ -55,6 +59,10 @@ export class AdminDashboardComponent implements OnInit {
       case 'users': current = 'User Management'; break;
       case 'audit': current = 'Audit Logs'; break;
       case 'ads': current = 'Advertising Center'; break;
+      case 'master': 
+        const tab = this.route.snapshot.queryParams['tab'] || 'countries';
+        current = tab === 'countries' ? 'Country Master' : 'City Master';
+        break;
       default: current = 'Dashboard'; break;
     }
     return { root: 'Platform', current };
@@ -111,7 +119,7 @@ export class AdminDashboardComponent implements OnInit {
 
   filteredUsers = computed(() => {
     const tab = this.usersSubTab();
-    const users = this.allUsers();
+    const users = this.allUsers().filter(u => u.status !== 'Deleted' && !u.isDeleted);
 
     switch (tab) {
       case 'readers':
@@ -161,6 +169,9 @@ export class AdminDashboardComponent implements OnInit {
         this.loadAuditLogs();
       } else if (path === 'ads') {
         this.activeTab.set('ads');
+      } else if (path === 'master') {
+        this.activeTab.set('master');
+        this.isMasterExpanded.set(true);
       } else {
         this.activeTab.set('overview');
       }

@@ -1,9 +1,9 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../auth/auth';
+import { AuthService } from '../auth';
 import { Router, RouterLink } from '@angular/router';
-import { FloatingInputComponent } from '../common/floating-input/floating-input';
+import { FloatingInputComponent } from '../../components/common/floating-input/floating-input';
 
 @Component({
   selector: 'app-login',

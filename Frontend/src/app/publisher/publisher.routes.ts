@@ -6,6 +6,8 @@ import { PublisherAnalyticsComponent } from './components/publisher-analytics/pu
 import { PublisherRevenueComponent } from './components/publisher-revenue/publisher-revenue';
 import { PublisherPayoutsComponent } from './components/publisher-payouts/publisher-payouts';
 import { PublisherAdsComponent } from './components/publisher-ads/publisher-ads';
+import { PublisherProfileComponent } from './components/publisher-profile/publisher-profile';
+import { PublisherProfileEditComponent } from './components/publisher-profile-edit/publisher-profile-edit';
 
 export const publisherRoutes: Routes = [
   { 
@@ -19,8 +21,9 @@ export const publisherRoutes: Routes = [
       { path: 'revenue', component: PublisherRevenueComponent },
       { path: 'payouts', component: PublisherPayoutsComponent },
       { path: 'ads', component: PublisherAdsComponent },
-      { path: 'feeds', component: PublisherOverviewComponent },
-      { path: 'settings', component: PublisherOverviewComponent }
+      { path: 'settings', component: PublisherProfileComponent },
+      { path: 'profile', component: PublisherProfileComponent },
+      { path: 'profile/edit', component: PublisherProfileEditComponent }
     ]
   }
 ];

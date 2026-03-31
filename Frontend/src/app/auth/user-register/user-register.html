@@ -113,14 +113,17 @@
                     </div>
 
                     <div class="field-wrapper">
-                        <app-floating-input label="Company Country" type="text" formControlName="country" [isInvalid]="isFieldInvalid('country')" [required]="true">
-                        </app-floating-input>
+                        <app-floating-select label="Company Country" formControlName="country" 
+                            [options]="countries()" [isInvalid]="isFieldInvalid('country')" 
+                            [required]="true" (selectionChange)="onCountryChange($event)">
+                        </app-floating-select>
                         @if (isFieldInvalid('country')) { <div class="field-error"><span>Country is required.</span></div> }
                     </div>
 
                     <div class="field-wrapper">
-                        <app-floating-input label="Headquarters City" type="text" formControlName="city" [isInvalid]="isFieldInvalid('city')" [required]="true">
-                        </app-floating-input>
+                        <app-floating-select label="Headquarters City" formControlName="city" 
+                            [options]="cities()" [isInvalid]="isFieldInvalid('city')" [required]="true">
+                        </app-floating-select>
                         @if (isFieldInvalid('city')) { <div class="field-error"><span>City is required.</span></div> }
                     </div>
 

@@ -37,6 +37,7 @@ model User {
   country        String?
   businessDoc    String?   @map("business_doc")
   newspaperLicense String? @map("newspaper_license")
+  rssUrl         String?   @map("rss_url")
   passwordHash   String    @map("password_hash")
   role           UserRole  @default(reader)
   creditBalance  Decimal   @default(0) @map("credit_balance") @db.Decimal(10, 2)
@@ -57,6 +58,7 @@ model Source {
   name             String
   homepageUrl      String    @map("homepage_url")
   rssUrl           String?   @map("rss_url")
+  description      String?
   scrapeConfig     Json?     @map("scrape_config")
   payoutRate       Decimal   @default(0.1) @map("payout_rate") @db.Decimal(10, 2)
   scrapingInterval Int       @default(60) @map("scraping_interval")
@@ -156,4 +158,30 @@ model Advertisement {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   @@map("advertisements")
+}
+
+model Country {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  isoCode    String?  @map("iso_code")
+  mobileCode String?  @map("mobile_code")
+  currency   String?
+  cities     City[]
+  status     String   @default("active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("countries")
+}
+
+model City {
+  id        String   @id @default(uuid())
+  name      String
+  countryId String   @map("country_id")
+  country   Country  @relation(fields: [countryId], references: [id])
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("cities")
 }

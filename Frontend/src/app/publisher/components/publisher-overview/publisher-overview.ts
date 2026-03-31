@@ -17,7 +17,7 @@ export class PublisherOverviewComponent implements OnInit {
   private toast = inject(ToastService);
   private router = inject(Router);
   
-  view = signal<'dashboard' | 'feeds' | 'settings'>('dashboard');
+  view = signal<'dashboard' | 'settings'>('dashboard');
   
   // Dashboard Metrics
   metrics = signal([
@@ -27,25 +27,19 @@ export class PublisherOverviewComponent implements OnInit {
     { label: 'Active Readers', value: '42', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 1 0-8 4 4 0 0 1 0 8z' }
   ]);
 
-  // Feeds/Settings Data
+  // Settings Data
   source = signal<any>({ name: '', url: '', description: '' });
-  feeds = signal<any[]>([]);
-  newFeedUrl = '';
   isSaving = signal(false);
-  isSyncing = signal(false);
 
   ngOnInit() {
     this.detectView();
     this.loadStats();
     this.loadSourceDetails();
-    this.loadFeeds();
   }
 
   detectView() {
     const url = this.router.url;
-    if (url.includes('/publisher/feeds')) {
-      this.view.set('feeds');
-    } else if (url.includes('/publisher/settings')) {
+    if (url.includes('/publisher/settings')) {
       this.view.set('settings');
     } else {
       this.view.set('dashboard');
@@ -55,12 +49,6 @@ export class PublisherOverviewComponent implements OnInit {
   loadSourceDetails() {
     this.http.get('http://localhost:3000/publisher/source').subscribe((res: any) => {
       this.source.set(res);
-    });
-  }
-
-  loadFeeds() {
-    this.http.get('http://localhost:3000/publisher/feeds').subscribe((res: any) => {
-      this.feeds.set(res);
     });
   }
 
@@ -78,35 +66,6 @@ export class PublisherOverviewComponent implements OnInit {
     });
   }
 
-  addFeed() {
-    if (!this.newFeedUrl) return;
-    this.isSaving.set(true);
-    this.http.post('http://localhost:3000/publisher/feeds', { url: this.newFeedUrl }).subscribe({
-      next: () => {
-        this.newFeedUrl = '';
-        this.loadFeeds();
-        this.isSaving.set(false);
-      },
-      error: () => {
-        this.isSaving.set(false);
-        this.toast.show('Failed to add feed.', 'error');
-      }
-    });
-  }
-
-  triggerSync() {
-    this.isSyncing.set(true);
-    this.http.post('http://localhost:3000/publisher/sync', {}).subscribe({
-      next: (res: any) => {
-        this.toast.show(res.message);
-        this.isSyncing.set(false);
-      },
-      error: () => {
-        this.isSyncing.set(false);
-        this.toast.show('Sync failed. Please check your RSS URL.', 'error');
-      }
-    });
-  }
 
   loadStats() {
     const baseUrl = 'http://localhost:3000/publisher';

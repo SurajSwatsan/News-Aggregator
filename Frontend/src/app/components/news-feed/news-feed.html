@@ -84,7 +84,7 @@
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" class="search-icon-large">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
         </svg>
-        <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Search for stories, topics, or authors...">
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" (keyup.enter)="onSearch()" placeholder="Search for stories, topics, or authors...">
         <button class="search-submit" (click)="onSearch()">SEARCH</button>
       </div>
     </div>
@@ -261,7 +261,9 @@
             </div>
           </div>
 
-          <app-ad-slot placementType="sidebar"></app-ad-slot>
+          <app-ad-slot placementType="sidebar" [index]="0"></app-ad-slot>
+          <div style="margin-top: 20px;"></div>
+          <app-ad-slot placementType="sidebar" [index]="1"></app-ad-slot>
 
           <div class="sidebar-section partner-card">
             <h4>Become a Partner</h4>

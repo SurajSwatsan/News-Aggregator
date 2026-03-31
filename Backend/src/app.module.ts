@@ -15,6 +15,7 @@ import { AdminController } from './admin/admin.controller';
 import { AiModule } from './ai/ai.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AdModule } from './ad/ad.module';
+import { MasterModule } from './master/master.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AdModule } from './ad/ad.module';
     MailModule,
     AuditLogsModule,
     AdModule,
+    MasterModule,
   ],
   controllers: [AppController, AdminController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Patch, Delete, Post, Body, UseGuards, Request, Param } from '@nestjs/common';
+import { Controller, Get, Put, Patch, Delete, Post, Body, UseGuards, Request, Param, Query } from '@nestjs/common';
 import { PublisherService } from './publisher.service';
 import { AdService } from '../ad/ad.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -23,9 +23,9 @@ export class PublisherController {
   }
 
   @Get('articles')
-  async getArticles(@Request() req: any) {
+  async getArticles(@Request() req: any, @Query('search') search?: string) {
     const userId = req.user.id;
-    return this.publisherService.getArticles(userId);
+    return this.publisherService.getArticles(userId, search);
   }
 
   @Get('analytics')

@@ -1,0 +1,123 @@
+@if (user()) {
+<div class="profile-layout animate-fade">
+  <!-- Header Section -->
+  <header class="profile-header">
+    <div class="header-top">
+      <a routerLink="/publisher/profile" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back to Profile
+      </a>
+    </div>
+    
+    <div class="header-main">
+      <div class="header-info">
+        <div class="header-title-row">
+          <h1>Edit Profile</h1>
+          <span class="publisher-badge" *ngIf="user()?.name">
+            {{ user()?.name }}
+          </span>
+        </div>
+        <p>Your changes will be updated across the platform immediately after saving.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="profile-content">
+    <!-- User Account Details -->
+    <section class="info-card">
+      <div class="card-header">
+        <div class="icon-wrapper blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h2>Personal Information</h2>
+      </div>
+
+      <div class="card-body">
+        <div class="settings-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" [(ngModel)]="user().firstName" name="firstName" placeholder="Enter first name" class="clean-input-field">
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" [(ngModel)]="user().lastName" name="lastName" placeholder="Enter last name" class="clean-input-field">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Display Name</label>
+            <input type="text" [(ngModel)]="user().name" name="name" placeholder="Name shown on platform" class="clean-input-field">
+          </div>
+
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" [value]="user().email" readonly class="clean-input-field readonly" title="Email cannot be changed">
+            <small class="helper-text">Registration email is used for account security and cannot be changed.</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" [(ngModel)]="user().phone" name="phone" placeholder="+1 (555) 000-0000" class="clean-input-field">
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" [(ngModel)]="user().country" name="country" placeholder="Your country" class="clean-input-field">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" [(ngModel)]="user().city" name="city" placeholder="Your city" class="clean-input-field">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Organization Details -->
+    <section class="info-card">
+      <div class="card-header">
+        <div class="icon-wrapper pink">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M16 18h.01"/></svg>
+        </div>
+        <h2>Organization Identity</h2>
+      </div>
+
+      <div class="card-body">
+        <div class="settings-form">
+          <div class="form-group">
+            <label>Legal Entity Name</label>
+            <input type="text" [(ngModel)]="user().orgName" name="orgName" placeholder="Official organization name" class="clean-input-field">
+          </div>
+
+          <div class="form-group">
+            <label>Official Website</label>
+            <input type="url" [(ngModel)]="user().orgWebsite" name="orgWebsite" placeholder="https://www.example.com" class="clean-input-field">
+          </div>
+
+          <div class="form-group">
+            <label>RSS Feed URL</label>
+            <input type="url" [(ngModel)]="user().rssUrl" name="rssUrl" placeholder="https://www.esakal.com/rss-feed" class="clean-input-field">
+            <small class="helper-text">This URL is used to automatically sync your latest articles.</small>
+          </div>
+
+
+          <div class="form-group">
+            <label>Organization Description</label>
+            <textarea [(ngModel)]="user().orgDescription" name="orgDescription" rows="6" placeholder="Describe your publication, its history, and focus..." class="clean-textarea"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="actions-footer">
+    <button class="btn-cancel" routerLink="/publisher/profile">Cancel</button>
+    <button class="btn-primary-large" [disabled]="isSaving()" (click)="saveProfile()">
+      <span *ngIf="!isSaving()">Save All Changes</span>
+      <span *ngIf="isSaving()">Saving Profile...</span>
+    </button>
+  </div>
+</div>
+}

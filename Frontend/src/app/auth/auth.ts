@@ -40,8 +40,8 @@ export class AuthService {
     }
   }
 
-  requestOtp(email: string, name?: string, username?: string, password?: string) {
-    return this.http.post<any>(`${this.apiUrl}/request-otp`, { email, name, username, password });
+  requestOtp(email: string, firstName?: string, lastName?: string, password?: string) {
+    return this.http.post<any>(`${this.apiUrl}/request-otp`, { email, firstName, lastName, password });
   }
 
   verifyOtp(email: string, code: string) {
@@ -75,6 +75,13 @@ export class AuthService {
         this.currentUser.set(user);
       })
     );
+  }
+
+  updateCurrentUser(user: any) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+    this.currentUser.set(user);
   }
 
   logout() {

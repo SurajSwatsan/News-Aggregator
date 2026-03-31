@@ -51,6 +51,9 @@ export class AuthController {
       user: {
         id: user.id,
         email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        name: user.name,
         role: user.role,
         creditBalance: user.creditBalance
       }
@@ -58,8 +61,8 @@ export class AuthController {
   }
 
   @Post('request-otp')
-  async requestOtp(@Body() body: { email: string, name?: string, username?: string, password?: string }) {
-    return this.authService.requestOtp(body.email, body.name, body.username, body.password);
+  async requestOtp(@Body() body: { email: string, firstName?: string, lastName?: string, password?: string }) {
+    return this.authService.requestOtp(body.email, body.firstName, body.lastName, body.password);
   }
 
   @Post('verify-otp')
@@ -77,6 +80,9 @@ export class AuthController {
       user: {
         id: user.id,
         email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        name: user.name,
         role: user.role,
         creditBalance: user.creditBalance
       }

@@ -1,11 +1,13 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { AuthService } from '../../auth/auth';
+import { AuthService } from '../auth';
 import { Router, RouterLink } from '@angular/router';
-import { FloatingInputComponent } from '../common/floating-input/floating-input';
+import { FloatingInputComponent } from '../../components/common/floating-input/floating-input';
 import { ToastService } from '../../services/toast.service';
 import { HttpClient } from '@angular/common/http';
+import { MasterService } from '../../services/master.service';
+import { FloatingSelectComponent } from '../../components/common/floating-select/floating-select';
 
 export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
@@ -38,17 +40,18 @@ export function passwordComplexityValidator(control: AbstractControl): Validatio
 }
 
 @Component({
-  selector: 'app-user-registration',
+  selector: 'app-user-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, FloatingInputComponent],
-  templateUrl: './user-registration.html',
-  styleUrl: './user-registration.css'
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, FloatingInputComponent, FloatingSelectComponent],
+  templateUrl: './user-register.html',
+  styleUrl: './user-register.css'
 })
-export class UserRegistrationComponent implements OnInit {
+export class UserRegisterComponent implements OnInit {
   private authService = inject(AuthService);
   private http = inject(HttpClient);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private masterService = inject(MasterService);
 
   // Toggle between modes
   registrationType = signal<'user' | 'publisher'>('user');
@@ -69,6 +72,10 @@ export class UserRegistrationComponent implements OnInit {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
   adminExists = signal(false);
+
+  // Master Data
+  countries = signal<any[]>([]);
+  cities = signal<any[]>([]);
 
   constructor() {
     this.registerForm = this.fb.group({
@@ -98,6 +105,22 @@ export class UserRegistrationComponent implements OnInit {
     // Default to publisher if arriving via /register-publisher
     if (this.router.url.includes('register-publisher')) {
       this.onTypeChange('publisher');
+      this.loadCountries();
+    }
+  }
+
+  loadCountries() {
+    this.masterService.getCountries().subscribe(data => {
+      this.countries.set(data.map(c => ({ value: c.name, label: c.name, id: c.id })));
+    });
+  }
+
+  onCountryChange(countryName: string) {
+    const country = this.countries().find(c => c.value === countryName);
+    if (country) {
+      this.http.get<any[]>(`http://localhost:3000/master/cities?countryId=${country.id}`).subscribe(data => {
+        this.cities.set(data.map(city => ({ value: city.name, label: city.name })));
+      });
     }
   }
 
@@ -207,8 +230,8 @@ export class UserRegistrationComponent implements OnInit {
       phone: val.phone,
       businessDoc: this.businessFileName(),
       newspaperLicense: val.newspaperLicense,
-      publisherFirstName: val.firstName,
-      publisherLastName: val.lastName
+      firstName: val.firstName,
+      lastName: val.lastName
     }).subscribe({
       next: () => {
         this.isLoading.set(false);

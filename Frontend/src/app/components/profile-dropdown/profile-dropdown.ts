@@ -36,15 +36,36 @@ export class ProfileDropdownComponent {
   }
 
 
-  getAvatarInitials(name?: string): string {
-    if (!name) return 'U';
+  getAvatarInitials(user: any): string {
+    if (!user) return 'UN';
+    
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
+
+    if (firstName && lastName) {
+      // User requested: First name 1st letter + Last name 1st letter
+      const firstChar = firstName.trim().charAt(0);
+      const lastChar = lastName.trim().charAt(0);
+      return (firstChar + lastChar).toUpperCase();
+    }
+
+    let name = user.name || user.email || 'User';
+    
     if (name.includes('@')) {
-      name = name.split('@')[0].replace('.', ' ');
+      name = name.split('@')[0].replace(/[^a-zA-Z]/g, ' ');
     }
-    const parts = name.split(/[ ._]/).filter(p => p.length > 0);
+    
+    const parts = name.trim().split(/\s+/).filter((p: string) => p.length > 0);
     if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      const firstPart = parts[0];
+      const lastPart = parts[parts.length - 1];
+      return (firstPart[0] + lastPart[lastPart.length - 1]).toUpperCase();
     }
-    return name[0].toUpperCase();
+    
+    if (name.length > 1) {
+       return (name[0] + name[name.length - 1]).toUpperCase();
+    }
+    
+    return name[0].toUpperCase() || 'U';
   }
 }

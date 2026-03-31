@@ -1,0 +1,15 @@
+/* Reusing styles from publisher-profile.css */
+@import '../publisher-profile/publisher-profile.css';
+
+/* Custom overrides for the edit page if needed */
+.profile-layout {
+  padding-bottom: 8rem;
+}
+
+.actions-footer {
+  position: sticky;
+  bottom: 2rem;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}

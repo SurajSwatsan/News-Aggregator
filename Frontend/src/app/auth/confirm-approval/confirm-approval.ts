@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../auth/auth';
+import { AuthService } from '../auth';
 
 @Component({
   selector: 'app-confirm-approval',

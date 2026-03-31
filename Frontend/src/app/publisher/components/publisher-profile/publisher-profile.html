@@ -1,0 +1,127 @@
+@if (user()) {
+<div class="profile-layout animate-fade">
+  <!-- Header Section -->
+  <header class="profile-header">
+    <div class="header-top">
+      <a routerLink="/publisher/dashboard" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back to Dashboard
+      </a>
+    </div>
+    
+    <div class="header-main">
+      <div class="header-info">
+        <div class="header-title-row">
+          <h1>Publisher Profile</h1>
+          <span class="publisher-badge" *ngIf="user()?.name">
+            {{ user()?.name }}
+          </span>
+        </div>
+        <p>Your official credentials and organization profile information.</p>
+      </div>
+      
+      <div class="header-actions">
+        <a class="btn-edit-profile" routerLink="/publisher/profile/edit">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+          Edit Profile
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="profile-content">
+    <!-- Identity Card -->
+    <section class="info-card">
+      <div class="card-header">
+        <div class="icon-wrapper blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h2>Personal Information</h2>
+      </div>
+      
+      <div class="card-body">
+        <div class="details-grid">
+          <div class="data-group">
+            <span class="label">First Name</span>
+            <div class="value">{{ user().firstName || '—' }}</div>
+          </div>
+          <div class="data-group">
+            <span class="label">Last Name</span>
+            <div class="value">{{ user().lastName || '—' }}</div>
+          </div>
+          <div class="data-group">
+            <span class="label">Display Name</span>
+            <div class="value">{{ user().name || '—' }}</div>
+          </div>
+          <div class="data-group">
+            <span class="label">Email Address</span>
+            <div class="value muted">{{ user().email }}</div>
+          </div>
+          <div class="data-group">
+            <span class="label">Phone Number</span>
+            <div class="value">{{ user().phone || 'Not provided' }}</div>
+          </div>
+          <div class="data-group">
+            <span class="label">Location</span>
+            <div class="value">
+              {{ (user().city && user().country) ? (user().city + ', ' + user().country) : (user().city || user().country || 'Not specified') }}
+            </div>
+          </div>
+          <div class="data-group">
+            <span class="label">Location</span>
+            <div class="value">
+              {{ (user().city && user().country) ? (user().city + ', ' + user().country) : (user().city || user().country || 'Not specified') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Organization Card -->
+    <section class="info-card">
+      <div class="card-header">
+        <div class="icon-wrapper pink">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M16 18h.01"/></svg>
+        </div>
+        <h2>Organization Entity</h2>
+      </div>
+      
+      <div class="card-body">
+        <div class="details-grid">
+          <div class="data-group">
+            <span class="label">Legal Name</span>
+            <div class="value">{{ user().orgName || '—' }}</div>
+          </div>
+          <div class="data-group">
+            <span class="label">Official Website</span>
+            <div class="value">
+              <a *ngIf="user().orgWebsite" [href]="user().orgWebsite" target="_blank" class="org-link">{{ user().orgWebsite }}</a>
+              <span *ngIf="!user().orgWebsite">Not linked</span>
+            </div>
+          </div>
+          <div class="data-group">
+            <span class="label">RSS Feed URL</span>
+            <div class="value">
+              <span *ngIf="user().rssUrl" class="rss-link">{{ user().rssUrl }}</span>
+              <span *ngIf="!user().rssUrl">Not configured</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-group" style="margin-top: 2.5rem;">
+          <span class="label">Editorial Mission & Description</span>
+          <div class="description-box">{{ user().orgDescription || 'No description provided yet.' }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status Banner -->
+    <div class="status-banner">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+      <div class="banner-content">
+        <strong>Publisher Status:</strong> Your account is an active publishing partner. Some administrative roles and critical security configurations can only be adjusted by system administrators.
+      </div>
+    </div>
+  </div>
+</div>
+}

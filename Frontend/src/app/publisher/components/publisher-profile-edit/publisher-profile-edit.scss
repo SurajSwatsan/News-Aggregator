@@ -1,0 +1,126 @@
+@import '../publisher-profile/publisher-profile.scss';
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  
+  .form-row {
+    display: flex;
+    gap: 2rem;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+  
+  label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--p-text-main);
+    transition: color 0.2s;
+  }
+  
+  &:focus-within label {
+    color: var(--p-accent);
+  }
+}
+
+.clean-input-field, .clean-textarea {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  border: 1px solid var(--p-border);
+  border-radius: 12px;
+  font-size: 1rem;
+  color: var(--p-text-main);
+  background: var(--p-bg-soft);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:focus {
+    outline: none;
+    background: white;
+    border-color: var(--p-accent);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  &.readonly {
+    background: #f1f5f9;
+    cursor: not-allowed;
+    color: var(--p-text-muted);
+  }
+}
+
+.clean-textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.helper-text {
+  font-size: 0.85rem;
+  color: var(--p-text-muted);
+  margin-top: -0.25rem;
+}
+
+.actions-footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  border-top: 1px solid var(--p-border);
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem 0;
+    flex-direction: column-reverse;
+  }
+}
+
+.btn-cancel {
+  background: transparent;
+  color: var(--p-text-muted);
+  border: 1px solid var(--p-border);
+  padding: 0.9rem 2.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #f1f5f9;
+    color: var(--p-text-main);
+  }
+}
+
+.btn-primary-large {
+  background: var(--p-accent);
+  color: white;
+  border: none;
+  padding: 0.9rem 4rem;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+  
+  &:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+  }
+  
+  &:active:not(:disabled) { transform: scale(0.98); }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
