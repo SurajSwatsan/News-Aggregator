@@ -8,11 +8,12 @@ import { ToastService } from '../../services/toast.service';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
 import { CreatedAdsComponent } from '../common/created-ads/created-ads';
 import { MasterComponent } from '../master/master';
+import { AdminSubscriptionComponent } from './admin-subscription/admin-subscription';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, MasterComponent, TitleCasePipe, DatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, MasterComponent, AdminSubscriptionComponent, TitleCasePipe, DatePipe],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss'
 })
@@ -35,6 +36,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'audit': return 'Security & Audit Logs';
       case 'ads': return 'Advertising Center';
       case 'master': return 'Master Data Management';
+      case 'subscriptions': return 'User Subscription Management';
       default: return 'Administrative Control Center';
     }
   });
@@ -47,6 +49,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'audit': return 'Security Trail & System Operation History';
       case 'ads': return 'Campaign Performance & Asset Delivery Management';
       case 'master': return 'Platform-wide Geography & Metadata Configuration';
+      case 'subscriptions': return 'Track Reader Credits & Membership Statuses';
       default: return 'Administrative Control Center';
     }
   });
@@ -63,6 +66,7 @@ export class AdminDashboardComponent implements OnInit {
         const tab = this.route.snapshot.queryParams['tab'] || 'countries';
         current = tab === 'countries' ? 'Country Master' : 'City Master';
         break;
+      case 'subscriptions': current = 'Subscriptions'; break;
       default: current = 'Dashboard'; break;
     }
     return { root: 'Platform', current };
@@ -90,6 +94,7 @@ export class AdminDashboardComponent implements OnInit {
   viewingAd = signal<any>(null);
   isCreatingAd = signal(false);
   editingAdId = signal<string | null>(null);
+  isSubscriptionModalActive = signal(false); // Track child modal state
 
   // Pagination Signals
   pageSize = 10;
@@ -119,7 +124,7 @@ export class AdminDashboardComponent implements OnInit {
 
   filteredUsers = computed(() => {
     const tab = this.usersSubTab();
-    const users = this.allUsers().filter(u => u.status !== 'Deleted' && !u.isDeleted);
+    const users = this.allUsers();
 
     switch (tab) {
       case 'readers':
@@ -172,6 +177,8 @@ export class AdminDashboardComponent implements OnInit {
       } else if (path === 'master') {
         this.activeTab.set('master');
         this.isMasterExpanded.set(true);
+      } else if (path === 'subscriptions') {
+        this.activeTab.set('subscriptions');
       } else {
         this.activeTab.set('overview');
       }
@@ -191,6 +198,7 @@ export class AdminDashboardComponent implements OnInit {
       this.totalArticles.set(res.totalArticles);
       this.activeSources.set(res.totalSources);
       this.sourcesAddedToday.set(res.sourcesAddedToday);
+      this.totalReaders.set(res.totalReaders);
     });
   }
 

@@ -1,0 +1,344 @@
+<div class="subscription-admin-view">
+
+  <!-- NEW PREMIUM DASHBOARD TABS -->
+  <div class="dashboard-tabs">
+    <button class="tab-item" [class.active]="activeView() === 'plans'" (click)="switchView('plans')">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+      <span>Subscription Plans</span>
+    </button>
+    <button class="tab-item" [class.active]="activeView() === 'readers'" (click)="switchView('readers')">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+      <span>Total Readers</span>
+    </button>
+  </div>
+
+  <!-- PART 1: SUBSCRIPTION PLANS WORKSPACE -->
+  <div class="plans-workspace animate-fade-in" *ngIf="activeView() === 'plans'">
+    <div class="plans-management-header">
+      <h2>Subscription Plans</h2>
+      <p>Define new access tiers and manage existing billing configurations.</p>
+    </div>
+
+    <div class="action-toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" placeholder="Search plans by name, frequency..." [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)">
+      </div>
+      <button class="btn-primary blue" (click)="openAddPlanModal()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        Add Plan
+      </button>
+    </div>
+
+    <div class="plan-tiers-grid">
+      <div class="admin-plan-card" *ngFor="let plan of plans()" [class.inactive]="!plan.isActive" [ngClass]="{
+             'tier-basic': plan.name.toLowerCase().includes('basic'),
+             'tier-pro': plan.name.toLowerCase().includes('pro'),
+             'tier-elite': plan.name.toLowerCase().includes('elite')
+           }">
+        <div class="plan-card-inner">
+          <div class="card-top">
+            <div class="tier-identity">
+              <div class="dot"></div>
+              <span class="name">{{ plan.name }}</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn-icon-tiny" title="Edit Plan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+              <button class="btn-icon-tiny delete" (click)="deletePlan(plan.id)" title="Delete Plan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="plan-info-grid">
+            <div class="info-row" *ngFor="let sub of plan.subscriptions">
+              <span class="freq">{{ sub.frequency }}</span>
+              <span class="details">
+                <strong>{{ sub.currency.split(' ')[1] || sub.currency }}{{ sub.price }}</strong>
+                / {{ sub.credits }} credits
+              </span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="status-badge" [class.active]="plan.isActive">
+              {{ plan.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            <span class="creation-info">By {{ plan.createdBy }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 2: READER ANALYTICS WORKSPACE -->
+  <div class="readers-workspace animate-fade-in" *ngIf="activeView() === 'readers'">
+    <div class="table-container-glass">
+      <header class="table-header">
+        <div class="header-left">
+          <h2>Total Readers</h2>
+          <p>Overview of all registered users and their current credit balance.</p>
+        </div>
+        <div class="header-right">
+          <div class="search-box small mr-16">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <input type="text" placeholder="Search readers..." [value]="searchQuery()"
+              (input)="searchQuery.set($any($event.target).value)">
+          </div>
+          <button class="btn-refresh" (click)="fetchReaders()" title="Sync Data">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M23 4v6h-6M1 20v-6h6" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="table-scroll">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>User Identity</th>
+              <th>Billing Status</th>
+              <th>Credit Units</th>
+              <th>Registered At</th>
+              <th>Management</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reader of filteredReaders()">
+              <td>
+                <div class="user-id">
+                  <div class="user-avatar">{{ reader.firstName ? reader.firstName[0] : 'R' }}</div>
+                  <div class="user-info">
+                    <span class="name">{{ reader.firstName }} {{ reader.lastName }}</span>
+                    <span class="email">{{ reader.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span [class]="getPlanClass(reader.creditBalance)">
+                  {{ getPlanType(reader.creditBalance) }}
+                </span>
+              </td>
+              <td>
+                <div class="credits">
+                  <span class="num">{{ reader.creditBalance || 0 }}</span>
+                  <span class="label">Units</span>
+                </div>
+              </td>
+              <td>
+                <span class="date">{{ reader.createdAt | date:'mediumDate' }}</span>
+              </td>
+              <td class="controls">
+                <button class="btn-action pulse" (click)="addBonusCredits(reader.id)" title="Add Bonus Credits">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredReaders().length === 0 && !isLoading()">
+              <td colspan="5" class="empty-state">No readers found matching your search.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State Overlay -->
+<div class="loading-overlay" *ngIf="isLoading()">
+  <div class="spinner"></div>
+</div>
+
+<!-- ADD SUBSCRIPTION MODAL (PREMIUM) -->
+<div class="modal-overlay" *ngIf="showAddPlanModal()">
+  <div class="modal-content-proper animate-pop">
+    <header class="modal-header-premium">
+      <div class="header-hero">
+        <div class="hero-content">
+          <h2>Define Subscription Tier</h2>
+          <!-- <p>Configure access levels and credit parameters for the platform.</p> -->
+        </div>
+        <button class="btn-close-proper" (click)="closeModal()">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="modal-body-proper">
+      <!-- Universal Header Row -->
+      <div class="form-grid-proper mb-32">
+        <div class="floating-group span-3">
+          <select [(ngModel)]="newPlan().billingCycle" class="floating-select has-value" id="plan-cycle" disabled>
+            <option value="Subscription">Subscription</option>
+          </select>
+          <label for="plan-cycle" class="floating-label">
+            <span>BILLING MODEL</span>
+            <span class="required-star">*</span>
+          </label>
+        </div>
+
+        <!-- NEW: Multi-Check Dropdown for Frequencies -->
+        <div class="floating-group span-3 custom-multi-select" (click)="showFreqDropdown.set(!showFreqDropdown())">
+          <div class="floating-select select-display" [class.open]="showFreqDropdown()">
+            {{ selectedFreqLabel() }}
+          </div>
+          <label class="floating-label always-float">
+            <span>CHOOSE FREQUENCIES</span>
+            <span class="required-star">*</span>
+          </label>
+
+          <div class="multi-select-dropdown animate-fade-in" *ngIf="showFreqDropdown()"
+            (click)="$event.stopPropagation()">
+            <label class="check-item-luxury" *ngFor="let freq of ['monthly', 'quarterly', 'yearly']">
+              <input type="checkbox" [checked]="newPlan().subscriptions[freq].enabled" (change)="toggleFrequency(freq)">
+              <span class="check-box"></span>
+              <span class="check-label">{{ freq | titlecase }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIGURATION FORMS BELOW -->
+      <div class="dynamic-config-area animate-fade-in" *ngIf="newPlan().billingCycle === 'Subscription'">
+        <div class="freq-config-block animate-slide-up" *ngFor="let freq of ['monthly', 'quarterly', 'yearly']">
+          <div class="luxury-divider" *ngIf="newPlan().subscriptions[freq].enabled">
+            <span>{{ freq | uppercase }} CONFIGURATION</span>
+          </div>
+
+          <div class="config-card-body" *ngIf="newPlan().subscriptions[freq].enabled">
+            <div class="form-grid-proper mb-24">
+              <div class="floating-group span-3 custom-luxury-select" (click)="toggleDropdown('sub-name-' + freq)">
+                <div class="select-display" [class.open]="openDropdownId() === 'sub-name-' + freq"
+                  [class.has-value]="newPlan().subscriptions[freq].name">
+                  {{ newPlan().subscriptions[freq].name || 'Select Plan Identifier' }}
+                </div>
+                <label class="floating-label">
+                  <span>PLAN IDENTIFIER</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="luxury-dropdown-list animate-fade-in" *ngIf="openDropdownId() === 'sub-name-' + freq">
+                  <div class="dropdown-item-luxury" *ngFor="let name of planNames"
+                    [class.selected]="newPlan().subscriptions[freq].name === name"
+                    (click)="selectValue(freq, 'name', name)">
+                    {{ name }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="floating-group span-3 custom-luxury-select" (click)="toggleDropdown('sub-currency-' + freq)">
+                <div class="select-display" [class.open]="openDropdownId() === 'sub-currency-' + freq"
+                  [class.has-value]="newPlan().subscriptions[freq].currency">
+                  {{ newPlan().subscriptions[freq].currency || 'Select Currency' }}
+                </div>
+                <label class="floating-label">
+                  <span>CURRENCY</span>
+                  <span class="required-star">*</span>
+                </label>
+                <div class="luxury-dropdown-list animate-fade-in" *ngIf="openDropdownId() === 'sub-currency-' + freq">
+                  <div class="dropdown-item-luxury" *ngFor="let c of currencies"
+                    [class.selected]="newPlan().subscriptions[freq].currency === c"
+                    (click)="selectValue(freq, 'currency', c)">
+                    {{ c }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="floating-group span-3">
+                <input type="number" [(ngModel)]="newPlan().subscriptions[freq].credits" class="input-luxury"
+                  id="sub-credits-{{freq}}" placeholder="0">
+                <label for="sub-credits-{{freq}}" class="floating-label">
+                  <span>CREDITS</span>
+                  <span class="required-star">*</span>
+                </label>
+              </div>
+
+              <div class="floating-group span-3">
+                <input type="number" [(ngModel)]="newPlan().subscriptions[freq].price" class="input-luxury"
+                  id="sub-price-{{freq}}" placeholder="0.00">
+                <label for="sub-price-{{freq}}" class="floating-label">
+                  <span>PRICE</span>
+                  <span class="required-star">*</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features-luxury-box">
+              <label class="section-label">DYNAMIC FEATURES</label>
+              <div class="features-grid">
+                <div class="feature-item-proper"
+                  *ngFor="let feature of newPlan().subscriptions[freq].features; let i = index; trackBy: trackByIndex">
+                  <input type="text" [(ngModel)]="newPlan().subscriptions[freq].features[i]" class="input-feature-white"
+                    placeholder="e.g. Full Access Perks">
+                  <button class="btn-feature-delete" (click)="removeFrequencyFeature(freq, i)">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3">
+                      <path
+                        d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <button class="btn-add-feature-link" (click)="addFrequencyFeature(freq)">
+                <span style="font-size: 1.4rem; font-weight: 400; color: #8a70ff;">+</span>
+                <span>Add Feature</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="luxury-toggle-box mt-32">
+        <div class="toggle-content">
+          <div class="t-title">IS ACTIVE</div>
+          <div class="t-desc">Plan will be immediately discoverable in the reader dashboard</div>
+        </div>
+        <label class="premium-switch">
+          <input type="checkbox" [(ngModel)]="newPlan().isActive">
+          <span class="premium-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <footer class="modal-footer-proper">
+      <button class="btn-proper-cancel" (click)="closeModal()">Cancel</button>
+      <button class="btn-proper-save" (click)="savePlan()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M20 6L9 17l-5-5" />
+        </svg>
+        Save Plan
+      </button>
+    </footer>
+  </div>
+</div>

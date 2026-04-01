@@ -160,9 +160,6 @@ import { ToastService } from '../../../services/toast.service';
           </div>
 
           <div class="modal-content-new">
-            <h2 class="modal-title">{{ editingAdId() ? 'Modify' : 'Launch' }} Campaign</h2>
-            <p class="modal-desc">{{ editingAdId() ? 'Update your campaign parameters and strategy.' : 'Configure your advertisement parameters and placement strategy.' }}</p>
-
             <div class="refined-form">
               <div class="row">
                 <div class="input-block full">
@@ -380,8 +377,6 @@ import { ToastService } from '../../../services/toast.service';
     }
     .btn-close-new:hover { color: #000; }
     .modal-content-new { padding: 2.5rem; overflow-y: auto; flex: 1; }
-    .modal-title { font-size: 2.25rem; font-weight: 900; color: #000; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
-    .modal-desc { color: #666; font-size: 1rem; margin-bottom: 2.5rem; }
     .refined-form { display: flex; flex-direction: column; gap: 1.5rem; }
     .input-block { display: flex; flex-direction: column; gap: 0.5rem; }
     .input-block label { font-size: 0.8rem; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -441,7 +436,7 @@ export class PublisherAdsComponent implements OnInit {
 
   filteredAds = computed(() => {
     let list = this.ads();
-    
+
     if (this.searchQuery()) {
       const q = this.searchQuery().toLowerCase();
       list = list.filter(a => a.title.toLowerCase().includes(q) || a.targetUrl.toLowerCase().includes(q));

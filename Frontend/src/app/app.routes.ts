@@ -12,6 +12,7 @@ import { UserRegisterComponent } from './auth/user-register/user-register';
 import { ArticleDetailComponent } from './components/article-detail/article-detail';
 import { SourceProfileComponent } from './components/source-profile/source-profile';
 import { PublisherRegistrationComponent } from './publisher/components/publisher-registration/publisher-registration';
+import { SubscriptionComponent } from './components/subscription/subscription';
 import { publisherGuard } from './publisher/publisher.guard';
 
 const authGuard = () => {
@@ -57,6 +58,7 @@ const publicGuard = () => true;
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'subscription', component: SubscriptionComponent, canActivate: [authGuard] },
   { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent) },
   { path: 'reset-password', loadComponent: () => import('./auth/reset-password/reset-password').then(m => m.ResetPasswordComponent) },
   { path: 'article/:id', component: ArticleDetailComponent },
@@ -70,6 +72,7 @@ export const routes: Routes = [
   { path: 'audit', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'ads', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { path: 'master', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
+  { path: 'subscriptions', component: AdminDashboardComponent, canActivate: [authGuard, roleGuard(['admin'])] },
   { 
     path: 'publisher', 
     loadChildren: () => import('./publisher/publisher.routes').then(m => m.publisherRoutes),

@@ -1,5 +1,5 @@
 <div class="admin-layout">
-  <aside class="sidebar">
+  <aside class="sidebar" [class.sidebar-hidden]="isSubscriptionModalActive()">
     <div class="sidebar-header">
       <div class="logo-box">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -65,6 +65,14 @@
         </svg>
         Advertisements
       </div>
+      <div class="nav-item" routerLink="/subscriptions" routerLinkActive="active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="20" height="14" x="2" y="5" rx="2" />
+          <line x1="2" y1="10" x2="22" y2="10" />
+        </svg>
+        Subscriptions
+      </div>
       <div class="nav-item collapsible" (click)="isMasterExpanded.set(!isMasterExpanded())" [class.expanded]="isMasterExpanded()">
         <div class="nav-item-main">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" 
@@ -96,7 +104,7 @@
     </nav>
   </aside>
 
-  <main class="main-content">
+  <main class="main-content" [class.content-expanded]="isSubscriptionModalActive()">
     <header class="premium-page-header">
       <div class="header-content">
         <div class="breadcrumb-row">
@@ -485,10 +493,9 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-      </div> <!-- Audit Logs Tab -->
+      </div> <!-- User Management End -->
       <div *ngIf="activeTab() === 'audit'" class="animate-fade-in">
         <div class="table-actions-header"
           style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 2rem;">
@@ -594,6 +601,9 @@
       <div *ngIf="activeTab() === 'master'" class="animate-fade-in">
         <app-master></app-master>
       </div>
+      <div *ngIf="activeTab() === 'subscriptions'" class="animate-fade-in">
+        <app-admin-subscription (modalState)="isSubscriptionModalActive.set($event)"></app-admin-subscription>
+      </div>
     </div>
   </main>
 </div>
@@ -607,10 +617,6 @@
     </div>
 
     <div class="modal-content-new">
-      <h2 class="modal-title">{{ editingAdId() ? 'Modify' : 'Launch' }} Campaign</h2>
-      <p class="modal-desc">{{ editingAdId() ? 'Update your campaign parameters and strategy.' : 'Configure your
-        advertisement parameters and placement strategy.' }}</p>
-
       <div class="refined-form">
         <div class="row">
           <div class="input-block full">

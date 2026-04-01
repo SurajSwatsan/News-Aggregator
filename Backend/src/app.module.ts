@@ -16,6 +16,7 @@ import { AiModule } from './ai/ai.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AdModule } from './ad/ad.module';
 import { MasterModule } from './master/master.module';
+import { SubscriptionPlanModule } from './admin/subscription-plan/module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { MasterModule } from './master/master.module';
     AuditLogsModule,
     AdModule,
     MasterModule,
+    SubscriptionPlanModule,
   ],
   controllers: [AppController, AdminController],
   providers: [AppService],

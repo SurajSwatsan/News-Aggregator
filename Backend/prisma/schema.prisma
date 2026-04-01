@@ -185,3 +185,21 @@ model City {
 
   @@map("cities")
 }
+
+model SubscriptionPlan {
+  id            String   @id @default(uuid())
+  name          String   // e.g., Basic Edition, Professional Tier, Elite Premium
+  billingCycle  String   // "One Time Purchase" or "Subscription"
+  price         Decimal? @db.Decimal(10, 2)
+  currency      String?
+  features      String[]
+  credits       Int      @default(0)
+  validityDays  Int      @default(365) @map("validity_days")
+  isActive      Boolean  @default(true) @map("is_active")
+  subscriptions Json?    // { monthly: { price, currency, features }, yearly: { price, currency, features } }
+  createdBy     String?  @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("subscription_plans")
+}

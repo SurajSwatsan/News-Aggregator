@@ -233,34 +233,8 @@ export class NewsFeedComponent implements OnInit {
   }
 
   handleArticleAccess(article: any) {
-    const user = this.currentUser();
-    if (!user) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    // 1. Check if user already has access to this article
-    this.accessService.checkAccess(article.id).subscribe(hasAccess => {
-      if (hasAccess) {
-        // Already unlocked, just navigate silently
-        this.router.navigate(['/article', article.id]);
-      } else {
-        // 2. Not unlocked - check credit balance (handle string/number decimal)
-        const balance = Number(user.creditBalance);
-
-        if (balance >= 1) {
-          // 3. Has credits - deduct (grantAccess) and then navigate
-          this.accessService.grantAccess(article.id).subscribe(success => {
-            if (success) {
-              this.router.navigate(['/article', article.id]);
-            }
-          });
-        } else {
-          // 4. Insufficient credits - trigger payment flow
-          this.showPaymentModal.set(true);
-        }
-      }
-    });
+    // Navigate directly to the article detail - viewing summaries is now free for everyone
+    this.router.navigate(['/article', article.id]);
   }
 
   handleImageError(event: any) {

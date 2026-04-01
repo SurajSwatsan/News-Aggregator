@@ -372,9 +372,29 @@ export class AuthService {
   }
 
   async getUserById(id: string) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (user) return user;
-    return this.prisma.publisherOnboarding.findUnique({ where: { id } as any });
+    try {
+      const users: any[] = await this.prisma.$queryRaw`
+        SELECT 
+          id, email, username, name, role, 
+          city, country, phone,
+          "first_name" as "firstName", "last_name" as "lastName", "credit_balance" as "creditBalance", "created_at" as "createdAt"
+        FROM users 
+        WHERE id = ${id}
+      `;
+      
+      if (users && users.length > 0) {
+        return users[0];
+      }
+
+      const onboarding = await this.prisma.publisherOnboarding.findUnique({ 
+        where: { id: id as any } 
+      });
+      return onboarding;
+    } catch (error) {
+      console.error('Error in getUserById:', error);
+      // Final fallback to onboarding
+      return this.prisma.publisherOnboarding.findUnique({ where: { id: id as any } }).catch(() => null);
+    }
   }
 
   async validateUser(email: string, pass: string) {
@@ -477,7 +497,29 @@ export class AuthService {
         });
       }
 
-      // 2. Perform HARD DELETE of everything associated
+      // 2. Perform Role-Based Deletion
+      if (user.role === UserRole.reader) {
+        // Proper SOFT DELETE for readers
+        const result = await (this.prisma.user as any).update({
+          where: { id },
+          data: {
+            isDeleted: true,
+            deletedAt: new Date()
+          }
+        });
+
+        await this.auditLogs.createLog({
+          userId: id,
+          action: 'READER_SOFT_DELETE',
+          resourceType: 'USER',
+          resourceId: id,
+          metadata: { email: user.email, role: user.role }
+        });
+
+        return result;
+      }
+
+      // 3. Perform HARD DELETE of everything associated for Publishers and Admins
       return await this.prisma.$transaction(async (tx) => {
         // Find sources owned by this user
         const sources = await tx.source.findMany({ where: { ownerId: id } });
@@ -496,10 +538,7 @@ export class AuthService {
         // Delete user's access logs
         await tx.accessLog.deleteMany({ where: { userId: id } });
 
-        // Nullify userId in audit logs to preserve history without breaking FK (if any)
-        // or just delete them if we want a total wipe. 
-        // Based on user request "hard delete this user", we'll delete them from audit logs too if needed, 
-        // but usually keeping logs is better. However, let's just delete for "hard delete" vibe.
+        // Delete audit logs for this user
         await tx.auditLog.deleteMany({ where: { userId: id } });
 
         // Delete the User record
@@ -510,6 +549,7 @@ export class AuthService {
 
         return result;
       });
+
     } catch (e: any) {
       console.error('Error in hard delete:', e);
       throw e;

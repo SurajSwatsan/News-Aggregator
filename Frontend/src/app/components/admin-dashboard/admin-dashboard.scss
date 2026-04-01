@@ -69,6 +69,13 @@ body {
   height: 100vh !important;
   z-index: 100 !important;
   box-shadow: 1px 0 10px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+  &.sidebar-hidden {
+    left: -350px !important; // Slide out of vision
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
 
   &-header {
     padding: 2.5rem 2rem !important;
@@ -208,7 +215,12 @@ body {
   flex-direction: column !important;
   background: $bg-layout !important;
   z-index: 10 !important;
-  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+
+  &.content-expanded {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
 }
 
 /* Ad Creation Modal - Global Reset */

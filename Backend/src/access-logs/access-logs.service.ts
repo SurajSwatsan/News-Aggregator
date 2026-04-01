@@ -21,18 +21,35 @@ export class AccessLogsService {
       });
       return !!log;
     } catch (e) {
-      // Fallback to raw SQL if Prisma client is out of sync
-      const logs: any[] = await this.prisma.$queryRawUnsafe(
-        `SELECT id FROM access_logs WHERE user_id = $1 AND article_id = $2`,
-        userId, articleId
-      );
+      // Fallback to safe template tag if Prisma client is out of sync
+      const logs: any[] = await this.prisma.$queryRaw`
+        SELECT id FROM access_logs 
+        WHERE user_id = ${userId} AND article_id = ${articleId}
+      `;
       return logs.length > 0;
     }
   }
 
   async grantAccess(userId: string, articleId: string) {
+    // 1. Check for sufficient credits in existing schema
+    const userResults: any[] = await this.prisma.$queryRaw`
+      SELECT credit_balance::float as balance 
+      FROM users 
+      WHERE id = ${userId}
+    `;
+    
+    if (!userResults || userResults.length === 0) {
+      throw new Error('User not found');
+    }
+
+    const userData = userResults[0];
+
+    if (userData.balance < 1) {
+      return { success: false, message: 'Insufficient credits' };
+    }
+
     try {
-      // 1. Create access log
+      // 2. Create access log using prisma client (preferred)
       await (this.prisma as any).accessLog.create({
         data: {
           userId,
@@ -40,27 +57,29 @@ export class AccessLogsService {
         },
       });
     } catch (e) {
-      // Fallback to raw SQL
-      await this.prisma.$executeRawUnsafe(
-        `INSERT INTO access_logs (id, user_id, article_id, created_at) VALUES (gen_random_uuid(), $1, $2, NOW())`,
-        userId, articleId
-      );
+      // Fallback only if prisma client fails
+      await this.prisma.$executeRaw`
+        INSERT INTO access_logs (user_id, article_id) 
+        VALUES (${userId}, ${articleId})
+      `;
     }
 
-    // 2. Deduct credit from user
-    await this.prisma.$executeRawUnsafe(
-      `UPDATE users SET credit_balance = credit_balance - 1 WHERE id = $1`,
-      userId
-    );
+    // 3. Deduct credit from user
+    await this.prisma.$executeRaw`
+      UPDATE users 
+      SET credit_balance = credit_balance - 1 
+      WHERE id = ${userId}
+    `;
 
     await this.auditLogs.createLog({
       userId,
       action: 'ARTICLE_ACCESS',
       resourceType: 'ARTICLE',
       resourceId: articleId,
-      metadata: { userId, articleId, cost: 1 }
+      metadata: { userId, articleId, cost: 1, type: 'CREDIT' }
     });
 
     return { success: true };
   }
+
 }

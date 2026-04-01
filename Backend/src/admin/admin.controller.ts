@@ -55,6 +55,9 @@ export class AdminController {
   async getGlobalStats() {
     const totalArticles = await this.prisma.article.count();
     const totalSources = await this.prisma.source.count();
+    const totalReaders = await this.prisma.user.count({ where: { role: 'reader', isDeleted: false } });
+    const totalPublishers = await this.prisma.user.count({ where: { role: 'publisher', isDeleted: false } });
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -67,9 +70,12 @@ export class AdminController {
     return {
       totalArticles,
       totalSources,
+      totalReaders,
+      totalPublishers,
       sourcesAddedToday
     };
   }
+
 
   @Get('ads')
   async getAllAds() {

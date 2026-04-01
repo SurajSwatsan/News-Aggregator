@@ -1,11 +1,15 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    private prisma: PrismaService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -14,10 +18,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // console.log('JwtStrategy validating payload:', payload);
     if (!payload.sub || !payload.role) {
       return null;
     }
+
+    // Check if user is soft-deleted
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: { isDeleted: true }
+    });
+
+    if (!user || user.isDeleted) {
+      throw new UnauthorizedException('This account has been deleted or is no longer active.');
+    }
+
     return { id: payload.sub, email: payload.email, role: payload.role };
   }
 }
+

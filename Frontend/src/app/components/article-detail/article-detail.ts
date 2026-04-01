@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, HostListener } from '@angular/core';
+import { Component, OnInit, inject, signal, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -114,12 +114,13 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
                 <div class="read-more-footer">
                   <div class="footer-divider"></div>
                   <p>This article summary is provided by our elite news network. Continue reading the full investigation on the official website.</p>
-                  <a [href]="article().sourceUrl" target="_self" class="btn-full-story">
-                    READ ON {{ article().source?.name | uppercase }}
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <button (click)="onReadFullStory($event)" class="btn-full-story" [disabled]="isRedirecting()">
+                    {{ isRedirecting() ? 'AUTHENTICATING...' : 'READ ON ' + (article().source?.name | uppercase) }}
+                    <svg *ngIf="!isRedirecting()" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
                       <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
-                  </a>
+                    <div *ngIf="isRedirecting()" class="mini-spinner-white"></div>
+                  </button>
                 </div>
               </div>
             </article>
@@ -130,11 +131,14 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
           <aside class="article-sidebar">
             @if (relatedArticles().length > 0) {
               <section class="sidebar-section topic-related">
-                <h3>More on this Topic</h3>
-                <div class="sidebar-item" *ngFor="let item of relatedArticles().slice(0, 4); let i = index" [routerLink]="['/article', item.id]">
+                <h3>Related More News</h3>
+                <div class="sidebar-item" *ngFor="let item of filteredRelatedArticles().slice(0, 6); let i = index" [routerLink]="['/article', item.id]">
                   <div class="item-content">
                     <span class="item-title">{{ item.title }}</span>
-                    <div class="item-meta">{{ item.source?.name | uppercase }} | {{ item.category || 'GENERAL' }}</div>
+                    <div class="item-meta">
+                      {{ item.source?.name | uppercase }} | {{ item.category || 'GENERAL' }}
+                      <span class="other-source-tag" *ngIf="item.clusterId === article()?.clusterId">OTHER SOURCE</span>
+                    </div>
                   </div>
                 </div>
                 <div class="sidebar-divider"></div>
@@ -233,7 +237,23 @@ export class ArticleDetailComponent implements OnInit {
   article = signal<any>(null);
   relatedArticles = signal<any[]>([]);
   trendingArticles = signal<any[]>([]);
+  
+  // New computed signal to filter out SAME-SOURCE duplicates but ALLOW different-source duplicates
+  filteredRelatedArticles = computed(() => {
+    const current = this.article();
+    if (!current) return [];
+    
+    return this.relatedArticles().filter(item => {
+      // If it's a different story entirely, keep it
+      if (item.clusterId !== current.clusterId) return true;
+      
+      // If it's the SAME story, only show it if it's from a DIFFERENT source
+      return item.sourceId !== current.sourceId;
+    });
+  });
+
   isLoading = signal(true);
+  isRedirecting = signal(false);
   readingProgress = signal(0);
   hasPremiumAccess = signal(false);
   logoError = signal(false);
@@ -272,10 +292,6 @@ export class ArticleDetailComponent implements OnInit {
         this.relatedArticles.set(foundData.relatedArticles || []);
         this.isLoading.set(false);
 
-        // Deduct credit if user is logged in
-        if (this.auth.isAuthenticated()) {
-          this.deductCredit(id);
-        }
         this.isLoading.set(false);
       },
       error: () => {
@@ -285,15 +301,48 @@ export class ArticleDetailComponent implements OnInit {
     });
   }
 
-  deductCredit(articleId: string) {
-    const userId = this.auth.currentUser()?.id;
-    if (!userId) return;
+  onReadFullStory(event: Event) {
+    event.preventDefault();
+    const articleId = this.article()?.id;
+    const sourceUrl = this.article()?.sourceUrl;
+    
+    if (!articleId || !sourceUrl) return;
 
-    this.http.post<any>('http://localhost:3000/auth/deduct-credits', { userId, articleId }).subscribe({
-      next: (updatedUser) => {
-        // Update the global user state with new balance
-        this.auth.currentUser.set(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+    if (!this.auth.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.isRedirecting.set(true);
+
+    // 1. Check if already has access
+    this.accessService.checkAccess(articleId).subscribe(hasAccess => {
+      if (hasAccess) {
+        // Already paid, just navigate
+        window.location.href = sourceUrl;
+      } else {
+        // 2. Need to pay - check balance
+        const balance = Number(this.auth.currentUser()?.creditBalance || 0);
+
+        if (balance >= 1) {
+          this.accessService.grantAccess(articleId).subscribe(success => {
+            if (success) {
+              // Pulse the credit count and wait a second so user can see it "minimise"
+              setTimeout(() => {
+                window.location.href = sourceUrl;
+              }, 1200);
+            } else {
+              this.isRedirecting.set(false);
+              alert('Failed to process your request. Please try again.');
+            }
+          });
+        } else {
+          this.isRedirecting.set(false);
+          // Redirect to Subscription page with return URL
+          this.router.navigate(['/subscription'], { 
+            queryParams: { returnUrl: `/article/${articleId}` } 
+          });
+        }
       }
     });
   }

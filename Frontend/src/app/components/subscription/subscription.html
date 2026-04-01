@@ -1,0 +1,172 @@
+<div class="subscription-wrapper">
+  <div class="ambient-glow g-1"></div>
+  <div class="ambient-glow g-2"></div>
+
+  <header class="page-header">
+    <button class="nav-back-button" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      <span>Back to News</span>
+    </button>
+    <h1 class="jakarta-title">Elevate Your Perspective</h1>
+    <p class="subtitle">Join thousands of readers who unlock deeper insights every day.</p>
+  </header>
+
+  <div class="billing-grid">
+    <!-- Monthly Plans Section -->
+    <section class="frequency-section">
+      <div class="pricing-container">
+        <ng-container *ngFor="let plan of plans()">
+          <div *ngIf="getFrequencyData(plan, 'monthly') as subData" 
+               class="premium-card" 
+               [ngClass]="{
+                 'basic-tier': plan.name === 'Basic Edition',
+                 'pro-tier featured': plan.name === 'Professional Tier',
+                 'elite-tier': plan.name === 'Elite Premium'
+               }">
+            <div class="card-aura"></div>
+            <div class="tier-header">
+              <span class="tier-tag">{{ plan.name }}</span>
+              <h2 class="tier-title">{{ plan.name }}</h2>
+            </div>
+            <div class="tier-price">
+              <span class="currency">₹</span>
+              <span class="amount">{{ subData.price }}</span>
+              <span class="period">/{{ subData.frequency === 'monthly' ? 'mo' : subData.frequency === 'quarterly' ? 'qtr' : 'yr' }}</span>
+            </div>
+            <div class="divider"></div>
+            <ul class="feature-list">
+              <li class="feature-item">
+                <div class="check-icon">
+                  <svg viewBox="0 0 24 24"><path d="M20 6L9 17L4 12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span><strong>{{ subData.credits }}</strong> Credits/mo</span>
+              </li>
+              <li class="feature-item" *ngFor="let feature of subData.features">
+                <div class="check-icon">
+                  <svg viewBox="0 0 24 24"><path d="M20 6L9 17L4 12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span>{{ feature }}</span>
+              </li>
+            </ul>
+            <button class="purchase-btn" (click)="purchasePlan(plan, 'monthly')" [disabled]="isProcessing()">
+              {{ isProcessing() ? 'PROCESSING' : 'CHOOSE PLAN' }}
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </section>
+
+    <!-- Quarterly Plans Section -->
+    <section class="frequency-section alt">
+      <div class="pricing-container">
+        <ng-container *ngFor="let plan of plans()">
+          <div *ngIf="getFrequencyData(plan, 'quarterly') as subData" 
+               class="premium-card" 
+               [ngClass]="{
+                 'basic-tier': plan.name === 'Basic Edition',
+                 'pro-tier featured': plan.name === 'Professional Tier',
+                 'elite-tier': plan.name === 'Elite Premium'
+               }">
+            <div class="card-aura"></div>
+            <div class="tier-header">
+              <span class="tier-tag">{{ plan.name }}</span>
+              <h2 class="tier-title">{{ plan.name }}</h2>
+            </div>
+            <div class="tier-price">
+              <span class="currency">₹</span>
+              <span class="amount">{{ subData.price }}</span>
+              <span class="period">/qtr</span>
+            </div>
+            <div class="divider"></div>
+            <ul class="feature-list">
+              <li class="feature-item">
+                <div class="check-icon">
+                  <svg viewBox="0 0 24 24"><path d="M20 6L9 17L4 12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span><strong>{{ subData.credits }}</strong> Total Credits</span>
+              </li>
+              <li class="feature-item" *ngFor="let feature of subData.features">
+                <div class="check-icon">
+                  <svg viewBox="0 0 24 24"><path d="M20 6L9 17L4 12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span>{{ feature }}</span>
+              </li>
+            </ul>
+            <button class="purchase-btn" (click)="purchasePlan(plan, 'quarterly')" [disabled]="isProcessing()">
+              {{ isProcessing() ? 'PROCESSING' : 'CHOOSE PLAN' }}
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </section>
+
+    <!-- Yearly Plans Section -->
+    <section class="frequency-section">
+      <div class="pricing-container">
+        <ng-container *ngFor="let plan of plans()">
+          <div *ngIf="getFrequencyData(plan, 'yearly') as subData" 
+               class="premium-card" 
+               [ngClass]="{
+                 'basic-tier': plan.name === 'Basic Edition',
+                 'pro-tier featured': plan.name === 'Professional Tier',
+                 'elite-tier': plan.name === 'Elite Premium'
+               }">
+            <div class="card-aura"></div>
+            <div class="tier-header">
+              <span class="tier-tag">{{ plan.name }}</span>
+              <h2 class="tier-title">{{ plan.name }}</h2>
+            </div>
+            <div class="tier-price">
+              <span class="currency">₹</span>
+              <span class="amount">{{ subData.price }}</span>
+              <span class="period">/yr</span>
+            </div>
+            <div class="divider"></div>
+            <ul class="feature-list">
+              <li class="feature-item">
+                <div class="check-icon">
+                  <svg viewBox="0 0 24 24"><path d="M20 6L9 17L4 12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span><strong>{{ subData.credits }}</strong> Annual Credits</span>
+              </li>
+              <li class="feature-item" *ngFor="let feature of subData.features">
+                <div class="check-icon">
+                  <svg viewBox="0 0 24 24"><path d="M20 6L9 17L4 12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span>{{ feature }}</span>
+              </li>
+            </ul>
+            <button class="purchase-btn" (click)="purchasePlan(plan, 'yearly')" [disabled]="isProcessing()">
+              {{ isProcessing() ? 'PROCESSING' : 'CHOOSE PLAN' }}
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </section>
+  </div>
+  <footer class="trust-footer">
+    <div class="trust-badge">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+      Secure SSL Checkout
+    </div>
+    <div class="trust-badge">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+      Money-Back Guarantee
+    </div>
+  </footer>
+</div>
+
+<div class="modern-loading" *ngIf="isProcessing()">
+  <div class="loading-content">
+    <div class="pulsing-diamond"></div>
+    <h3>Securing Your Access</h3>
+    <p>Please do not refresh the page</p>
+  </div>
+</div>
