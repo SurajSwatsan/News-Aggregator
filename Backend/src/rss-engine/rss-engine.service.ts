@@ -74,18 +74,14 @@ export class RSSEngineService {
       this.logger.log(`Parsed feed for ${source.name}: ${feed.items?.length || 0} items found.`);
       
       const articleDataList = feed.items.map((item: Parser.Item) => {
-        const rawCategory = (item as any).categories?.[0] || (item as any).category || '';
-        
-        let guid = item.guid;
-        if (guid && typeof guid === 'object') {
-          guid = (guid as any)._ || (guid as any).text;
-        }
+        const rawCategory = this.safeString((item as any).categories?.[0] || (item as any).category);
+        const guid = this.safeString(item.guid);
 
         return {
-          title: item.title,
-          sourceUrl: item.link || (guid as string) || (item as any).id,
+          title: this.safeString(item.title),
+          sourceUrl: this.safeString(item.link || guid || (item as any).id),
           rawCategory,
-          content: item.contentSnippet || item.content || '',
+          content: this.safeString(item.contentSnippet || item.content),
           imageUrl: this.extractImageFromItem(item),
           postedAt: item.pubDate ? new Date(item.pubDate) : new Date(),
         };
@@ -103,7 +99,17 @@ export class RSSEngineService {
             where: { sourceUrl: data.sourceUrl } 
           });
 
-          if (existing) return;
+          if (existing) {
+            if (existing.sourceId !== source.id && source.ownerId) {
+              // The publisher is claiming their articles that were globally seeded
+              await this.prisma.article.update({
+                where: { id: existing.id },
+                data: { sourceId: source.id }
+              });
+              newCount++;
+            }
+            return;
+          }
 
           // Language Detection: Skip AI for non-English content to prevent timeouts
           const isEnglish = /^[a-zA-Z0-9\s.,!?'"()-]+$/.test(data.title || '');
@@ -170,8 +176,18 @@ export class RSSEngineService {
       const $ = cheerio.load(html);
       return $.text().trim().replace(/\s\s+/g, ' ');
     } catch (e) {
-      return html.replace(/<[^>]*>?/gm, '');
+      return String(html).replace(/<[^>]*>?/gm, '');
     }
+  }
+
+  private safeString(val: any): string {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object') {
+      const inner = val._ || val.text || val.name || val.title || val.content || val.$?.domain || val.$?.url || '';
+      return String(inner);
+    }
+    return String(val);
   }
 
   private async findClusterId(title: string, synopsis: string): Promise<number> {

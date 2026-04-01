@@ -12,13 +12,15 @@
 }
 
 .footer-top {
+  padding-top: 4rem;
   display: flex;
   justify-content: space-between;
   gap: 4rem;
-  margin-bottom: 5rem;
+  margin-bottom: 2rem;
 
   @media (max-width: 1024px) {
     flex-direction: column;
+    padding-top: 3rem;
     gap: 3rem;
   }
 }
@@ -91,7 +93,7 @@
         transition: color 0.3s;
 
         &:hover {
-          color: white;
+          color: #ef4444;
         }
       }
     }
@@ -108,7 +110,7 @@
     transition: all 0.3s;
 
     &:hover {
-      color: white;
+      color: #ef4444;
       transform: translateY(-3px);
     }
   }
@@ -116,10 +118,11 @@
 
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 3rem;
+  padding: 1.5rem 0 2rem;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   gap: 2rem;
 
   @media (max-width: 768px) {
