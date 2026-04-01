@@ -1,5 +1,5 @@
 <div class="news-container">
-  <app-ad-slot placementType="header"></app-ad-slot>
+  <app-ad-slot placementType="header" [showLabel]="false"></app-ad-slot>
   <!-- Breaking News Ticker -->
   <div class="ticker-wrap">
     <div class="ticker-label">BREAKING</div>
@@ -84,7 +84,7 @@
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" class="search-icon-large">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
         </svg>
-        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" (keyup.enter)="onSearch()" placeholder="Search for stories, topics, or authors...">
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" (keyup.enter)="onSearch()" placeholder="Search global news and updates...">
         <button class="search-submit" (click)="onSearch()">SEARCH</button>
       </div>
     </div>
@@ -112,11 +112,6 @@
     } @else {
       <div class="layout-grid">
         <div class="main-body-column">
-          <!-- Premium In-Feed Ad (Slot 0) -->
-          <div class="in-feed-ad-wrapper top-ad-margin">
-            <app-ad-slot placementType="in-feed" [index]="0"></app-ad-slot>
-          </div>
-
           <!-- Hero Section -->
           @if (selectedCategory() === 'All' && featuredArticle()) {
           <div class="hero-grid">
@@ -193,10 +188,10 @@
                   </footer>
                 </div>
               </article>
-
-              @if ((i + 1) % 10 === 0) {
-                <div class="in-feed-ad-wrapper">
-                  <app-ad-slot placementType="in-feed" [index]="(i + 1) / 10"></app-ad-slot>
+        
+              @if (i === 2) {
+                <div class="in-feed-grid-ad">
+                  <app-ad-slot placementType="in-feed" [index]="0" class="compact" [showLabel]="false"></app-ad-slot>
                 </div>
               }
               } @empty {
@@ -261,9 +256,8 @@
             </div>
           </div>
 
-          <app-ad-slot placementType="sidebar" [index]="0"></app-ad-slot>
-          <div style="margin-top: 20px;"></div>
-          <app-ad-slot placementType="sidebar" [index]="1"></app-ad-slot>
+          <app-ad-slot placementType="sidebar" [index]="0" [showLabel]="false"></app-ad-slot>
+
 
           <div class="sidebar-section partner-card">
             <h4>Become a Partner</h4>
