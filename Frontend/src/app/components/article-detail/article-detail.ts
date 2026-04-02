@@ -235,49 +235,43 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
                 {{ auth.currentUser()?.creditBalance || 0 }} CREDITS
               </div>
             </div>
-            <h2>Elevate Your Perspective</h2>
-            <p>Join our elite network to unlock unlimited investigations and expert analysis.</p>
+            <h2>Your Free Credits Are Used Up</h2>
+            <p>You’ve reached your limit of 10 free credits. Upgrade now to continue exploring premium insights without interruption.</p>
             <button class="paywall-close-x" (click)="showPaywallModal.set(false)">&times;</button>
           </div>
           
-          <div class="paywall-plans-container">
-            <!-- Frequency Switcher -->
-            <div class="frequency-tabs">
-              <button [class.active]="selectedFrequency() === 'monthly'" (click)="setFrequency('monthly')">MONTHLY</button>
-              <button [class.active]="selectedFrequency() === 'quarterly'" (click)="setFrequency('quarterly')">QUARTERLY</button>
-              <button [class.active]="selectedFrequency() === 'yearly'" (click)="setFrequency('yearly')">YEARLY</button>
-            </div>
-
-            <div class="plans-grid">
-              <div *ngFor="let plan of plans()" class="plan-mini-card">
-                <ng-container *ngIf="getFrequencyData(plan, selectedFrequency()) as subData">
-                  <div class="plan-info">
-                    <span class="plan-name">{{ plan.name }}</span>
-                    <div class="plan-price">
-                      <span class="currency">₹</span>
-                      <span class="amount">{{ subData.price }}</span>
-                      <span class="period">/{{ selectedFrequency() === 'monthly' ? 'mo' : (selectedFrequency() === 'quarterly' ? 'qtr' : 'yr') }}</span>
-                    </div>
-                    <span class="plan-credits"><strong>{{ subData.credits }}</strong> Credits</span>
-                  </div>
-                  <button class="btn-select-plan" (click)="purchasePlan(plan, selectedFrequency())" [disabled]="isProcessing()">
-                    {{ isProcessing() ? 'PROCESSING...' : 'CHOOSE PLAN' }}
-                  </button>
-                </ng-container>
+          <div class="paywall-cta-container">
+            <div class="premium-feature-list">
+              <div class="feature-item">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                <span>Unlimited Investigations</span>
+              </div>
+              <div class="feature-item">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                <span>Exclusive Editorial Analysis</span>
+              </div>
+              <div class="feature-item">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+                <span>Ad-Free Experience</span>
               </div>
             </div>
+
+            <button class="btn-apply-subscription" (click)="goToSubscription()">
+              APPLY SUBSCRIPTION
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
 
           <div class="paywall-footer">
-            <button class="btn-link" (click)="showPaywallModal.set(false)">CONTINUE AS READER (SUMMARY ONLY)</button>
-          </div>
-
-          <!-- Processing Overlay (Internal to Modal) -->
-          <div class="modal-processing-overlay" *ngIf="isProcessing()">
-            <div class="spinner-container">
-              <div class="premium-spinner"></div>
-              <p>Securing Access...</p>
-            </div>
+            <button class="paywall-close-btn" (click)="showPaywallModal.set(false)">NOT NOW, CONTINUE READING SUMMARY</button>
           </div>
         </div>
       </div>
@@ -316,11 +310,6 @@ export class ArticleDetailComponent implements OnInit {
   readingProgress = signal(0);
   hasPremiumAccess = signal(false);
   logoError = signal(false);
-  
-  // New subscription signals
-  plans = signal<any[]>([]);
-  isProcessing = signal(false);
-  selectedFrequency = signal<string>('monthly');
 
   constructor() { }
 
@@ -337,7 +326,6 @@ export class ArticleDetailComponent implements OnInit {
       if (id) {
         this.fetchArticle(id);
         this.fetchTrending();
-        this.fetchPlans();
       } else {
         this.router.navigate(['/']);
       }
@@ -356,13 +344,6 @@ export class ArticleDetailComponent implements OnInit {
         this.article.set(foundData.article || foundData);
         this.relatedArticles.set(foundData.relatedArticles || []);
         this.isLoading.set(false);
-
-        // Auto-trigger paywall if credits are finished
-        if (this.auth.isAuthenticated() && Number(this.auth.currentUser()?.creditBalance || 0) < 1) {
-          setTimeout(() => {
-            this.showPaywallModal.set(true);
-          }, 1000);
-        }
       },
       error: () => {
         this.router.navigate(['/']);
@@ -488,52 +469,13 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   onCreditClick() {
-    const balance = Number(this.auth.currentUser()?.creditBalance || 0);
-    if (balance < 1) {
-      this.showPaywallModal.set(true);
-    } else {
-      this.showPaywallModal.set(true); // Always show plans in the modal for now as requested
-    }
+    this.showPaywallModal.set(true);
   }
 
-  fetchPlans() {
-    this.http.get<any[]>('http://localhost:3000/subscription-plans').subscribe({
-      next: (data) => {
-        const active = data.filter(p => p.isActive);
-        this.plans.set(active);
-      },
-      error: (err) => console.error('Failed to load plans:', err)
+  goToSubscription() {
+    this.router.navigate(['/subscription'], { 
+      queryParams: { returnUrl: this.router.url } 
     });
-  }
-
-  getFrequencyData(plan: any, freq: string) {
-    return plan.subscriptions?.find((s: any) => s.frequency === freq);
-  }
-
-  purchasePlan(plan: any, freq: string) {
-    const subData = this.getFrequencyData(plan, freq);
-    if (!subData) return;
-
-    this.isProcessing.set(true);
-    this.accessService.addCredits(subData.credits).subscribe({
-      next: () => {
-        setTimeout(() => {
-          this.isProcessing.set(false);
-          this.showPaywallModal.set(false);
-          // Show a success message or just proceed
-          this.onReadFullStory(new MouseEvent('click'));
-        }, 1500);
-      },
-      error: (err: any) => {
-        console.error('Purchase failed:', err);
-        this.isProcessing.set(false);
-        alert('Payment processing failed. Please try again.');
-      }
-    });
-  }
-
-  setFrequency(freq: string) {
-    this.selectedFrequency.set(freq);
   }
 
   goBack() {

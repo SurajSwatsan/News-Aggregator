@@ -4,11 +4,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AccessService } from '../../services/access.service';
 import { AuthService } from '../../auth/auth';
+import { FooterComponent } from '../common/footer/footer';
 
 @Component({
   selector: 'app-subscription',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FooterComponent],
   templateUrl: './subscription.html',
   styleUrls: ['./subscription.scss']
 })
