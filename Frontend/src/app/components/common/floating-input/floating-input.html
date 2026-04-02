@@ -1,5 +1,5 @@
-<div class="floating-group" [class.focused]="isFocused()" [class.has-value]="value && value.length > 0" [class.is-invalid]="isInvalid">
-  <div class="input-container">
+<div class="floating-group" [class.focused]="isFocused()" [class.has-value]="shouldFloat()" [class.is-invalid]="isInvalid && (isVisited() || forceShowErrors)">
+  <div class="input-container" [class.with-icon]="hasIcon">
     <div class="icon-wrapper">
       <ng-content select="[icon]"></ng-content>
     </div>
@@ -9,6 +9,7 @@
       [id]="id" 
       [name]="name" 
       [(ngModel)]="value"
+      [ngModelOptions]="{standalone: true}"
       (ngModelChange)="onInputChange($event)"
       (focus)="onFocus()"
       (blur)="onBlur()"
@@ -16,10 +17,15 @@
       [required]="required"
       [attr.maxlength]="maxlength"
       [ngStyle]="customStyle"
-      placeholder=" "
+      [placeholder]="isFocused() ? (placeholder || ' ') : ' '"
     >
     
-    <label [for]="id" class="floating-label">{{ label }}</label>
+    <label [for]="id" class="floating-label">
+      {{ label }}<span *ngIf="required" class="required-star">*</span>
+    </label>
     
+  </div>
+  <div class="error-msg-container" *ngIf="isInvalid && errorMsg && (isVisited() || forceShowErrors)">
+    <span class="error-text">{{ errorMsg }}</span>
   </div>
 </div>

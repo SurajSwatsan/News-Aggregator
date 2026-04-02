@@ -32,9 +32,22 @@ export class AdService {
     });
   }
 
-  async getPublisherAds(userId: string) {
+  async getPublisherAds(userId: string, type?: string, search?: string) {
+    const where: any = { createdBy: userId };
+
+    if (type && type !== 'all') {
+      where.adType = type;
+    }
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { targetUrl: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     return this.prisma.advertisement.findMany({
-      where: { createdBy: userId },
+      where,
       orderBy: { createdAt: 'desc' },
     });
   }

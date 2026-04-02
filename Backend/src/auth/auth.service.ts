@@ -377,6 +377,12 @@ export class AuthService {
         SELECT 
           id, email, username, name, role, 
           city, country, phone,
+          org_name as "orgName",
+          org_website as "orgWebsite",
+          org_description as "orgDescription",
+          rss_url as "rssUrl",
+          business_doc as "businessDoc",
+          newspaper_license as "newspaperLicense",
           "first_name" as "firstName", "last_name" as "lastName", "credit_balance" as "creditBalance", "created_at" as "createdAt"
         FROM users 
         WHERE id = ${id}

@@ -84,6 +84,7 @@ model Article {
   postedAt   DateTime @map("posted_at")
   category   String?
   clusterId  Int?     @map("cluster_id")
+  isManual   Boolean  @default(false) @map("is_manual")
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@map("articles")
@@ -161,15 +162,16 @@ model Advertisement {
 }
 
 model Country {
-  id         String   @id @default(uuid())
-  name       String   @unique
-  isoCode    String?  @map("iso_code")
-  mobileCode String?  @map("mobile_code")
-  currency   String?
-  cities     City[]
-  status     String   @default("active")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  name           String   @unique
+  isoCode        String?  @map("iso_code")
+  mobileCode     String?  @map("mobile_code")
+  currency       String?
+  currencySymbol String?  @map("currency_symbol")
+  cities         City[]
+  status         String   @default("active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("countries")
 }

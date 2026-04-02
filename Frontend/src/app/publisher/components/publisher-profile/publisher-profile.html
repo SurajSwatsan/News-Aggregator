@@ -89,10 +89,6 @@
       <div class="card-body">
         <div class="details-grid">
           <div class="data-group">
-            <span class="label">Legal Name</span>
-            <div class="value">{{ user().orgName || '—' }}</div>
-          </div>
-          <div class="data-group">
             <span class="label">Official Website</span>
             <div class="value">
               <a *ngIf="user().orgWebsite" [href]="user().orgWebsite" target="_blank" class="org-link">{{ user().orgWebsite }}</a>
@@ -111,6 +107,39 @@
         <div class="data-group" style="margin-top: 2.5rem;">
           <span class="label">Editorial Mission & Description</span>
           <div class="description-box">{{ user().orgDescription || 'No description provided yet.' }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Verification Card -->
+    <section class="info-card animate-slide-up">
+      <div class="card-header">
+        <div class="icon-wrapper indigo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+        </div>
+        <h2>Compliance & Verification</h2>
+      </div>
+      
+      <div class="card-body">
+        <div class="details-grid">
+          <div class="data-group">
+            <span class="label">Business Registration</span>
+            <div class="value doc-check">
+              <svg *ngIf="user().businessDoc" class="text-success" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ user().businessDoc || 'Pending upload' }}
+            </div>
+            
+            <div class="doc-preview" *ngIf="user().businessDoc">
+              <img [src]="'http://localhost:3000/uploads/' + user().businessDoc" alt="Business Registration" class="preview-img">
+            </div>
+          </div>
+          
+          <div class="data-group">
+            <span class="label">Newspaper License Number</span>
+            <div class="value">
+              {{ user().newspaperLicense || 'Not provided' }}
+            </div>
+          </div>
         </div>
       </div>
     </section>

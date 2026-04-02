@@ -77,8 +77,12 @@ export class PublisherController {
   }
 
   @Get('ads')
-  async getMyAds(@Request() req: any) {
-    return this.adService.getPublisherAds(req.user.id);
+  async getMyAds(
+    @Request() req: any,
+    @Query('type') type?: string,
+    @Query('search') search?: string
+  ) {
+    return this.adService.getPublisherAds(req.user.id, type, search);
   }
 
   @Post('ads')
@@ -96,6 +100,23 @@ export class PublisherController {
   @Delete('ads/:id')
   async deleteMyAd(@Param('id') id: string) {
     return this.adService.deleteAd(id);
+  }
+
+  @Post('upload-doc')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req: any, file: any, cb: any) => {
+        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+        return cb(null, `${randomName}${extname(file.originalname)}`);
+      }
+    })
+  }))
+  async uploadDoc(@UploadedFile() file: any) {
+    return {
+      filename: file.filename,
+      url: `http://localhost:3000/uploads/${file.filename}`
+    };
   }
 
   @Post('ads/upload')

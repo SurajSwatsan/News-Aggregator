@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, signal, Output, EventEmitter } from '@angular/core';
+import { Component, Input, forwardRef, signal, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
@@ -17,8 +17,7 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
     <div class="floating-group" 
          [class.focused]="isOpen()" 
          [class.has-value]="value" 
-         [class.is-invalid]="isInvalid"
-         (clickOutside)="closeDropdown()">
+         [class.is-invalid]="isInvalid && (isVisited() || forceShowErrors)">
       <div class="input-container" (click)="toggleDropdown()">
         <div class="icon-wrapper">
           <ng-content select="[icon]"></ng-content>
@@ -28,7 +27,9 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
           {{ getDisplayLabel() }}
         </div>
         
-        <label class="floating-label">{{ label }}</label>
+        <label class="floating-label">
+          {{ label }}<span *ngIf="required" class="required-star">*</span>
+        </label>
         
         <div class="select-arrow" [class.rotated]="isOpen()">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -49,6 +50,10 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
             No items available
           </div>
         </div>
+      </div>
+      
+      <div class="error-msg-container" *ngIf="isInvalid && errorMsg && (isVisited() || forceShowErrors)">
+        <span class="error-text">{{ errorMsg }}</span>
       </div>
     </div>
   `,
@@ -84,8 +89,8 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
     }
 
     .input-container:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.01);
+      border-color: var(--fs-primary);
     }
 
     .selected-value {
@@ -149,10 +154,10 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
       top: calc(100% + 8px);
       left: 0;
       right: 0;
-      background: #1f2937;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--fs-bg);
+      border: 1px solid var(--fs-border);
       border-radius: 14px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
       z-index: 1000;
       overflow: hidden;
       animation: slideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -172,7 +177,7 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
 
     .option-item {
       padding: 12px 1rem;
-      color: #94a3b8;
+      color: var(--fs-text);
       border-radius: 8px;
       cursor: pointer;
       display: flex;
@@ -181,27 +186,48 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
       font-size: 0.95rem;
       font-weight: 500;
       transition: all 0.2s;
+      opacity: 0.8;
     }
 
     .option-item:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: white;
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--fs-primary);
+      opacity: 1;
     }
 
     .option-item.selected {
       background: rgba(139, 92, 246, 0.1);
       color: var(--fs-primary);
+      opacity: 1;
     }
 
     .no-options {
       padding: 1rem;
       text-align: center;
-      color: #64748b;
+      color: var(--fs-label);
       font-size: 0.875rem;
     }
 
     .is-invalid .input-container {
       border-color: #ef4444 !important;
+    }
+
+    .error-msg-container {
+      padding: 4px 8px 0;
+      min-height: 20px;
+    }
+
+    .error-text {
+      color: #ef4444;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: block;
+    }
+
+    .required-star {
+      color: #ef4444;
+      margin-left: 3px;
+      font-weight: 700;
     }
   `],
 })
@@ -209,11 +235,15 @@ export class FloatingSelectComponent implements ControlValueAccessor {
   @Input() label = '';
   @Input() options: { value: any, label: string }[] = [];
   @Input() isInvalid = false;
+  @Input() required = false;
+  @Input() errorMsg = '';
+  @Input() forceShowErrors = false;
   
   @Output() selectionChange = new EventEmitter<any>();
 
   value: any = '';
   isOpen = signal(false);
+  isVisited = signal(false);
 
   // Boilerplate for ControlValueAccessor
   onChange: any = () => {};
@@ -233,14 +263,19 @@ export class FloatingSelectComponent implements ControlValueAccessor {
 
   // Logic
   toggleDropdown() {
-    this.isOpen.set(!this.isOpen());
-    if (this.isOpen()) {
+    this.isOpen.update(v => !v);
+    if (!this.isOpen()) {
+      this.isVisited.set(true);
       this.onTouched();
     }
   }
 
   closeDropdown() {
-    this.isOpen.set(false);
+    if (this.isOpen()) {
+      this.isOpen.set(false);
+      this.isVisited.set(true);
+      this.onTouched();
+    }
   }
 
   selectOption(option: any) {
@@ -265,4 +300,3 @@ export class FloatingSelectComponent implements ControlValueAccessor {
   }
 }
 
-import { HostListener } from '@angular/core';

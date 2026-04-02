@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, Output, EventEmitter } fro
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { MasterService } from '../../../services/master.service';
 
 @Component({
   selector: 'app-admin-subscription',
@@ -19,9 +20,13 @@ export class AdminSubscriptionComponent implements OnInit {
   isLoading = signal(true);
   searchQuery = signal('');
   activeView = signal<'plans' | 'readers'>('plans');
+  private masterService = inject(MasterService);
+  
+  modalMode = signal<'add' | 'edit'>('add');
+  editingPlanId = signal<string | null>(null);
 
-  // Currency Options
-  currencies = ['INR (₹)', 'USD ($)', 'EUR (€)', 'GBP (£)'];
+  // Currency Options (Dynamically loaded from Master Data)
+  currencies = signal<string[]>([]);
   
   // Plan Name Options
   planNames = ['Basic Edition', 'Professional Tier', 'Elite Premium'];
@@ -71,6 +76,20 @@ export class AdminSubscriptionComponent implements OnInit {
   ngOnInit() {
     this.fetchReaders();
     this.fetchPlans();
+    this.loadCurrencies();
+  }
+
+  loadCurrencies() {
+    this.masterService.getCountries().subscribe({
+      next: (countries) => {
+        const formattedCurrencies = countries
+          .map(c => `${c.currency} (${c.currencySymbol || ''})`)
+          .filter(v => v.trim() !== '()');
+        
+        // Remove duplicates and set
+        this.currencies.set([...new Set(formattedCurrencies)]);
+      }
+    });
   }
 
   fetchReaders() {
@@ -128,6 +147,8 @@ export class AdminSubscriptionComponent implements OnInit {
 
   // --- Add Plan Logic ---
   openAddPlanModal() {
+    this.modalMode.set('add');
+    this.editingPlanId.set(null);
     this.newPlan.set({
       uuid: crypto.randomUUID(),
       billingCycle: 'Subscription',
@@ -139,6 +160,47 @@ export class AdminSubscriptionComponent implements OnInit {
         yearly: { enabled: false, name: '', price: null, credits: null, currency: '', features: [] }
       }
     });
+    this.showFreqDropdown.set(false);
+    this.openDropdownId.set(null);
+    this.showAddPlanModal.set(true);
+    this.modalState.emit(true);
+  }
+
+  openEditModal(plan: any) {
+    this.modalMode.set('edit');
+    this.editingPlanId.set(plan.id);
+
+    // Reconstitute the structure from backend's active sub array
+    const baseSubs: any = {
+      monthly: { enabled: false, name: '', price: null, credits: null, currency: '', features: [] },
+      quarterly: { enabled: false, name: '', price: null, credits: null, currency: '', features: [] },
+      yearly: { enabled: false, name: '', price: null, credits: null, currency: '', features: [] }
+    };
+
+    if (Array.isArray(plan.subscriptions)) {
+      plan.subscriptions.forEach((sub: any) => {
+        const freq = sub.frequency.toLowerCase();
+        if (baseSubs[freq]) {
+          baseSubs[freq] = {
+            enabled: true,
+            name: sub.name,
+            price: sub.price,
+            credits: sub.credits,
+            currency: sub.currency,
+            features: sub.features && sub.features.length > 0 ? sub.features : ['']
+          };
+        }
+      });
+    }
+
+    this.newPlan.set({
+      uuid: plan.id, // Using existing plan ID
+      billingCycle: plan.billingCycle || 'Subscription',
+      isActive: plan.isActive,
+      createdBy: plan.createdBy,
+      subscriptions: baseSubs
+    });
+
     this.showFreqDropdown.set(false);
     this.openDropdownId.set(null);
     this.showAddPlanModal.set(true);
@@ -251,7 +313,6 @@ export class AdminSubscriptionComponent implements OnInit {
     }
 
     let finalData: any = {
-      uuid: plan.uuid,
       name: activeSubs[0].name, // Using the first sub's name as a primary name for the collection
       billingCycle: plan.billingCycle,
       isActive: plan.isActive,
@@ -259,11 +320,19 @@ export class AdminSubscriptionComponent implements OnInit {
       subscriptions: activeSubs
     };
 
+    if (this.modalMode() === 'add') {
+      finalData.uuid = plan.uuid;
+    }
+
     console.log('Sending to Backend:', finalData);
     
-    this.http.post('http://localhost:3000/subscription-plans', finalData).subscribe({
+    const request = this.modalMode() === 'add'
+      ? this.http.post('http://localhost:3000/subscription-plans', finalData)
+      : this.http.put(`http://localhost:3000/subscription-plans/${this.editingPlanId()}`, finalData);
+
+    request.subscribe({
       next: () => {
-        alert('Plan successfully created and stored in the database!');
+        alert(`Plan successfully ${this.modalMode() === 'add' ? 'created' : 'updated'}!`);
         this.fetchPlans();
         this.closeModal();
       },

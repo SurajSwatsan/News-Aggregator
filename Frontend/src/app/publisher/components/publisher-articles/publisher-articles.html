@@ -6,7 +6,7 @@
         <input type="text" placeholder="Search by title..." class="clean-input" (input)="onSearchChange($event)">
       </div>
       <div class="header-actions" style="display: flex; gap: 0.75rem; align-items: center;">
-        <button class="btn-primary" (click)="showArticleModal.set(true)">+ Add Article</button>
+        <button class="btn-primary" (click)="openModal()">+ Add Article</button>
       </div>
     </div>
 
@@ -16,27 +16,51 @@
         <div class="card-img-wrapper">
           <img *ngIf="article.imageUrl" [src]="article.imageUrl" class="card-img" alt="Article Thumbnail">
           <div *ngIf="!article.imageUrl" class="card-img-placeholder">
-            {{ article.title.substring(0, 1) }}
+            <span>{{ article.title.substring(0, 1) }}</span>
           </div>
-          <span class="card-badge">{{ (article.category || 'GENERAL') | uppercase }}</span>
+          <span class="card-badge">{{ (article.category || 'General') | uppercase }}</span>
+          <button class="btn-bookmark" title="Save for later">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </button>
         </div>
         
         <div class="card-content">
+          <div class="card-source-bar">
+            <strong>THE GUARDIAN</strong>
+            <span class="dot-sep"></span>
+            <span>4 min read</span>
+          </div>
+
           <h3 class="card-title">{{ article.title }}</h3>
-          <!-- Repositioned date/time -->
-          <div class="card-time">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {{ formatDate(article.postedAt) }}
+          
+          <div class="card-meta-editorial">
+            <div class="meta-item time">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {{ formatDate(article.postedAt) }}
+            </div>
+            
+            <div class="meta-item status">
+              <span class="pulse-dot"></span>
+              <span class="status-text">LIVE</span>
+            </div>
           </div>
           
-          <div class="card-footer">
-            <div class="status-indicator">
-              <span class="dot live"></span>
-              <span class="status-pill active">Live</span>
-            </div>
-            <button class="btn-edit-card" title="Edit Article">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-            </button>
+          <div class="card-footer-editorial">
+            <ng-container *ngIf="article.isManual; else externalLink">
+              <button class="btn-view-quick" title="View Article">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button class="btn-edit-luxury" (click)="editArticle(article)" title="Edit Article">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Edit</span>
+              </button>
+            </ng-container>
+            <ng-template #externalLink>
+              <button class="btn-read-full" (click)="viewOriginal(article.sourceUrl)">
+                <span>Read More</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+              </button>
+            </ng-template>
           </div>
         </div>
       </div>
@@ -54,7 +78,7 @@
           </div>
           <h2>No articles found</h2>
           <p>Articles imported via RSS or added manually will appear here.</p>
-          <button class="btn-primary" (click)="showArticleModal.set(true)">
+          <button class="btn-primary" (click)="openModal()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -71,18 +95,19 @@
 <div class="modal-overlay" *ngIf="showArticleModal()">
   <div class="modal-content animate-fade">
     <div class="modal-header">
-      <h3>Create New Article</h3>
-      <button class="btn-icon" (click)="showArticleModal.set(false)">
+      <h3>{{ isEditing() ? 'Update Article' : 'Create New Article' }}</h3>
+      <button class="btn-icon" (click)="closeModal()">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <div class="input-wrapper">
-          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-          <input type="text" #artTitle placeholder=" " class="clean-input-full">
-          <label>Article Title</label>
-        </div>
+      <div class="form-group" style="margin-bottom: 25px;">
+        <app-floating-input 
+          label="Article Title"
+          [(ngModel)]="articleTitle"
+          placeholder="Enter a catchy title...">
+          <svg icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        </app-floating-input>
       </div>
       <div class="form-group">
         <div class="image-upload-wrapper">
@@ -103,35 +128,30 @@
           </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="input-wrapper">
-            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-            <input type="text" #artUrl placeholder=" " class="clean-input-full">
-            <label>Article URL (Original Source)</label>
-          </div>
-        </div>
-        <div class="form-group">
-            <label>RSS Feed URL (optional patch)</label>
-            <div class="input-wrapper">
-              <input type="url" [(ngModel)]="rssUrl" name="rssUrl" placeholder="https://www.esakal.com/rss-feed" class="clean-input">
-            </div>
-            <small class="helper-text">Patching this URL will update your source's default feed and trigger a re-sync.</small>
-          </div>
-        <div class="form-group">
-          <div class="input-wrapper">
-            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-            <select #artCat class="clean-select">
-              <option value="General">General</option>
-              <option value="Technology">Technology</option>
-              <option value="Business">Business</option>
-              <option value="Politics">Politics</option>
-              <option value="Entertainment">Entertainment</option>
-              <option value="Environment">Environment</option>
-            </select>
-            <label>Category</label>
-          </div>
-        </div>
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 20px;">
+        <app-floating-input 
+          label="Original Article URL"
+          [(ngModel)]="articleUrl"
+          placeholder="https://news-site.com/article">
+          <svg icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        </app-floating-input>
+
+        <app-floating-select 
+          label="Category"
+          [options]="categoryOptions"
+          [(ngModel)]="selectedCategory"
+          class="light-select">
+          <svg icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+        </app-floating-select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 25px;">
+        <app-floating-input 
+          label="RSS Feed URL (Re-sync shortcut)"
+          [(ngModel)]="rssUrl"
+          placeholder="https://yourwebsite.com/rss">
+        </app-floating-input>
+        <small class="helper-text" style="color: #64748b; font-size: 0.75rem; margin-top: 4px; display: block;">Patching this URL will update your source's default feed and trigger a re-sync.</small>
       </div>
       <div class="form-group editor-group">
         <label class="premium-label">Description <span class="label-hint">(Rich Text supported)</span></label>
@@ -164,14 +184,14 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-ghost" (click)="showArticleModal.set(false)">Cancel</button>
+      <button class="btn-ghost" (click)="closeModal()">Cancel</button>
       <button class="btn-primary" (click)="createArticle({ 
-        title: artTitle.value, 
+        title: articleTitle(), 
         synopsis: artSyn.innerHTML, 
-        category: artCat.value, 
-        sourceUrl: artUrl.value, 
+        category: selectedCategory(), 
+        sourceUrl: articleUrl(), 
         imageUrl: selectedImage() 
-      })">Publish Article</button>
+      })">{{ isEditing() ? 'Update Article' : 'Publish Article' }}</button>
     </div>
   </div>
 </div>

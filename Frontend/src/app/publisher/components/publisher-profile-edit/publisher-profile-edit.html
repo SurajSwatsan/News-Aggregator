@@ -87,11 +87,6 @@
       <div class="card-body">
         <div class="settings-form">
           <div class="form-group">
-            <label>Legal Entity Name</label>
-            <input type="text" [(ngModel)]="user().orgName" name="orgName" placeholder="Official organization name" class="clean-input-field">
-          </div>
-
-          <div class="form-group">
             <label>Official Website</label>
             <input type="url" [(ngModel)]="user().orgWebsite" name="orgWebsite" placeholder="https://www.example.com" class="clean-input-field">
           </div>
@@ -102,10 +97,49 @@
             <small class="helper-text">This URL is used to automatically sync your latest articles.</small>
           </div>
 
-
           <div class="form-group">
             <label>Organization Description</label>
             <textarea [(ngModel)]="user().orgDescription" name="orgDescription" rows="6" placeholder="Describe your publication, its history, and focus..." class="clean-textarea"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Compliance & Verification -->
+    <section class="info-card animate-slide-up">
+      <div class="card-header">
+        <div class="icon-wrapper indigo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+        </div>
+        <h2>Compliance & Verification</h2>
+      </div>
+
+      <div class="card-body">
+        <div class="settings-form">
+          <!-- Business Doc -->
+          <div class="form-group">
+            <label>Business Registration Document</label>
+            <div class="upload-container">
+              <input type="file" #businessFile (change)="onFileSelected($event, 'businessDoc')" accept="image/*,application/pdf" hidden>
+              <div class="upload-action-row">
+                <button type="button" class="btn-browse" (click)="businessFile.click()" [disabled]="isUploading() === 'businessDoc'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                  {{ isUploading() === 'businessDoc' ? 'Uploading...' : 'Browse File' }}
+                </button>
+              </div>
+              
+              <div class="doc-preview-edit" *ngIf="user().businessDoc">
+                <img [src]="'http://localhost:3000/uploads/' + user().businessDoc" alt="Business Registration" class="preview-img">
+              </div>
+            </div>
+            <small class="helper-text">Select your business registration or incorporation certificate.</small>
+          </div>
+
+          <!-- Newspaper License -->
+          <div class="form-group">
+            <label>Newspaper License Number</label>
+            <input type="text" [(ngModel)]="user().newspaperLicense" name="newspaperLicense" placeholder="Enter your license number" class="clean-input-field">
+            <small class="helper-text">Enter your official government registration or license number.</small>
           </div>
         </div>
       </div>

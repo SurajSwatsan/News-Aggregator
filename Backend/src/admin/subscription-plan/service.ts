@@ -38,7 +38,18 @@ export class SubscriptionPlanService {
   async update(id: string, dto: Partial<CreateSubscriptionPlanDto>) {
     return this.prisma.subscriptionPlan.update({
       where: { id },
-      data: dto as any,
+      data: {
+        name: dto.name,
+        billingCycle: dto.billingCycle,
+        price: dto.price,
+        currency: dto.currency,
+        features: dto.features,
+        credits: dto.credits,
+        isActive: dto.isActive,
+        subscriptions: dto.subscriptions,
+        createdBy: dto.createdBy,
+        validityDays: dto.validityDays,
+      },
     });
   }
 

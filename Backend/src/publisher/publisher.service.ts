@@ -143,6 +143,7 @@ export class PublisherService {
         category: data.category,
         sourceUrl: data.sourceUrl,
         imageUrl: data.imageUrl,
+        isManual: true,
         postedAt: new Date(),
       }
     });

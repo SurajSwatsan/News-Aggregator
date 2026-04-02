@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
 import { MasterService } from './master.service';
 
 @Controller('master')
@@ -26,8 +26,8 @@ export class MasterController {
   }
 
   @Get('cities')
-  getCities() {
-    return this.masterService.getCities();
+  getCities(@Query('countryId') countryId?: string) {
+    return this.masterService.getCities(countryId);
   }
 
   @Post('cities')

@@ -31,7 +31,8 @@ export class NewsFeedComponent implements OnInit {
   searchQuery = '';
   isLoading = signal(true);
   selectedCategory = signal<string>('All');
-  showPaymentModal = signal(false);
+  showPaywallModal = signal(false);
+  selectedArticleId = signal<string | null>(null);
   currentUser = this.auth.currentUser;
 
   // Computed properties for specialized layout
@@ -233,8 +234,39 @@ export class NewsFeedComponent implements OnInit {
   }
 
   handleArticleAccess(article: any) {
-    // Navigate directly to the article detail - viewing summaries is now free for everyone
-    this.router.navigate(['/article', article.id]);
+    const user = this.currentUser();
+    
+    // 1. If not logged in, redirect to login with returnUrl
+    if (!user) {
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: '/article/' + article.id } 
+      });
+      return;
+    }
+
+    // 2. Publishers and Admins have full access bypass
+    if (user.role !== 'reader') {
+      this.router.navigate(['/article', article.id]);
+      return;
+    }
+
+    // 3. Readers check: Do they already have persistent access?
+    this.accessService.checkAccess(article.id).subscribe(hasAccess => {
+      if (hasAccess) {
+        // User already unlocked this article
+        this.router.navigate(['/article', article.id]);
+      } else {
+        // Not unlocked yet, check if they have credits to spend
+        if (user.creditBalance > 0) {
+          // They have credits - navigate to detail (deduction happens there)
+          this.router.navigate(['/article', article.id]);
+        } else {
+          // NO CREDITS - Show the premium paywall modal
+          this.selectedArticleId.set(article.id);
+          this.showPaywallModal.set(true);
+        }
+      }
+    });
   }
 
   handleImageError(event: any) {

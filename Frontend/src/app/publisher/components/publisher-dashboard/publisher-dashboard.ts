@@ -4,6 +4,7 @@ import { AuthService } from '../../../auth/auth';
 import { Router, ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ProfileDropdownComponent } from '../../../components/profile-dropdown/profile-dropdown';
+import { UiService } from '../../../services/ui.service';
 
 @Component({
   selector: 'app-publisher-dashboard',
@@ -18,6 +19,7 @@ export class PublisherDashboardComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private elementRef = inject(ElementRef);
+  protected uiService = inject(UiService);
 
   isProfileMenuOpen = signal(false);
   activeTab = signal<'dashboard' | 'articles' | 'analytics' | 'revenue' | 'payouts' | 'settings' | 'ads' | 'profile'>('dashboard');

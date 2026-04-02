@@ -190,7 +190,7 @@
 
 .cols-master-country-refined {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
+  grid-template-columns: 1.8fr 0.8fr 1fr 1fr 0.8fr 0.8fr;
   align-items: center;
   padding: 1.25rem 2rem;
 }
@@ -344,52 +344,35 @@
   padding: 2rem;
 }
 
+// Theme for Floating Components
+app-floating-input {
+  --fi-label-bg: #ffffff;
+  --fi-text: #0f172a;
+  --fi-border: #e2e8f0;
+  --fi-label-color: #64748b;
+  --fi-border-focus: #334155;
+  --fi-label-focus: #334155;
+  --fi-focus-shadow: rgba(51, 65, 85, 0.08);
+}
+
+.master-select-light {
+  --fs-bg: #ffffff;
+  --fs-text: #0f172a;
+  --fs-border: #e2e8f0;
+  --fs-label: #64748b;
+  --fs-primary: #334155;
+}
+
 .refined-form-layout {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  input, select {
-    padding: 0.85rem 1.25rem;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    background: #fcfcfd;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #1e293b;
-    outline: none;
-    transition: all 0.2s;
-
-    &:focus {
-      border-color: #334155;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(51, 65, 85, 0.05);
-    }
-
-    &::placeholder {
-      color: #cbd5e1;
-    }
-  }
+  gap: 1.25rem; // Slightly more compact gap as floating inputs have internal spacing
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .modal-footer {

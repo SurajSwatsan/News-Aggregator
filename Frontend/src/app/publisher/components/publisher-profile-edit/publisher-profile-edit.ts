@@ -19,8 +19,9 @@ export class PublisherProfileEditComponent implements OnInit {
   private toast = inject(ToastService);
   private router = inject(Router);
 
-  user = signal<any>(null);
-  isSaving = signal(false);
+   user = signal<any>(null);
+   isSaving = signal(false);
+   isUploading = signal<string | null>(null);
 
   ngOnInit() {
     this.loadProfile();
@@ -29,6 +30,32 @@ export class PublisherProfileEditComponent implements OnInit {
   loadProfile() {
     this.authService.refreshProfile().subscribe(user => {
       this.user.set({ ...user });
+    });
+  }
+
+  onFileSelected(event: any, field: string) {
+    const file = event.target.files[0];
+    if (file) {
+      this.uploadFile(file, field);
+    }
+  }
+
+  uploadFile(file: File, field: string) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.isUploading.set(field);
+    this.http.post('http://localhost:3000/publisher/upload-doc', formData).subscribe({
+      next: (res: any) => {
+        this.user.update(u => ({ ...u, [field]: res.filename }));
+        this.isUploading.set(null);
+        this.toast.show('File uploaded successfully!', 'success');
+      },
+      error: (err) => {
+        this.isUploading.set(null);
+        this.toast.show('Failed to upload file. Please try again.', 'error');
+        console.error('Upload failed:', err);
+      }
     });
   }
 

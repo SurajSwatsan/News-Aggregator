@@ -57,7 +57,7 @@
               <span class="name">{{ plan.name }}</span>
             </div>
             <div class="card-actions">
-              <button class="btn-icon-tiny" title="Edit Plan">
+              <button class="btn-icon-tiny" (click)="openEditModal(plan)" title="Edit Plan">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -185,7 +185,7 @@
     <header class="modal-header-premium">
       <div class="header-hero">
         <div class="hero-content">
-          <h2>Define Subscription Tier</h2>
+          <h2>{{ modalMode() === 'add' ? 'Define' : 'Edit' }} Subscription Tier</h2>
           <!-- <p>Configure access levels and credit parameters for the platform.</p> -->
         </div>
         <button class="btn-close-proper" (click)="closeModal()">
@@ -267,7 +267,7 @@
                   <span class="required-star">*</span>
                 </label>
                 <div class="luxury-dropdown-list animate-fade-in" *ngIf="openDropdownId() === 'sub-currency-' + freq">
-                  <div class="dropdown-item-luxury" *ngFor="let c of currencies"
+                  <div class="dropdown-item-luxury" *ngFor="let c of currencies()"
                     [class.selected]="newPlan().subscriptions[freq].currency === c"
                     (click)="selectValue(freq, 'currency', c)">
                     {{ c }}
@@ -277,7 +277,7 @@
 
               <div class="floating-group span-3">
                 <input type="number" [(ngModel)]="newPlan().subscriptions[freq].credits" class="input-luxury"
-                  id="sub-credits-{{freq}}" placeholder="0">
+                  id="sub-credits-{{freq}}" placeholder=" ">
                 <label for="sub-credits-{{freq}}" class="floating-label">
                   <span>CREDITS</span>
                   <span class="required-star">*</span>
@@ -286,7 +286,7 @@
 
               <div class="floating-group span-3">
                 <input type="number" [(ngModel)]="newPlan().subscriptions[freq].price" class="input-luxury"
-                  id="sub-price-{{freq}}" placeholder="0.00">
+                  id="sub-price-{{freq}}" placeholder=" ">
                 <label for="sub-price-{{freq}}" class="floating-label">
                   <span>PRICE</span>
                   <span class="required-star">*</span>
@@ -311,7 +311,7 @@
                 </div>
               </div>
               <button class="btn-add-feature-link" (click)="addFrequencyFeature(freq)">
-                <span style="font-size: 1.4rem; font-weight: 400; color: #8a70ff;">+</span>
+                <span style="font-size: 1.4rem; font-weight: 400; color: #475569;">+</span>
                 <span>Add Feature</span>
               </button>
             </div>
@@ -337,7 +337,7 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3">
           <path d="M20 6L9 17l-5-5" />
         </svg>
-        Save Plan
+        {{ modalMode() === 'add' ? 'Save Plan' : 'Update Plan' }}
       </button>
     </footer>
   </div>

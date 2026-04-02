@@ -9,11 +9,15 @@ import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
 import { CreatedAdsComponent } from '../common/created-ads/created-ads';
 import { MasterComponent } from '../master/master';
 import { AdminSubscriptionComponent } from './admin-subscription/admin-subscription';
+import { FloatingInputComponent } from '../common/floating-input/floating-input';
+import { FloatingSelectComponent } from '../common/floating-select/floating-select';
+import { UserManagementComponent } from '../user-management/user-management';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, MasterComponent, AdminSubscriptionComponent, TitleCasePipe, DatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, MasterComponent, AdminSubscriptionComponent, UserManagementComponent, TitleCasePipe, DatePipe, FloatingInputComponent, FloatingSelectComponent],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss'
 })
@@ -23,6 +27,7 @@ export class AdminDashboardComponent implements OnInit {
   public authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  public uiService = inject(UiService);
 
   user = computed(() => this.authService.currentUser());
   activeTab = signal('overview');
@@ -80,14 +85,8 @@ export class AdminDashboardComponent implements OnInit {
   sourcesAddedToday = signal(0);
   sources = signal<any[]>([]);
 
-  // User Management Logic
-  usersSubTab = signal('all');
-  allUsers = signal<any[]>([]);
-  editingUser = signal<any | null>(null);
-  viewingDetails = signal<any | null>(null);
-  pendingRequests = signal<any[]>([]);
-  inviteEmail = signal('');
-  lastInviteLink = signal<string | null>(null);
+  // User Management State Removed (Moved to UserManagementComponent)
+  
   auditLogs = signal<any[]>([]);
   refreshTrigger = signal(0);
   isUploadingAdAsset = signal(false);
@@ -122,40 +121,19 @@ export class AdminDashboardComponent implements OnInit {
     endTime: '' as string | null
   });
 
-  filteredUsers = computed(() => {
-    const tab = this.usersSubTab();
-    const users = this.allUsers();
+  adTypeOptions = [
+    { value: 'image', label: 'Image Banner' },
+    { value: 'video', label: 'Video Ad' },
+    { value: 'text', label: 'Sponsored Content' }
+  ];
 
-    switch (tab) {
-      case 'readers':
-        return users.filter(u => u.role === 'reader');
-      default:
-        return users;
-    }
-  });
+  placementOptions = [
+    { value: 'sidebar', label: 'Sidebar Widget' },
+    { value: 'header', label: 'Site Header' },
+    { value: 'in-feed', label: 'News Feed Item' }
+  ];
 
-  // Data helpers
-  publishers = computed(() => {
-    const activeRaw = this.allUsers().filter(u => u.role === 'publisher' && !u.isDeleted);
-    const pendingRaw = this.pendingRequests().filter(p => (p.requestedRole || p.role) === 'publisher');
-
-    // Map email to pending request for quick lookup and deduplication
-    const pendingEmails = new Set(pendingRaw.map(p => p.email.toLowerCase()));
-
-    const active = activeRaw
-      .filter(u => !pendingEmails.has(u.email.toLowerCase())) // Hide active if pending exists
-      .map(u => ({ ...u, status: 'Active', isPending: false }));
-
-    const pending = pendingRaw.map(p => ({
-      ...p,
-      name: p.publisherName || p.orgName || 'New Publisher',
-      isPending: true,
-      role: 'publisher',
-      status: 'Pending Approval'
-    }));
-
-    return [...pending, ...active];
-  });
+  // User Management Logic moved to UserManagementComponent
 
 
   ngOnInit() {
@@ -163,12 +141,8 @@ export class AdminDashboardComponent implements OnInit {
       const path = url[0]?.path;
       if (path === 'sources') {
         this.activeTab.set('sources');
-      } else if (path === 'readers') {
+      } else if (path === 'user' || path === 'readers') {
         this.activeTab.set('users');
-        this.usersSubTab.set('readers');
-      } else if (path === 'user') {
-        this.activeTab.set('users');
-        this.usersSubTab.set('all');
       } else if (path === 'audit') {
         this.activeTab.set('audit');
         this.loadAuditLogs();
@@ -189,8 +163,6 @@ export class AdminDashboardComponent implements OnInit {
   loadAllData() {
     this.loadStats();
     this.loadSources();
-    this.loadUsers();
-    this.loadPendingRequests();
   }
 
   loadStats() {
@@ -213,23 +185,6 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  loadUsers() {
-    const page = this.usersPage();
-    this.http.get<any>(`http://localhost:3000/auth/users?page=${page}&limit=${this.pageSize}`).subscribe(res => {
-      this.allUsers.set(res.data);
-      this.usersTotal.set(res.total);
-      this.usersTotalPages.set(res.totalPages);
-      // For reader total stat, keep it simple by fetching from stats endpoint or filtering if page is large
-      this.loadStats();
-    });
-  }
-
-  loadPendingRequests() {
-    this.http.get<any[]>('http://localhost:3000/onboarding/requests').subscribe(res => {
-      this.pendingRequests.set(res);
-    });
-  }
-
   loadAuditLogs() {
     const page = this.auditPage();
     this.http.get<any>(`http://localhost:3000/admin/audit-logs?page=${page}&limit=${this.pageSize}`).subscribe(res => {
@@ -239,115 +194,16 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // --- Pagination Actions ---
   setPageSources(p: number) {
     if (p < 1 || p > this.sourcesTotalPages()) return;
     this.sourcesPage.set(p);
     this.loadSources();
   }
 
-  setPageUsers(p: number) {
-    if (p < 1 || p > this.usersTotalPages()) return;
-    this.usersPage.set(p);
-    this.loadUsers();
-  }
-
   setPageAudit(p: number) {
     if (p < 1 || p > this.auditTotalPages()) return;
     this.auditPage.set(p);
     this.loadAuditLogs();
-  }
-
-  // --- User Actions ---
-  switchUsersTab(tab: string) {
-    this.usersSubTab.set(tab);
-  }
-
-  editUser(user: any) {
-    this.editingUser.set({ ...user });
-  }
-
-  cancelEdit() {
-    this.editingUser.set(null);
-  }
-
-  saveUser() {
-    const user = this.editingUser();
-    if (!user) return;
-    this.http.patch(`http://localhost:3000/auth/users/${user.id}`, user).subscribe(() => {
-      this.editingUser.set(null);
-      this.loadUsers();
-    });
-  }
-
-  deleteUser(id: string) {
-    if (confirm('Are you sure you want to delete this user?')) {
-      this.http.delete(`http://localhost:3000/auth/users/${id}`).subscribe(() => {
-        this.loadUsers();
-      });
-    }
-  }
-
-  viewDetails(data: any) {
-    if (data.isPending) {
-      // It's a pending request onboarding object
-      this.viewingDetails.set(data);
-    } else {
-      // It's a completed user - we might want to fetch their onboarding data too if needed
-      // For now just show user data
-      this.viewingDetails.set({ ...data, isUser: true });
-    }
-  }
-
-  closeDetails() {
-    this.viewingDetails.set(null);
-  }
-
-
-  // --- Publisher Actions ---
-  sendInvite() {
-    const email = this.inviteEmail();
-    if (!email) return;
-    this.http.post<any>('http://localhost:3000/onboarding/invite', { email }).subscribe(res => {
-      this.lastInviteLink.set(res.inviteLink);
-      this.inviteEmail.set('');
-      this.toast.show('Invite generated! Link below.');
-    });
-  }
-
-
-  copyInviteLink() {
-    const link = this.lastInviteLink();
-    if (link) {
-      navigator.clipboard.writeText(link);
-      this.toast.show('Link copied to clipboard!');
-    }
-  }
-
-  approveRequest(id: string) {
-    this.http.post<any>(`http://localhost:3000/onboarding/approve/${id}`, {}).subscribe({
-      next: (res) => {
-        this.toast.show('✅ ' + res.message);
-        this.viewingDetails.set(null);
-        this.loadPendingRequests();
-        this.loadUsers();
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Failed to approve publisher. Please try again.';
-        this.toast.show('❌ Error: ' + msg, 'error');
-        console.error('[AdminDashboard] Approve failed:', err);
-      }
-    });
-  }
-
-  rejectRequest(id: string) {
-    if (confirm('Are you sure you want to reject this registration?')) {
-      this.http.post<any>(`http://localhost:3000/onboarding/reject/${id}`, {}).subscribe(() => {
-        this.toast.show('Publisher Rejected.', 'info');
-        this.viewingDetails.set(null);
-        this.loadPendingRequests();
-      });
-    }
   }
 
   onLogout() {
@@ -374,11 +230,13 @@ export class AdminDashboardComponent implements OnInit {
       this.resetAdForm();
     }
     this.isCreatingAd.set(true);
+    this.uiService.isModalOpen.set(true);
   }
 
   closeAdModal() {
     this.isCreatingAd.set(false);
     this.editingAdId.set(null);
+    this.uiService.isModalOpen.set(false);
   }
 
   saveGlobalAd() {
@@ -403,6 +261,7 @@ export class AdminDashboardComponent implements OnInit {
         this.isCreatingAd.set(false);
         this.editingAdId.set(null);
         this.resetAdForm();
+        this.uiService.isModalOpen.set(false);
         this.refreshTrigger.update(v => v + 1);
       },
       error: () => this.toast.show(isEditing ? 'Failed to update campaign' : 'Failed to create campaign', 'error')
@@ -413,6 +272,12 @@ export class AdminDashboardComponent implements OnInit {
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
+      // Auto-detect ad type
+      if (file.type.startsWith('image/')) {
+        this.newAd.update(ad => ({ ...ad, adType: 'image' }));
+      } else if (file.type.startsWith('video/')) {
+        this.newAd.update(ad => ({ ...ad, adType: 'video' }));
+      }
       this.uploadAdAsset(file);
     }
   }

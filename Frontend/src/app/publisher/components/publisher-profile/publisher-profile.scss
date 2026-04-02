@@ -191,6 +191,42 @@
       }
     }
   }
+
+  .doc-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--p-text-main);
+    
+    .text-success { color: #10b981; }
+  }
+  
+  .doc-preview {
+    margin-top: 1rem;
+    border: 1px solid var(--p-border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--p-bg-soft);
+    max-width: 320px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: var(--p-accent);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .preview-img {
+      width: 100%;
+      height: auto;
+      max-height: 200px;
+      object-fit: contain;
+      display: block;
+      background: white;
+    }
+  }
 }
 
 .description-box {

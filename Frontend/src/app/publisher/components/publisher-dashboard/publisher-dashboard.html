@@ -1,13 +1,18 @@
 <div class="publisher-layout">
   <!-- Top Navigation -->
-  <header class="top-nav" *ngIf="activeTab() !== 'profile'">
+  <header class="top-nav" *ngIf="activeTab() !== 'profile' && !uiService.isModalOpen()">
     <div class="nav-container">
       <div class="brand">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="brand-logo"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-        <span class="brand-name">Publisher Hub</span>
-        <div class="brand-divider" *ngIf="sourceDetails()?.name"></div>
-        <span class="org-name" *ngIf="sourceDetails()?.name">{{ sourceDetails()?.name }}</span>
-        <span class="brand-status">Official Partner</span>
+        <div class="logo-box">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="brand-icon"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+        </div>
+        <span class="hub-title">Publisher Hub</span>
+        
+        <div class="identity-group" *ngIf="sourceDetails()?.name">
+          <div class="separator-v"></div>
+          <span class="source-presence">{{ sourceDetails()?.name }}</span>
+          <span class="chip-premium partner">Official Partner</span>
+        </div>
       </div>
       
       <div class="nav-right">
@@ -17,7 +22,7 @@
   </header>
 
   <!-- Secondary Tab Navigation -->
-  <nav class="tab-bar" *ngIf="activeTab() !== 'profile'">
+  <nav class="tab-bar" *ngIf="activeTab() !== 'profile' && !uiService.isModalOpen()">
     <div class="tab-container">
       <div class="tab-item" [class.active]="activeTab() === 'dashboard'" routerLink="/publisher/dashboard">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>

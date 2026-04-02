@@ -1,0 +1,179 @@
+<!-- User Stats Tiles -->
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <div class="stat-label">Total Platform Users</div>
+    <div class="stat-value">{{ usersTotal() }}</div>
+    <div class="stat-trend">Registered identities</div>
+  </div>
+  <div class="stat-card highlight">
+    <div class="stat-label">Active Publishers</div>
+    <div class="stat-value">{{ totalPublishersCount() }}</div>
+    <div class="stat-trend">Verified sources</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-label">Total Readers</div>
+    <div class="stat-value">{{ totalReaders() }}</div>
+    <div class="stat-trend">News consumers</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-label">Pending Requests</div>
+    <div class="stat-value">{{ pendingPublishersCount() }}</div>
+    <div class="stat-trend">Awaiting approval</div>
+  </div>
+</div>
+
+<div class="user-management-tabs">
+  <div class="sub-nav">
+    <button [class.active]="usersSubTab() === 'all'" (click)="switchUsersTab('all')">Active Users</button>
+    <button [class.active]="usersSubTab() === 'publishers'" (click)="switchUsersTab('publishers')">
+      Publishers
+      <span class="tab-badge" *ngIf="pendingRequests().length > 0">{{ pendingRequests().length }}</span>
+    </button>
+    <button [class.active]="usersSubTab() === 'readers'" (click)="switchUsersTab('readers')">Readers</button>
+    <button [class.active]="usersSubTab() === 'invite'" (click)="switchUsersTab('invite')">Invite</button>
+  </div>
+
+  <div class="user-content-wrapper">
+    <!-- Unified Table Card -->
+    <div class="premium-inventory-wrapper" *ngIf="['all', 'publishers', 'readers'].includes(usersSubTab())">
+      <div class="premium-scroll-area">
+        <div class="premium-grid-header cols-users">
+          <span>Identity / Email</span>
+          <span>Access Level</span>
+          <span>Current State</span>
+          <span class="text-right">Management</span>
+        </div>
+
+        <div class="premium-item-row cols-users"
+          *ngFor="let user of (usersSubTab() === 'publishers' ? publishers() : filteredUsers())">
+          <div class="identity-cell">
+            <div class="user-avatar-refined"
+              [style.background]="user.isPending ? '#f5f3ff' : (user.role === 'publisher' ? '#eff6ff' : '#eef2ff')"
+              [style.color]="user.isPending ? '#8b5cf6' : (user.role === 'publisher' ? '#6366f1' : '#4f46e5')">
+              {{ (user.name || user.email)[0].toUpperCase() }}
+            </div>
+            <div class="meta">
+              <span class="main-name">{{ user.name || 'Anonymous User' }}</span>
+              <span class="sub-link">{{ user.email }}</span>
+            </div>
+          </div>
+
+          <div>
+            <span class="premium-badge" [class.badge-publisher]="user.role === 'publisher'"
+              [class.badge-admin]="user.role === 'admin'">
+              {{ user.role === 'publisher' ? 'Publisher' : (user.role === 'admin' ? 'Root Access' : 'Reader') }}
+            </span>
+          </div>
+
+          <div>
+            <div class="status-indicator-refined" [class.active]="user.status === 'Active'">
+              <span class="dot"
+                [style.background]="user.status === 'Active' ? '#10b981' : (user.status === 'Deleted' ? '#ef4444' : '#6366f1')"></span>
+              <span class="text"
+                [style.color]="user.status === 'Active' ? '#10b981' : (user.status === 'Deleted' ? '#ef4444' : '#6366f1')">
+                {{ user.status }}
+              </span>
+            </div>
+          </div>
+
+          <div class="action-set">
+            <button class="btn-icon-premium" (click)="viewDetails(user)" title="View Details">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button class="btn-icon-premium" (click)="editUser(user)" title="Edit Permissions">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-approve-sm" *ngIf="user.isPending" (click)="approveRequest(user.id)">Accept</button>
+            <button class="btn-reject-sm" *ngIf="user.isPending" (click)="rejectRequest(user.id)">Reject</button>
+            <button class="btn-icon-premium danger" (click)="deleteUser(user.id)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="premium-pagination">
+        <div class="pagination-info">Showing <span>{{ (usersPage() - 1) * pageSize + 1 }} - {{ usersPage() * pageSize > usersTotal() ? usersTotal() : usersPage() * pageSize }}</span> of <span>{{ usersTotal() }}</span></div>
+        <div class="pagination-actions">
+          <button class="btn-pagination" [disabled]="usersPage() <= 1" (click)="setPageUsers(usersPage() - 1)">Prev</button>
+          <div class="page-indicator">Page <strong>{{ usersPage() }}</strong> of {{ usersTotalPages() }}</div>
+          <button class="btn-pagination" [disabled]="usersPage() >= usersTotalPages()" (click)="setPageUsers(usersPage() + 1)">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite Section -->
+    <div *ngIf="usersSubTab() === 'invite'" class="invite-section">
+      <div class="premium-card">
+        <div class="card-body">
+          <h3>Invite Publisher</h3>
+          <p>Generate a unique link to invite a new publisher to the hub.</p>
+          <div class="invite-controls">
+            <input type="email" [(ngModel)]="inviteEmail" class="premium-input" placeholder="e.g. news@partner.com">
+            <button class="btn-primary" (click)="sendInvite()">Generate Link</button>
+          </div>
+          <div *ngIf="lastInviteLink()" class="invite-result">
+             <code>{{ lastInviteLink() }}</code>
+             <button (click)="copyInviteLink()">Copy link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Details Modal Overlay -->
+<div class="modal-overlay" *ngIf="viewingDetails()" (click)="closeModals()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>User Metadata</h3>
+      <button class="btn-close" (click)="closeModals()">&times;</button>
+    </div>
+    <div class="modal-body-refined">
+      <div class="detail-row">
+        <label>Identity / Full Name</label>
+        <span>{{ viewingDetails()?.name || 'Anonymous' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Registered Email</label>
+        <span>{{ viewingDetails()?.email }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Access Level</label>
+        <span class="premium-badge badge-publisher">{{ viewingDetails()?.role | titlecase }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Permissions Modal Overlay -->
+<div class="modal-overlay" *ngIf="editingUser()" (click)="closeModals()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Modify Account Scope</h3>
+      <button class="btn-close" (click)="closeModals()">&times;</button>
+    </div>
+    <div class="modal-body-refined">
+      <p style="margin-bottom: 2rem; color: #64748b; font-size: 0.9rem;">
+        Adjusting permissions for <strong>{{ editingUser()?.email }}</strong>.
+      </p>
+      
+      <div class="form-group-refined">
+        <app-floating-select
+          label="System Access Role"
+          [options]="[
+            { value: 'admin', label: 'Root Admin' },
+            { value: 'publisher', label: 'News Publisher' },
+            { value: 'reader', label: 'Standard Reader' }
+          ]"
+          [(ngModel)]="editingUser().role">
+        </app-floating-select>
+      </div>
+
+      <div class="modal-actions-refined">
+        <button class="btn-icon-premium" (click)="closeModals()">Cancel</button>
+        <button class="btn-primary" (click)="saveUser()">Save Scope</button>
+      </div>
+    </div>
+  </div>
+</div>

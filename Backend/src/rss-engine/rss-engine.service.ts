@@ -260,21 +260,28 @@ export class RSSEngineService {
   }
 
   private extractImageFromItem(item: any): string | null {
-    // 1. Check Enclosure (Standard)
-    if (item.enclosure?.url) return item.enclosure.url;
-
-    // 2. Check Media tags (using customFields results)
+    // 1. Check Media tags (using customFields results) - High Priority
     const mediaContent = item.mediaContent;
     const mediaThumbnail = item.mediaThumbnail;
 
     // Handle array case for mediaContent (from keepArray: true)
     if (Array.isArray(mediaContent) && mediaContent.length > 0) {
-      const best = mediaContent.find(m => m.$?.url) || mediaContent[0];
+      // Find the one with largest width or just the first non-thumbnail one
+      const best = mediaContent.find((m: any) => {
+        const url = m.$?.url || '';
+        return url && !url.match(/thumb|small|100x100|80x80/i);
+      }) || mediaContent[0];
+      
       if (best?.$?.url) return best.$.url;
     }
 
     // Handle single object/string case
-    if (mediaContent?.$?.url) return mediaContent.$.url;
+    if (mediaContent?.$?.url && !mediaContent.$.url.match(/thumb|small|100x100/i)) return mediaContent.$.url;
+
+    // 2. Check Enclosure (Standard)
+    if (item.enclosure?.url) return item.enclosure.url;
+
+    // 3. Last resort: Thumbnail but check it's not tiny
     if (mediaThumbnail?.$?.url) return mediaThumbnail.$.url;
 
     // 3. Fallback to extracting from HTML content (Cheerio)
@@ -285,7 +292,17 @@ export class RSSEngineService {
   private extractImageFromContent(content: string): string | null {
     if (!content) return null;
     const $ = cheerio.load(content);
-    return $('img').attr('src') || null;
+    // Find the largest image or any primary-looking image
+    const imgs = $('img').toArray();
+    if (imgs.length === 0) return null;
+    
+    // Attempt logic to find the 'hero' image
+    const bestImg = imgs.find(img => {
+      const src = $(img).attr('src') || '';
+      return src && !src.match(/icon|logo|avatar|ads|banner/i);
+    }) || imgs[0];
+    
+    return $(bestImg).attr('src') || null;
   }
 
   private async mapCategory(raw: string, title: string, content: string, skipAi = false): Promise<string> {

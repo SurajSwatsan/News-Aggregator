@@ -20,6 +20,7 @@ export class MasterService {
         isoCode: data.isoCode,
         mobileCode: data.mobileCode,
         currency: data.currency,
+        currencySymbol: data.currencySymbol,
         status: 'active',
       },
     });
@@ -33,6 +34,7 @@ export class MasterService {
         isoCode: data.isoCode,
         mobileCode: data.mobileCode,
         currency: data.currency,
+        currencySymbol: data.currencySymbol,
         status: data.status || 'active',
       },
     });
@@ -43,8 +45,10 @@ export class MasterService {
   }
 
   // --- City Methods ---
-  async getCities() {
+  async getCities(countryId?: string) {
+    const where = countryId ? { countryId } : {};
     return this.prisma.city.findMany({
+      where,
       include: { country: true },
       orderBy: { name: 'asc' },
     });

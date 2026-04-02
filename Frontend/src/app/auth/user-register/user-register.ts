@@ -102,10 +102,12 @@ export class UserRegisterComponent implements OnInit {
 
   ngOnInit() {
     this.checkAdminExists();
+    this.loadCountries();
+    this.loadCities(); // Load all cities initially
+    
     // Default to publisher if arriving via /register-publisher
     if (this.router.url.includes('register-publisher')) {
       this.onTypeChange('publisher');
-      this.loadCountries();
     }
   }
 
@@ -115,12 +117,25 @@ export class UserRegisterComponent implements OnInit {
     });
   }
 
+  loadCities(countryId?: string) {
+    this.masterService.getCities(countryId).subscribe(data => {
+      this.cities.set(data.map(city => ({ 
+        value: city.name, 
+        label: countryId ? city.name : `${city.name} (${city.country?.name || 'Unknown'})`
+      })));
+    });
+  }
+
   onCountryChange(countryName: string) {
+    if (!countryName) {
+      this.loadCities();
+      return;
+    }
     const country = this.countries().find(c => c.value === countryName);
     if (country) {
-      this.http.get<any[]>(`http://localhost:3000/master/cities?countryId=${country.id}`).subscribe(data => {
-        this.cities.set(data.map(city => ({ value: city.name, label: city.name })));
-      });
+      this.loadCities(country.id);
+    } else {
+      this.loadCities();
     }
   }
 

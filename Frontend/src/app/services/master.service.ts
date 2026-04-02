@@ -28,8 +28,9 @@ export class MasterService {
   }
 
   // --- Cities ---
-  getCities(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/cities`);
+  getCities(countryId?: string): Observable<any[]> {
+    const url = countryId ? `${this.apiUrl}/cities?countryId=${countryId}` : `${this.apiUrl}/cities`;
+    return this.http.get<any[]>(url);
   }
 
   addCity(data: any): Observable<any> {

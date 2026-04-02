@@ -37,8 +37,8 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
               
               <div class="nav-pipe">|</div>
               
-              <!-- Credits Badge (New) -->
-              <div class="credits-badge" *ngIf="auth.isAuthenticated()">
+              <!-- Credits Badge (Interactive) -->
+              <div class="credits-badge" *ngIf="auth.isAuthenticated()" (click)="onCreditClick()" style="cursor: pointer;">
                 <div class="diamond-icon">
                   <svg viewBox="0 0 24 24" width="12" height="12">
                     <path d="M12 2L2 12l10 10 10-10L12 2z" fill="currentColor" />
@@ -223,6 +223,64 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
         </div>
       }
       <app-footer></app-footer>
+
+      <!-- Premium Paywall Modal -->
+      <div class="paywall-overlay" *ngIf="showPaywallModal()" (click)="showPaywallModal.set(false)">
+        <div class="paywall-card animate-zoom-in" (click)="$event.stopPropagation()">
+          <div class="paywall-header">
+            <div class="paywall-badge-row">
+              <span class="premium-label">PREMIUM REQUIRED</span>
+              <div class="user-credits-mini" *ngIf="auth.currentUser()">
+                <svg viewBox="0 0 24 24" width="12" height="12"><path d="M12 2L2 12l10 10 10-10L12 2z" fill="currentColor" /></svg>
+                {{ auth.currentUser()?.creditBalance || 0 }} CREDITS
+              </div>
+            </div>
+            <h2>Elevate Your Perspective</h2>
+            <p>Join our elite network to unlock unlimited investigations and expert analysis.</p>
+            <button class="paywall-close-x" (click)="showPaywallModal.set(false)">&times;</button>
+          </div>
+          
+          <div class="paywall-plans-container">
+            <!-- Frequency Switcher -->
+            <div class="frequency-tabs">
+              <button [class.active]="selectedFrequency() === 'monthly'" (click)="setFrequency('monthly')">MONTHLY</button>
+              <button [class.active]="selectedFrequency() === 'quarterly'" (click)="setFrequency('quarterly')">QUARTERLY</button>
+              <button [class.active]="selectedFrequency() === 'yearly'" (click)="setFrequency('yearly')">YEARLY</button>
+            </div>
+
+            <div class="plans-grid">
+              <div *ngFor="let plan of plans()" class="plan-mini-card">
+                <ng-container *ngIf="getFrequencyData(plan, selectedFrequency()) as subData">
+                  <div class="plan-info">
+                    <span class="plan-name">{{ plan.name }}</span>
+                    <div class="plan-price">
+                      <span class="currency">₹</span>
+                      <span class="amount">{{ subData.price }}</span>
+                      <span class="period">/{{ selectedFrequency() === 'monthly' ? 'mo' : (selectedFrequency() === 'quarterly' ? 'qtr' : 'yr') }}</span>
+                    </div>
+                    <span class="plan-credits"><strong>{{ subData.credits }}</strong> Credits</span>
+                  </div>
+                  <button class="btn-select-plan" (click)="purchasePlan(plan, selectedFrequency())" [disabled]="isProcessing()">
+                    {{ isProcessing() ? 'PROCESSING...' : 'CHOOSE PLAN' }}
+                  </button>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+
+          <div class="paywall-footer">
+            <button class="btn-link" (click)="showPaywallModal.set(false)">CONTINUE AS READER (SUMMARY ONLY)</button>
+          </div>
+
+          <!-- Processing Overlay (Internal to Modal) -->
+          <div class="modal-processing-overlay" *ngIf="isProcessing()">
+            <div class="spinner-container">
+              <div class="premium-spinner"></div>
+              <p>Securing Access...</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   styleUrl: './article-detail.scss'
@@ -254,9 +312,15 @@ export class ArticleDetailComponent implements OnInit {
 
   isLoading = signal(true);
   isRedirecting = signal(false);
+  showPaywallModal = signal(false);
   readingProgress = signal(0);
   hasPremiumAccess = signal(false);
   logoError = signal(false);
+  
+  // New subscription signals
+  plans = signal<any[]>([]);
+  isProcessing = signal(false);
+  selectedFrequency = signal<string>('monthly');
 
   constructor() { }
 
@@ -273,6 +337,7 @@ export class ArticleDetailComponent implements OnInit {
       if (id) {
         this.fetchArticle(id);
         this.fetchTrending();
+        this.fetchPlans();
       } else {
         this.router.navigate(['/']);
       }
@@ -292,7 +357,12 @@ export class ArticleDetailComponent implements OnInit {
         this.relatedArticles.set(foundData.relatedArticles || []);
         this.isLoading.set(false);
 
-        this.isLoading.set(false);
+        // Auto-trigger paywall if credits are finished
+        if (this.auth.isAuthenticated() && Number(this.auth.currentUser()?.creditBalance || 0) < 1) {
+          setTimeout(() => {
+            this.showPaywallModal.set(true);
+          }, 1000);
+        }
       },
       error: () => {
         this.router.navigate(['/']);
@@ -338,10 +408,7 @@ export class ArticleDetailComponent implements OnInit {
           });
         } else {
           this.isRedirecting.set(false);
-          // Redirect to Subscription page with return URL
-          this.router.navigate(['/subscription'], { 
-            queryParams: { returnUrl: `/article/${articleId}` } 
-          });
+          this.showPaywallModal.set(true);
         }
       }
     });
@@ -418,6 +485,55 @@ export class ArticleDetailComponent implements OnInit {
     const text = this.article()?.synopsis || '';
     const wordCount = text.trim().split(/\s+/).length;
     return Math.max(1, Math.ceil(wordCount / 200));
+  }
+
+  onCreditClick() {
+    const balance = Number(this.auth.currentUser()?.creditBalance || 0);
+    if (balance < 1) {
+      this.showPaywallModal.set(true);
+    } else {
+      this.showPaywallModal.set(true); // Always show plans in the modal for now as requested
+    }
+  }
+
+  fetchPlans() {
+    this.http.get<any[]>('http://localhost:3000/subscription-plans').subscribe({
+      next: (data) => {
+        const active = data.filter(p => p.isActive);
+        this.plans.set(active);
+      },
+      error: (err) => console.error('Failed to load plans:', err)
+    });
+  }
+
+  getFrequencyData(plan: any, freq: string) {
+    return plan.subscriptions?.find((s: any) => s.frequency === freq);
+  }
+
+  purchasePlan(plan: any, freq: string) {
+    const subData = this.getFrequencyData(plan, freq);
+    if (!subData) return;
+
+    this.isProcessing.set(true);
+    this.accessService.addCredits(subData.credits).subscribe({
+      next: () => {
+        setTimeout(() => {
+          this.isProcessing.set(false);
+          this.showPaywallModal.set(false);
+          // Show a success message or just proceed
+          this.onReadFullStory(new MouseEvent('click'));
+        }, 1500);
+      },
+      error: (err: any) => {
+        console.error('Purchase failed:', err);
+        this.isProcessing.set(false);
+        alert('Payment processing failed. Please try again.');
+      }
+    });
+  }
+
+  setFrequency(freq: string) {
+    this.selectedFrequency.set(freq);
   }
 
   goBack() {

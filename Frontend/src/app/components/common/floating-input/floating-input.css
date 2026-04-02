@@ -1,20 +1,20 @@
 :host {
   display: block;
   width: 100%;
-  --fi-border: #cbd5e1;
-  --fi-border-focus: #8b5cf6;
+  --fi-border: #e2e8f0;
+  --fi-border-focus: #334155;
   --fi-label-bg: #ffffff;
   --fi-label-color: #64748b;
-  --fi-label-focus: #8b5cf6;
+  --fi-label-focus: #334155;
   --fi-text: #1e293b;
   --fi-icon: #94a3b8;
-  --fi-focus-shadow: rgba(139, 92, 246, 0.08);
+  --fi-focus-shadow: rgba(51, 65, 85, 0.08);
 }
 
 .floating-group {
   position: relative;
   width: 100%;
-  margin-top: 10px; /* Space for label floating on top border */
+  margin-top: 10px;
 }
 
 .input-container {
@@ -22,12 +22,17 @@
   display: flex;
   align-items: center;
   background: transparent;
-  border: 1.5px solid var(--fi-border);
+  border: 1px solid var(--fi-border);
   border-radius: 12px;
   padding: 0 1rem;
   transition: all 0.2s ease-in-out;
   min-height: 56px;
-  overflow: visible; /* Important for label to sit on border */
+  overflow: visible;
+}
+
+.input-container:hover {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: var(--fi-border-focus);
 }
 
 .icon-wrapper {
@@ -40,88 +45,113 @@
 }
 
 .icon-wrapper:empty {
-    display: none;
+  display: none;
 }
 
 input {
   flex: 1;
-  background: transparent;
+  background: transparent !important;
   border: none;
   color: var(--fi-text);
   font-size: 1rem;
   font-weight: 500;
-  padding: 1rem 0;
+  padding: 1.25rem 0 0.75rem;
   width: 100%;
   outline: none;
+  z-index: 5;
 }
 
-/* Dark mode support if parent has it */
 :host-context(.dark-theme) input {
-    color: #f8fafc;
+  color: #f8fafc;
 }
 
 .floating-label {
   position: absolute;
-  left: 3.2rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--fi-label-color);
   font-size: 1rem;
+  font-weight: 500;
   pointer-events: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   background: transparent;
   padding: 0 4px;
   z-index: 10;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
-/* Adjust label position if no icon is projected */
-:host:not(:has([icon])) .floating-label {
-    left: 1rem;
+.with-icon .floating-label {
+  left: 3rem;
 }
 
-/* Floating logic: sit on the border */
+/* Floating logic */
 .focused .floating-label,
-.has-value .floating-label {
+.has-value .floating-label,
+input:not(:placeholder-shown) + .floating-label {
   top: 0;
-  left: 12px;
+  left: 0.75rem;
   transform: translateY(-50%) scale(0.85);
   background: var(--fi-label-bg);
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--fi-label-focus);
-  text-transform: capitalize; /* More natural than all caps */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 20;
 }
 
-/* Focused State */
 .focused .input-container {
   border-color: var(--fi-border-focus);
   box-shadow: 0 0 0 4px var(--fi-focus-shadow);
 }
 
-.focused .icon-wrapper {
-  color: var(--fi-label-focus);
-}
-
-/* Error State Highlights */
 .is-invalid .input-container {
   border-color: #ef4444 !important;
 }
+
 .is-invalid.focused .input-container {
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15) !important;
 }
+
 .is-invalid .floating-label,
 .is-invalid .icon-wrapper {
   color: #ef4444 !important;
 }
 
-/* Custom styles for centered inputs (like OTP) */
 .floating-group:has(input[style*="text-align: center"]) .floating-label {
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
 
 .floating-group:has(input[style*="text-align: center"]).focused .floating-label,
 .floating-group:has(input[style*="text-align: center"]).has-value .floating-label {
-    top: 0 !important;
-    transform: translate(-50%, -50%) scale(0.85) !important;
+  top: 0 !important;
+  transform: translate(-50%, -50%) scale(0.85) !important;
 }
+
+.required-star {
+  color: #ef4444;
+  margin-left: 3px;
+  font-weight: 700;
+}
+
+.error-msg-container {
+  padding: 4px 8px 0;
+  min-height: 20px;
+  animation: slideInDown 0.2s ease-out;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: block;
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

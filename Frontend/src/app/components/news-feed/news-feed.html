@@ -312,4 +312,37 @@
   }
 
   <app-footer></app-footer>
+
+  <!-- Premium Paywall Modal -->
+  <div class="paywall-overlay" *ngIf="showPaywallModal()" (click)="showPaywallModal.set(false)">
+    <div class="paywall-card animate-zoom-in" (click)="$event.stopPropagation()">
+      <div class="paywall-header">
+        <div class="paywall-badge">PREMIUM REQUIRED</div>
+        <button class="paywall-close-x" (click)="showPaywallModal.set(false)">&times;</button>
+      </div>
+      
+      <div class="paywall-content">
+        <div class="paywall-icon-box">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+          </svg>
+        </div>
+        
+        <h2>Limit Reached</h2>
+        <p>You've finished your free articles for today. Join our elite news network to unlock unlimited investigations and expert analysis.</p>
+        
+        <div class="paywall-cta-box">
+          <button class="btn-paywall-primary" [routerLink]="['/subscription']" [queryParams]="{ returnUrl: '/article/' + selectedArticleId() }">
+            VIEW SUBSCRIPTION PLANS
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+          <button class="btn-paywall-secondary" (click)="showPaywallModal.set(false)">
+            MAYBE LATER
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
