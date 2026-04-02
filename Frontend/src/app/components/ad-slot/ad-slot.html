@@ -1,10 +1,16 @@
 @if (ad()) {
   <div class="ad-container" [class]="placementType" (click)="onAdClick()">
     <div class="ad-label">ADVERTISEMENT</div>
-    <div class="ad-content">
+    <div class="ad-content" [class.fading]="isFading()">
       @if (ad().adType === 'video') {
-        <video #adVideo [src]="ad().mediaUrl" autoplay muted loop playsinline preload="auto" (loadeddata)="onVideoLoaded($event)" (canplay)="onVideoLoaded($event)" (error)="handleMediaError()" (click)="toggleVideo($event)"></video>
-        @if (isPaused()) {
+        <video #adVideo [src]="sanitizedMediaUrl()"
+               autoplay muted loop playsinline preload="auto" 
+               (loadeddata)="onVideoLoaded($event)" 
+               (canplay)="onVideoLoaded($event)" 
+               (error)="handleMediaError($event)" 
+               (click)="toggleVideo($event)">
+        </video>
+        @if (isPaused() && placementType !== 'header') {
           <img src="assets/images/medithon-thumbnail.png" class="video-thumbnail" alt="Video Preview">
           <div class="video-overlay" (click)="toggleVideo($event)">
             <div class="play-icon">
@@ -15,7 +21,7 @@
           </div>
         }
       } @else if (ad().adType === 'html' || ad().mediaUrl.endsWith('.html')) {
-        <iframe [src]="getSafeUrl(ad().mediaUrl)" style="width:100%; height:100%; border:none; border-radius:inherit; display:block;" scrolling="no" (error)="handleMediaError()"></iframe>
+        <iframe [src]="sanitizedMediaUrl()" style="width:100%; height:100%; border:none; border-radius:inherit; display:block;" scrolling="no" (error)="handleMediaError($event)"></iframe>
       } @else if (ad().adType === 'text') {
         <div class="text-ad-body">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" class="type-icon">
@@ -24,7 +30,7 @@
           <span class="sponsored-link">Sponsored Content</span>
         </div>
       } @else {
-        <img [src]="ad().mediaUrl" [alt]="ad().title" (error)="handleMediaError()">
+        <img [src]="sanitizedMediaUrl()" [alt]="ad().title" (error)="handleMediaError($event)">
       }
     </div>
   </div>
