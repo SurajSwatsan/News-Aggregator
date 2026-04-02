@@ -144,6 +144,10 @@
           </div>
           }
 
+          <div class="middle-ad-block">
+            <app-ad-slot placementType="in-feed" [index]="0" [showLabel]="false" [excludeVideo]="true"></app-ad-slot>
+          </div>
+
           <div class="news-list-section">
             <div class="section-header">
               <div class="header-left">
@@ -189,9 +193,9 @@
                 </div>
               </article>
         
-              @if (i === 2) {
+              @if ((i + 1) % 10 === 0) {
                 <div class="in-feed-grid-ad">
-                  <app-ad-slot placementType="in-feed" [index]="0" class="compact" [showLabel]="false"></app-ad-slot>
+                  <app-ad-slot placementType="in-feed" [index]="(i + 1) / 10" [showLabel]="false"></app-ad-slot>
                 </div>
               }
               } @empty {
