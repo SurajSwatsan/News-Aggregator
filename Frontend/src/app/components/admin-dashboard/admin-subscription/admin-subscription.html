@@ -210,7 +210,7 @@
         </div>
 
         <!-- NEW: Multi-Check Dropdown for Frequencies -->
-        <div class="floating-group span-3 custom-multi-select" (click)="showFreqDropdown.set(!showFreqDropdown())">
+        <div class="floating-group span-3 custom-multi-select" (click)="showFreqDropdown.set(!showFreqDropdown()); openDropdownId.set(null)">
           <div class="floating-select select-display" [class.open]="showFreqDropdown()">
             {{ selectedFreqLabel() }}
           </div>
@@ -248,7 +248,8 @@
                   <span>PLAN IDENTIFIER</span>
                   <span class="required-star">*</span>
                 </label>
-                <div class="luxury-dropdown-list animate-fade-in" *ngIf="openDropdownId() === 'sub-name-' + freq">
+                <div class="luxury-dropdown-list animate-fade-in" *ngIf="openDropdownId() === 'sub-name-' + freq"
+                  (click)="$event.stopPropagation()">
                   <div class="dropdown-item-luxury" *ngFor="let name of planNames"
                     [class.selected]="newPlan().subscriptions[freq].name === name"
                     (click)="selectValue(freq, 'name', name)">
@@ -266,11 +267,15 @@
                   <span>CURRENCY</span>
                   <span class="required-star">*</span>
                 </label>
-                <div class="luxury-dropdown-list animate-fade-in" *ngIf="openDropdownId() === 'sub-currency-' + freq">
+                <div class="luxury-dropdown-list animate-fade-in" *ngIf="openDropdownId() === 'sub-currency-' + freq"
+                  (click)="$event.stopPropagation()">
                   <div class="dropdown-item-luxury" *ngFor="let c of currencies()"
                     [class.selected]="newPlan().subscriptions[freq].currency === c"
                     (click)="selectValue(freq, 'currency', c)">
                     {{ c }}
+                  </div>
+                  <div class="dropdown-item-luxury disabled" *ngIf="currencies().length === 0">
+                    No currencies available
                   </div>
                 </div>
               </div>

@@ -154,13 +154,14 @@
       <button class="btn-close" (click)="closeModals()">&times;</button>
     </div>
     <div class="modal-body-refined">
-      <p style="margin-bottom: 2rem; color: #64748b; font-size: 0.9rem;">
+      <div class="modal-description">
         Adjusting permissions for <strong>{{ editingUser()?.email }}</strong>.
-      </p>
+      </div>
       
       <div class="form-group-refined">
         <app-floating-select
           label="System Access Role"
+          theme="light"
           [options]="[
             { value: 'admin', label: 'Root Admin' },
             { value: 'publisher', label: 'News Publisher' },
@@ -171,8 +172,8 @@
       </div>
 
       <div class="modal-actions-refined">
-        <button class="btn-icon-premium" (click)="closeModals()">Cancel</button>
-        <button class="btn-primary" (click)="saveUser()">Save Scope</button>
+        <button class="btn-secondary-refined" (click)="closeModals()">Cancel Action</button>
+        <button class="btn-primary-refined" (click)="saveUser()">Update Permissions</button>
       </div>
     </div>
   </div>

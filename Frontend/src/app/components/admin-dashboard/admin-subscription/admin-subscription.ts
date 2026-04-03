@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -160,7 +160,6 @@ export class AdminSubscriptionComponent implements OnInit {
         yearly: { enabled: false, name: '', price: null, credits: null, currency: '', features: [] }
       }
     });
-    this.showFreqDropdown.set(false);
     this.openDropdownId.set(null);
     this.showAddPlanModal.set(true);
     this.modalState.emit(true);
@@ -201,13 +200,14 @@ export class AdminSubscriptionComponent implements OnInit {
       subscriptions: baseSubs
     });
 
-    this.showFreqDropdown.set(false);
     this.openDropdownId.set(null);
     this.showAddPlanModal.set(true);
     this.modalState.emit(true);
   }
 
   toggleDropdown(id: string) {
+    // If opening a new dropdown, close the frequency dropdown
+    this.showFreqDropdown.set(false);
     this.openDropdownId.set(this.openDropdownId() === id ? null : id);
   }
 
@@ -345,5 +345,18 @@ export class AdminSubscriptionComponent implements OnInit {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  // Handle global clicks to close custom luxurious dropdowns
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.showAddPlanModal()) return;
+
+    // Check if clicked inside any of the custom select elements
+    const clickedDropdown = (event.target as HTMLElement).closest('.custom-luxury-select, .custom-multi-select');
+    if (!clickedDropdown) {
+      this.openDropdownId.set(null);
+      this.showFreqDropdown.set(false);
+    }
   }
 }
