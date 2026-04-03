@@ -23,6 +23,20 @@ export class RSSEngineService {
     private aiService: AiService,
   ) {}
 
+  private async retry<T>(operation: () => Promise<T>, label: string, retries = 3, delay = 2000): Promise<T> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (i === retries - 1) throw error;
+        const backoff = delay * Math.pow(2, i);
+        this.logger.warn(`Retrying ${label} in ${backoff}ms... (Attempt ${i + 1}/${retries})`);
+        await new Promise(resolve => setTimeout(resolve, backoff));
+      }
+    }
+    throw new Error(`Failed ${label} after ${retries} attempts`);
+  }
+
   async syncRSSNews(sourceId: string): Promise<number> {
     let aiConsecutiveFailures = 0;
     try {
@@ -49,7 +63,10 @@ export class RSSEngineService {
       
       let feed: Parser.Output<any>;
       try {
-        feed = await this.parser.parseURL(source.rssUrl!);
+        feed = await this.retry(
+          () => this.parser.parseURL(source.rssUrl!),
+          `RSS parse for ${source.name}`
+        );
       } catch (parseError) {
         this.logger.warn(`Failed to parse stored RSS URL ${source.rssUrl}: ${parseError.message}. Attempting re-discovery...`);
         const discovered = await this.discoverRssUrl(source.homepageUrl);
@@ -59,7 +76,10 @@ export class RSSEngineService {
             where: { id: source.id },
             data: { rssUrl: discovered }
           });
-          feed = await this.parser.parseURL(discovered);
+          feed = await this.retry(
+            () => this.parser.parseURL(discovered),
+            `RSS parse (discovered) for ${source.name}`
+          );
         } else {
           this.logger.error(`No working RSS feed found for ${source.name}. ${parseError.message}`);
           return 0;
@@ -345,7 +365,10 @@ export class RSSEngineService {
 
   async discoverRssUrl(homepageUrl: string): Promise<string | null> {
     try {
-      const { data } = await axios.get(homepageUrl, { timeout: 10000 });
+      const { data } = await this.retry(
+        () => axios.get(homepageUrl, { timeout: 15000 }),
+        `RSS discovery for ${homepageUrl}`
+      );
       const $ = cheerio.load(data);
       
       const rssLink = $('link[type="application/rss+xml"]').attr('href') ||

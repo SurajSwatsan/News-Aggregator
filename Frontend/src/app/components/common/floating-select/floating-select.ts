@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, signal, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Input, forwardRef, signal, Output, EventEmitter, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
@@ -17,7 +17,8 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
     <div class="floating-group" 
          [class.focused]="isOpen()" 
          [class.has-value]="value" 
-         [class.is-invalid]="isInvalid && (isVisited() || forceShowErrors)">
+         [class.is-invalid]="isInvalid && (isVisited() || forceShowErrors)"
+         [class.theme-light]="theme === 'light'">
       <div class="input-container" (click)="toggleDropdown()">
         <div class="icon-wrapper">
           <ng-content select="[icon]"></ng-content>
@@ -72,6 +73,30 @@ import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/f
       position: relative;
       width: 100%;
       margin-top: 10px;
+
+      &.theme-light {
+        --fs-primary: #6366f1;
+        --fs-bg: #ffffff;
+        --fs-border: #e2e8f0;
+        --fs-text: #0f172a;
+        --fs-label: #64748b;
+
+        .input-container {
+           background: #fff;
+           box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .dropdown-menu {
+          backdrop-filter: none;
+          background: #ffffff;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
+        }
+
+        .option-item:hover {
+          background: #f8fafc;
+        }
+      }
     }
 
     .input-container {
@@ -238,6 +263,7 @@ export class FloatingSelectComponent implements ControlValueAccessor {
   @Input() required = false;
   @Input() errorMsg = '';
   @Input() forceShowErrors = false;
+  @Input() theme: 'dark' | 'light' = 'dark';
   
   @Output() selectionChange = new EventEmitter<any>();
 
@@ -290,10 +316,12 @@ export class FloatingSelectComponent implements ControlValueAccessor {
     return selected ? selected.label : '';
   }
 
+  private el = inject(ElementRef);
+
   // Handle global clicks to close dropdown
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
-    const clickedInside = (event.target as HTMLElement).closest('.floating-group');
+    const clickedInside = this.el.nativeElement.contains(event.target);
     if (!clickedInside) {
       this.closeDropdown();
     }
