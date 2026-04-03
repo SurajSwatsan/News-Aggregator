@@ -1,0 +1,85 @@
+<div class="profile-wrapper">
+  <div class="linkedin-container">
+    <div class="nav-control">
+      <button class="nav-back-button" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        <span>Back to News</span>
+      </button>
+    </div>
+
+    <div class="profile-mainframe">
+      <!-- Header Banner & Intro Card -->
+      <div class="premium-card intro-card">
+        <!-- <div class="profile-banner">
+          <div class="banner-pattern"></div>
+        </div> -->
+
+        <div class="intro-content">
+          <div class="intro-details" style="margin-top: 0;">
+            <h1 class="user-fullname">{{ user()?.firstName || 'Valued' }} {{ user()?.lastName || 'Reader' }}</h1>
+            <h2 class="user-headline">Premium News Aggregator Member & Content Enthusiast</h2>
+
+            <div class="user-meta">
+              <span class="meta-item location">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Global Citizen
+              </span>
+              <span class="meta-dot">&bull;</span>
+              <span class="meta-item contact">
+                <a href="mailto:{{ user()?.email }}">{{ user()?.email || 'Contact Info' }}</a>
+              </span>
+            </div>
+
+              <span class="meta-item read-count" style="color: #60a5fa; font-weight: 600; margin-top: 8px;">
+                {{ user()?.articlesRead !== undefined ? user()?.articlesRead : 0 }} Articles Read 
+                <span style="margin: 0 10px; color: #475569;">&bull;</span> 
+                {{ user()?.creditBalance || 0 }} Credits Remaining
+              </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- About / Account Details Section -->
+      <div class="premium-card section-card">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 class="section-title" style="margin: 0;">Account Details</h3>
+          <button class="edit-btn" (click)="editProfile()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit Profile
+          </button>
+        </div>
+
+        <div class="details-list">
+          <div class="detail-row">
+            <div class="detail-label">First Name</div>
+            <div class="detail-value">{{ user()?.firstName || '-' }}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Last Name</div>
+            <div class="detail-value">{{ user()?.lastName || '-' }}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Email Address</div>
+            <div class="detail-value email-text">{{ user()?.email || '-' }}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Member Since</div>
+            <div class="detail-value">{{ (user()?.createdAt | date:'longDate') || 'Recently' }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

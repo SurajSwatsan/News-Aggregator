@@ -78,6 +78,14 @@ export class AuthService {
     );
   }
 
+  updateProfile(userId: string, data: any) {
+    return this.http.patch<any>(`${this.apiUrl}/users/${userId}`, data).pipe(
+      tap(() => {
+        this.refreshProfile().subscribe();
+      })
+    );
+  }
+
   updateCurrentUser(user: any) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(user));

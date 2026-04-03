@@ -154,4 +154,57 @@ export class MailService {
     `;
     return this.sendMail(email, subject, html);
   }
+
+  async sendPaymentSuccess(email: string, planName: string, amount: number, transactionId: string) {
+    const subject = 'Payment Successful - Next-Gen News Subscription';
+    const html = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #10b981; padding: 20px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0;">Payment Successful</h2>
+        </div>
+        <div style="padding: 30px;">
+          <p style="font-size: 1.1rem; color: #1e293b;">Thank you for your purchase!</p>
+          <p style="color: #475569; line-height: 1.6;">Your subscription payment was successfully processed. You now have unlimited premium access to Next-Gen News.</p>
+          
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px dashed #cbd5e1;">
+            <p style="margin: 5px 0;"><strong>Plan:</strong> ${planName}</p>
+            <p style="margin: 5px 0;"><strong>Amount Paid:</strong> ₹${amount}</p>
+            <p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${transactionId}</p>
+          </div>
+          
+          <p style="color: #718096; font-size: 0.9rem;">If you have any questions, feel free to contact our support team.</p>
+        </div>
+        <div style="background-color: #f8fafc; padding: 15px; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">&copy; 2026 Next-Gen News Aggregator</p>
+        </div>
+      </div>
+    `;
+    return this.sendMail(email, subject, html);
+  }
+
+  async sendPaymentFailed(email: string, reason: string, orderId: string) {
+    const subject = 'Payment Failed - Next-Gen News';
+    const html = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #ef4444; padding: 20px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0;">Payment Failed</h2>
+        </div>
+        <div style="padding: 30px;">
+          <p style="font-size: 1.1rem; color: #1e293b;">Hello,</p>
+          <p style="color: #475569; line-height: 1.6;">Unfortunately, your recent payment attempt could not be processed successfully.</p>
+          
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #fca5a5; color: #991b1b;">
+            <p style="margin: 5px 0;"><strong>Order ID:</strong> ${orderId}</p>
+            <p style="margin: 5px 0;"><strong>Reason:</strong> ${reason}</p>
+          </div>
+          
+          <p style="color: #475569; line-height: 1.6;">Please check your payment method and try again. No charges were applied to your account.</p>
+        </div>
+        <div style="background-color: #f8fafc; padding: 15px; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">&copy; 2026 Next-Gen News Aggregator</p>
+        </div>
+      </div>
+    `;
+    return this.sendMail(email, subject, html);
+  }
 }

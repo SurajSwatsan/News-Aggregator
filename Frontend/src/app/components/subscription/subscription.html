@@ -7,10 +7,70 @@
       </svg>
       <span>Back to News</span>
     </button>
-    <h1 class="jakarta-title">Elevate Your Perspective</h1>
-    <p class="subtitle">Join thousands of readers who unlock deeper insights every day.</p>
+    @if (!activeSubscription()) {
+    <h1 class="jakarta-title">Premium Plans</h1>
+    <p class="subtitle">Choose the perfect tier for your unlimited news experience.</p>
+    }
   </header>
 
+  @if (activeSubscription()) {
+  <div class="linkedin-container active-sub-linkedin">
+    <div class="profile-mainframe">
+      <!-- Intro Card for Active Plan -->
+      <div class="premium-card intro-card">
+        <div class="intro-content">
+          <div class="intro-details" style="margin-top: 0;">
+            <div class="badge-row" style="margin-bottom: 12px; display: flex; gap: 12px;">
+              <span class="promo-badge sapphire-glow" style="font-size: 0.7rem; font-weight: 900; padding: 6px 14px; border-radius: 99px; color: #fff; background: #2563eb; letter-spacing: 0.05em;">PURCHASED</span>
+            </div>
+            
+            <h1 class="user-fullname">{{ activeSubscription().plan?.name }}</h1>
+            <h2 class="user-headline">Your Active Premium Subscription</h2>
+            
+            <div class="user-meta">
+              <span class="meta-item location" style="color: #60a5fa; font-weight: 600;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px;">
+                  <path d="M20 6L9 17L4 12"></path>
+                </svg>
+                Status: Active & Unlocked
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Section for Billing -->
+      <div class="premium-card section-card">
+        <h3 class="section-title">Billing & Benefits</h3>
+        
+        <div class="details-list">
+          <div class="detail-row">
+            <div class="detail-label">Amount Paid</div>
+            <div class="detail-value" style="font-size: 1.5rem; font-weight: 800; font-family: 'Outfit', sans-serif;">
+              <span style="font-size: 1rem; color: rgba(255,255,255,0.5);">₹</span> 
+              {{ activeSubscription().transaction?.amount }}
+            </div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label">Credits Allocated</div>
+            <div class="detail-value" style="font-weight: 700;">{{ activeSubscription().transaction?.credits }} Credits</div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label">Transaction ID</div>
+            <div class="detail-value" style="font-family: monospace; color: #94a3b8;">{{ activeSubscription().transaction?.razorpayOrderId }}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Purchased On</div>
+            <div class="detail-value">{{ activeSubscription().transaction?.createdAt | date:'longDate' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  } @else {
   <div class="billing-grid">
     <!-- Monthly Plans Section -->
     <section class="frequency-section monthly">
@@ -23,7 +83,7 @@
               <div class="badge-row">
                 <span class="freq-badge">MONTHLY</span>
               </div>
-              <h2 class="tier-title outfit">{{ plan.name }}</h2>
+              <h2 class="tier-title outfit">{{ subData.name || plan.name }}</h2>
             </div>
             <div class="tier-price outfit">
               <span class="currency">₹</span>
@@ -51,8 +111,8 @@
                 <span>{{ feature }}</span>
               </li>
             </ul>
-            <button class="purchase-btn" (click)="purchasePlan(plan, 'monthly')" [disabled]="isProcessing()">
-              {{ isProcessing() ? 'PROCESSING...' : 'GET STARTED' }}
+            <button class="purchase-btn" (click)="purchasePlan(plan, 'monthly')">
+              GET STARTED
             </button>
           </div>
         </ng-container>
@@ -69,7 +129,7 @@
                 <span class="freq-badge">QUARTERLY</span>
                 <span class="promo-badge sapphire-glow">MOST POPULAR</span>
               </div>
-              <h2 class="tier-title outfit">{{ plan.name }}</h2>
+              <h2 class="tier-title outfit">{{ subData.name || plan.name }}</h2>
             </div>
             <div class="tier-price outfit">
               <span class="currency">₹</span>
@@ -97,8 +157,8 @@
                 <span>{{ feature }}</span>
               </li>
             </ul>
-            <button class="purchase-btn" (click)="purchasePlan(plan, 'quarterly')" [disabled]="isProcessing()">
-              {{ isProcessing() ? 'PROCESSING...' : 'CHOOSE BEST VALUE' }}
+            <button class="purchase-btn" (click)="purchasePlan(plan, 'quarterly')">
+              CHOOSE BEST VALUE
             </button>
           </div>
         </ng-container>
@@ -115,7 +175,7 @@
                 <span class="freq-badge">YEARLY</span>
                 <span class="promo-badge amber-glow">20% OFF</span>
               </div>
-              <h2 class="tier-title outfit">{{ plan.name }}</h2>
+              <h2 class="tier-title outfit">{{ subData.name || plan.name }}</h2>
             </div>
             <div class="tier-price outfit">
               <span class="currency">₹</span>
@@ -143,21 +203,14 @@
                 <span>{{ feature }}</span>
               </li>
             </ul>
-            <button class="purchase-btn" (click)="purchasePlan(plan, 'yearly')" [disabled]="isProcessing()">
-              {{ isProcessing() ? 'PROCESSING...' : 'SAVE BIG NOW' }}
+            <button class="purchase-btn" (click)="purchasePlan(plan, 'yearly')">
+              SAVE BIG NOW
             </button>
           </div>
         </ng-container>
       </div>
     </section>
   </div>
+  }
 </div>
 <app-footer></app-footer>
-
-<div class="modern-loading" *ngIf="isProcessing()">
-  <div class="loading-content">
-    <div class="pulsing-diamond"></div>
-    <h3>Securing Your Access</h3>
-    <p>Please do not refresh the page</p>
-  </div>
-</div>

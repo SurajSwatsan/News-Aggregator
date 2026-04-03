@@ -132,12 +132,18 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
             @if (relatedArticles().length > 0) {
               <section class="sidebar-section topic-related">
                 <h3>Related More News</h3>
-                <div class="sidebar-item" *ngFor="let item of filteredRelatedArticles().slice(0, 6); let i = index" [routerLink]="['/article', item.id]">
+                <div class="sidebar-item" *ngFor="let item of filteredRelatedArticles().slice(0, 6); let i = index" [routerLink]="item.id ? ['/article', item.id] : null">
+                  <div class="item-thumb">
+                    <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" alt="">
+                  </div>
                   <div class="item-content">
-                    <span class="item-title">{{ item.title }}</span>
                     <div class="item-meta">
-                      {{ item.source?.name | uppercase }} | {{ item.category || 'GENERAL' }}
-                      <span class="other-source-tag" *ngIf="item.clusterId === article()?.clusterId">OTHER SOURCE</span>
+                      <span class="item-category-badge">{{ item.category || 'NEWS' }}</span>
+                      <span class="item-source-name">{{ item.source?.name | uppercase }}</span>
+                    </div>
+                    <span class="item-title">{{ item.title }}</span>
+                    <div class="item-footer-meta" *ngIf="item.clusterId === article()?.clusterId">
+                      <span class="other-source-tag">OTHER SOURCE</span>
                     </div>
                   </div>
                 </div>
@@ -148,7 +154,7 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
             <section class="sidebar-section">
               <h3>Trending News</h3>
               @if (trendingArticles().length > 0) {
-                <div class="sidebar-item" *ngFor="let item of trendingArticles().slice(0, 5); let i = index" [routerLink]="['/article', item.id]">
+                <div class="sidebar-item" *ngFor="let item of trendingArticles().slice(0, 5); let i = index" [routerLink]="item.id ? ['/article', item.id] : null">
                   <span class="item-rank">{{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }}</span>
                   <div class="item-content">
                     <span class="item-title">{{ item.title }}</span>
@@ -190,7 +196,7 @@ import { AdSlotComponent } from '../ad-slot/ad-slot';
               </div>
 
               <div class="related-grid">
-                <div class="related-card" *ngFor="let item of relatedArticles()" [routerLink]="['/article', item.id]">
+                <div class="related-card" *ngFor="let item of relatedArticles()" [routerLink]="item.id ? ['/article', item.id] : null">
                   <div class="card-image-box">
                     <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
                          (error)="handleImageError($event)" alt="">
@@ -296,11 +302,21 @@ export class ArticleDetailComponent implements OnInit {
     if (!current) return [];
     
     return this.relatedArticles().filter(item => {
-      // If it's a different story entirely, keep it
-      if (item.clusterId !== current.clusterId) return true;
+      // 1. Never show the current article again
+      if (item.id === current.id) return false;
+
+      // 2. If both have clusters, and it's the SAME cluster, de-duplicate same source
+      if (item.clusterId !== null && current.clusterId !== null) {
+          if (item.clusterId === current.clusterId) {
+             return item.sourceId !== current.sourceId;
+          }
+          return true; // Different cluster
+      }
       
-      // If it's the SAME story, only show it if it's from a DIFFERENT source
-      return item.sourceId !== current.sourceId;
+      // 3. If cluster is null, we can't be sure it's the same story, 
+      // so we allow same-source items IF their titles are sufficiently different or just allow it.
+      // For now, let's allow it to ensure sidebar is never empty.
+      return true;
     });
   });
 
@@ -400,7 +416,9 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   getLogoUrl(): string {
-    const url = this.article()?.source?.homepageUrl || this.article()?.sourceUrl;
+    const source = this.article()?.source;
+    if (!source) return '';
+    const url = source.homepageUrl || source.rssUrl;
     if (!url) return '';
     try {
       const hostname = new URL(url).hostname;
@@ -426,14 +444,15 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   getSourceColor(): string {
-    const name = this.article()?.source?.name?.toLowerCase();
-    if (!name) return '#900';
+    const article = this.article();
+    const name = article?.source?.name?.toLowerCase();
+    if (!name) return '#222'; // Dark default
     if (name.includes('ht media') || name.includes('hindustan times')) return '#d32f2f';
     if (name.includes('bbc')) return '#bb1919';
     if (name.includes('reuters')) return '#ff8000';
     if (name.includes('techcrunch')) return '#02ad4c';
     if (name.includes('verge')) return '#e5127d';
-    return '#900';
+    return '#444';
   }
 
   getFaviconUrl(): string {

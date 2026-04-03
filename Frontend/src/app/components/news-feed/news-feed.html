@@ -5,10 +5,10 @@
     <div class="ticker-label">BREAKING</div>
     <div class="ticker-content">
       @for (article of topArticles(); track article.id) {
-        <div class="ticker-item">
-          <span class="ticker-dot"></span>
-          <button class="ticker-link" (click)="handleArticleAccess(article)">{{ article.title }}</button>
-        </div>
+      <div class="ticker-item">
+        <span class="ticker-dot"></span>
+        <button class="ticker-link" (click)="handleArticleAccess(article)">{{ article.title }}</button>
+      </div>
       }
     </div>
   </div>
@@ -19,24 +19,26 @@
         <span class="edition-info">EDITION: INTERNATIONAL &nbsp;|&nbsp; ISSUE NO. 008</span>
         <span class="current-date">{{ currentDate() | uppercase }}</span>
         <span class="weather-widget">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" class="weather-icon">
-            <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2" />
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
+            class="weather-icon">
+            <circle cx="12" cy="12" r="5" />
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2" />
           </svg>
           {{ temperature() }} {{ locationInfo() }}
         </span>
       </div>
       <div class="utility-right">
         @if (currentUser()) {
-          <div class="user-credits">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="credit-icon">
-              <path d="M12 2L1 12l11 10 11-10L12 2zm0 16.3L4.7 12 12 5.7l7.3 6.3-7.3 6.3z"/>
-            </svg>
-            <span class="credit-count">{{ currentUser().creditBalance }} CREDITS</span>
-          </div>
-          <app-profile-dropdown></app-profile-dropdown>
+        <div class="user-credits">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="credit-icon">
+            <path d="M12 2L1 12l11 10 11-10L12 2zm0 16.3L4.7 12 12 5.7l7.3 6.3-7.3 6.3z" />
+          </svg>
+          <span class="credit-count">{{ currentUser().creditBalance }} CREDITS</span>
+        </div>
+        <app-profile-dropdown></app-profile-dropdown>
         } @else {
-          <a routerLink="/login" class="utility-link">Sign In</a>
-          <a routerLink="/register" class="utility-link">Subscribe</a>
+        <a routerLink="/login" class="utility-link">Sign In</a>
+        <a routerLink="/register" class="utility-link">Subscribe</a>
         }
       </div>
     </div>
@@ -62,17 +64,21 @@
       <div class="masthead-right">
         <div class="social-icons">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="social-icon">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            <path
+              d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="social-icon">
-            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
           </svg>
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="social-icon">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
           </svg>
         </div>
         @if (!currentUser()) {
-          <a routerLink="/register-publisher" class="btn-partner">PARTNER WITH US</a>
+        <a routerLink="/register-publisher" class="btn-partner">PARTNER WITH US</a>
         }
       </div>
     </div>
@@ -81,14 +87,17 @@
   <div class="sticky-nav-wrapper">
     <div class="full-width-search">
       <div class="search-inner">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" class="search-icon-large">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
+          class="search-icon-large">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
         </svg>
-        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" (keyup.enter)="onSearch()" placeholder="Search global news and updates...">
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" (keyup.enter)="onSearch()"
+          placeholder="Search global news and updates...">
         <button class="search-submit" (click)="onSearch()">SEARCH</button>
       </div>
     </div>
-  
+
     <nav class="category-strip">
       <div class="tabs-wrapper">
         @for (cat of categories; track cat) {
@@ -110,212 +119,222 @@
       <p>Curating your global news feed...</p>
     </div>
     } @else {
-      <div class="layout-grid">
-        <div class="main-body-column">
-          <!-- Hero Section -->
-          @if (selectedCategory() === 'All' && featuredArticle()) {
-          <div class="hero-grid">
-            <div class="hero-featured" [style.background-image]="'url(' + (featuredArticle().imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000') + ')'">
-              <div class="hero-overlay"></div>
-              <div class="hero-content">
-                <span class="hero-tag">FEATURED</span>
-                <h2 class="hero-title">{{ featuredArticle().title }}</h2>
-                <p class="hero-synopsis" [innerHTML]="hasSynopsisText(featuredArticle().synopsis) ? (featuredArticle().synopsis | safeHtml) : 'Featured story: full coverage available below.'"></p>
-                <button (click)="handleArticleAccess(featuredArticle())" class="btn-hero">Full Story</button>
-              </div>
+    <div class="layout-grid">
+      <div class="main-body-column">
+        <!-- Hero Section -->
+        @if (selectedCategory() === 'All' && featuredArticle()) {
+        <div class="hero-grid">
+          <div class="hero-featured"
+            [style.background-image]="'url(' + (featuredArticle().imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000') + ')'">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+              <span class="hero-tag">FEATURED</span>
+              <h2 class="hero-title">{{ featuredArticle().title }}</h2>
+              <p class="hero-synopsis"
+                [innerHTML]="hasSynopsisText(featuredArticle().synopsis) ? (featuredArticle().synopsis | safeHtml) : 'Featured story: full coverage available below.'">
+              </p>
+              <button (click)="handleArticleAccess(featuredArticle())" class="btn-hero">Full Story</button>
             </div>
-            <div class="hero-secondary">
-              @for (article of heroArticles(); track article.id) {
-              <article class="secondary-item">
-                <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
-                     alt="" (error)="handleImageError($event)">
-                <div class="secondary-overlay"></div>
-                <div class="secondary-content">
-                  <div class="secondary-meta">
-                    <span class="secondary-category">{{ article.category || 'General' }}</span>
-                    <span class="secondary-source">{{ article.source?.name }}</span>
-                  </div>
-                  <h3 class="secondary-title">{{ article.title }}</h3>
+          </div>
+          <div class="hero-secondary">
+            @for (article of heroArticles(); track article.id) {
+            <article class="secondary-item">
+              <img
+                [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
+                alt="" (error)="handleImageError($event)">
+              <div class="secondary-overlay"></div>
+              <div class="secondary-content">
+                <div class="secondary-meta">
+                  <span class="secondary-category">{{ article.category || 'General' }}</span>
+                  <span class="secondary-source">{{ article.source?.name }}</span>
                 </div>
-                <button (click)="handleArticleAccess(article)" class="clickable-overlay"></button>
-              </article>
+                <h3 class="secondary-title">{{ article.title }}</h3>
+              </div>
+              <button (click)="handleArticleAccess(article)" class="clickable-overlay"></button>
+            </article>
+            }
+          </div>
+        </div>
+        }
+
+        <div class="middle-ad-block">
+          <app-ad-slot placementType="in-feed" [index]="0" [showLabel]="false" [excludeVideo]="true"></app-ad-slot>
+        </div>
+
+        <div class="news-list-section">
+          <div class="section-header">
+            <div class="header-left">
+              <h3>Latest Headlines</h3>
+              @if (lastUpdated()) {
+              <span class="last-updated">LAST UPDATED AT {{ lastUpdated() }}</span>
               }
             </div>
-          </div>
-          }
-
-          <div class="middle-ad-block">
-            <app-ad-slot placementType="in-feed" [index]="0" [showLabel]="false" [excludeVideo]="true"></app-ad-slot>
+            <span class="count-badge">{{ (articles() || []).length }} Articles</span>
           </div>
 
-          <div class="news-list-section">
-            <div class="section-header">
-              <div class="header-left">
-                <h3>Latest Headlines</h3>
-                @if (lastUpdated()) {
-                  <span class="last-updated">LAST UPDATED AT {{ lastUpdated() }}</span>
+          <div class="news-grid">
+            @for (article of articles(); track article.id; let i = $index) {
+            <article class="premium-card">
+              <div class="card-image-wrap">
+                <div class="image-overlay"></div>
+                <img
+                  [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
+                  alt="" (error)="handleImageError($event)">
+                @if (article.source?.name === 'HT MEDIA LTD') {
+                <div class="source-logo-mini">
+                  <img src="https://hindustantimes.com/favicon.ico" alt="" class="mini-logo-img"
+                    (error)="handleImageError($event)">
+                </div>
                 }
               </div>
-              <span class="count-badge">{{ (articles() || []).length }} Articles</span>
-            </div>
-            
-            <div class="news-grid">
-              @for (article of articles(); track article.id; let i = $index) {
-              <article class="premium-card">
-                <div class="card-image-wrap">
-                  <div class="image-overlay"></div>
-                  <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
-                    alt="" (error)="handleImageError($event)">
-                  @if (article.source?.name === 'HT MEDIA LTD') {
-                    <div class="source-logo-mini">
-                      <img src="https://hindustantimes.com/favicon.ico" alt="" class="mini-logo-img" (error)="handleImageError($event)">
-                    </div>
-                  }
-                </div>
-        
-                <div class="card-body">
-                  <div class="card-header-meta">
-                    <span class="card-category">{{ article.category || 'General' }}</span>
-                    <span class="card-date">{{ getTimeAgo(article.postedAt) }}</span>
-                    <span class="card-source">{{ article.source?.name }}</span>
-                  </div>
-                  <h3 class="card-title">{{ article.title }}</h3>
-                  <p class="card-synopsis" [innerHTML]="hasSynopsisText(article.synopsis) ? (article.synopsis | safeHtml) : 'No synopsis available.'"></p>
-        
-                  <footer class="card-action">
-                    <button (click)="handleArticleAccess(article)" class="btn-read">
-                      Read Story
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </footer>
-                </div>
-              </article>
-        
-              @if ((i + 1) % 10 === 0) {
-                <div class="in-feed-grid-ad">
-                  <app-ad-slot placementType="in-feed" [index]="(i + 1) / 10" [showLabel]="false"></app-ad-slot>
-                </div>
-              }
-              } @empty {
-              <div class="empty-feed">
-                <div class="empty-icon">📂</div>
-                <h3>No Articles Found</h3>
-                <p>Try switching categories or check back later.</p>
-              </div>
-              }
-            </div>
 
-            @if (hasMore()) {
-              <div class="see-more-wrapper">
-                @if (isFetchingMore()) {
-                  <div class="loading-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                } @else {
-                  <button class="btn-see-more" (click)="loadMore()">
-                    SEE MORE
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <path d="M6 9l6 6 6-6" />
+              <div class="card-body">
+                <div class="card-header-meta">
+                  <span class="card-category">{{ article.category || 'General' }}</span>
+                  <span class="card-date">{{ getTimeAgo(article.postedAt) }}</span>
+                  <span class="card-source">{{ article.source?.name }}</span>
+                </div>
+                <h3 class="card-title">{{ article.title }}</h3>
+                <p class="card-synopsis"
+                  [innerHTML]="hasSynopsisText(article.synopsis) ? (article.synopsis | safeHtml) : 'No synopsis available.'">
+                </p>
+
+                <footer class="card-action">
+                  <button (click)="handleArticleAccess(article)" class="btn-read">
+                    Read Story
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                   </button>
-                }
+                </footer>
               </div>
+            </article>
+
+            @if ((i + 1) % 10 === 0) {
+            <div class="in-feed-grid-ad">
+              <app-ad-slot placementType="in-feed" [index]="(i + 1) / 10" [showLabel]="false"></app-ad-slot>
+            </div>
+            }
+            } @empty {
+            <div class="empty-feed">
+              <div class="empty-icon">📂</div>
+              <h3>No Articles Found</h3>
+              <p>Try switching categories or check back later.</p>
+            </div>
+            }
+          </div>
+
+          @if (hasMore()) {
+          <div class="see-more-wrapper">
+            @if (isFetchingMore()) {
+            <div class="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            } @else {
+            <button class="btn-see-more" (click)="loadMore()">
+              SEE MORE
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            }
+          </div>
+          }
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h4 class="sidebar-title">Trending Now</h4>
+          <div class="trending-list">
+            @for (article of trendingArticles(); track article.id; let i = $index) {
+            <div class="trending-item">
+              <span class="trending-rank">0{{ i + 1 }}</span>
+              <div class="trending-image-wrap">
+                <img
+                  [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
+                  alt="" (error)="handleImageError($event)">
+              </div>
+              <div class="trending-info">
+                <h5 class="trending-headline"><button class="trending-link" (click)="handleArticleAccess(article)">{{
+                    article.title }}</button></h5>
+                <span class="trending-meta">{{ article.source?.name }}</span>
+
+                <div class="trending-labels">
+                  @if (article.isSpike) {
+                  <span class="trending-pill spike">🔥 Sudden Spike</span>
+                  }
+                  @if (article.isMultiSource) {
+                  <span class="trending-pill multi">🌐 Multi-Source</span>
+                  }
+                  @if (article.isHot) {
+                  <span class="trending-pill hot">📈 Hot</span>
+                  }
+                </div>
+              </div>
+            </div>
             }
           </div>
         </div>
 
-        <aside class="sidebar">
-          <div class="sidebar-section">
-            <h4 class="sidebar-title">Trending Now</h4>
-            <div class="trending-list">
-              @for (article of trendingArticles(); track article.id; let i = $index) {
-              <div class="trending-item">
-                <span class="trending-rank">0{{ i + 1 }}</span>
-                <div class="trending-image-wrap">
-                  <img [src]="article.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
-                       alt="" (error)="handleImageError($event)">
-                </div>
-                <div class="trending-info">
-                  <h5 class="trending-headline"><button class="trending-link" (click)="handleArticleAccess(article)">{{ article.title }}</button></h5>
-                  <span class="trending-meta">{{ article.source?.name }}</span>
-                  
-                  <div class="trending-labels">
-                    @if (article.isSpike) {
-                      <span class="trending-pill spike">🔥 Sudden Spike</span>
-                    }
-                    @if (article.isMultiSource) {
-                      <span class="trending-pill multi">🌐 Multi-Source</span>
-                    }
-                    @if (article.isHot) {
-                      <span class="trending-pill hot">📈 Hot</span>
-                    }
-                  </div>
-                </div>
-              </div>
-              }
-            </div>
-          </div>
-
-          <app-ad-slot placementType="sidebar" [index]="0" [showLabel]="false"></app-ad-slot>
+        <app-ad-slot placementType="sidebar" [index]="0" [showLabel]="false"></app-ad-slot>
 
 
-          <div class="sidebar-section partner-card">
-            <h4>Become a Partner</h4>
-            <p>Publish your news and reach millions of readers worldwide.</p>
-            <a routerLink="/register-publisher" class="btn-sidebar">Apply Now</a>
-          </div>
-        </aside>
-      </div>
+        <div class="sidebar-section partner-card">
+          <h4>Become a Partner</h4>
+          <p>Publish your news and reach millions of readers worldwide.</p>
+          <a routerLink="/register-publisher" class="btn-sidebar">Apply Now</a>
+        </div>
+      </aside>
+    </div>
     }
   </main>
-  
+
   @if (selectedCategory() === 'All' && spotlightCategories().length > 0) {
-    <div class="spotlight-container">
-      @for (spotlight of spotlightCategories(); track spotlight.name) {
-        <section class="spotlight-row">
-          <div class="spotlight-header-row">
-            <div class="spotlight-header" (click)="selectCategory(spotlight.name)">
-              <h2>{{ spotlight.name === 'Crime' ? 'City Crime' : spotlight.name }}</h2>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
+  <div class="spotlight-container">
+    @for (spotlight of spotlightCategories(); track spotlight.name) {
+    <section class="spotlight-row">
+      <div class="spotlight-header-row">
+        <div class="spotlight-header" (click)="selectCategory(spotlight.name)">
+          <h2>{{ spotlight.name === 'Crime' ? 'City Crime' : spotlight.name }}</h2>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </div>
+        <div class="spotlight-nav">
+          <button class="nav-btn prev" (click)="scrollSpotlight('scroll-' + spotlight.name, 'left')">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <button class="nav-btn next" (click)="scrollSpotlight('scroll-' + spotlight.name, 'right')">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="spotlight-scroll-container" [id]="'scroll-' + spotlight.name">
+        <div class="spotlight-grid">
+          @for (item of spotlight.articles; track item.id) {
+          <article class="spotlight-card" (click)="handleArticleAccess(item)">
+            <div class="spotlight-image-box">
+              <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'"
+                alt="" (error)="handleImageError($event)">
             </div>
-            <div class="spotlight-nav">
-              <button class="nav-btn prev" (click)="scrollSpotlight('scroll-' + spotlight.name, 'left')">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              <button class="nav-btn next" (click)="scrollSpotlight('scroll-' + spotlight.name, 'right')">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div class="spotlight-scroll-container" [id]="'scroll-' + spotlight.name">
-            <div class="spotlight-grid">
-              @for (item of spotlight.articles; track item.id) {
-                <article class="spotlight-card" (click)="handleArticleAccess(item)">
-                  <div class="spotlight-image-box">
-                    <img [src]="item.imageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000'" 
-                         alt="" (error)="handleImageError($event)">
-                  </div>
-                  <h3 class="spotlight-item-title">{{ item.title }}</h3>
-                </article>
-              }
-            </div>
-          </div>
-        </section>
-      }
-    </div>
+            <h3 class="spotlight-item-title">{{ item.title }}</h3>
+          </article>
+          }
+        </div>
+      </div>
+    </section>
+    }
+  </div>
   }
 
   <app-footer></app-footer>
 
-  <app-footer></app-footer>
+  <!-- <app-footer></app-footer> -->
 </div>

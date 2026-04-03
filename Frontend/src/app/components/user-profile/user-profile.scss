@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;800;900&display=swap');
+
+$color-page-bg: #000000;
+$color-card-bg: linear-gradient(180deg, #16191f 0%, #0f1115 100%);
+$color-text-header: #ffffff;
+$color-text-sub: rgba(255, 255, 255, 0.5);
+$color-text-body: rgba(255, 255, 255, 0.8);
+$color-border: rgba(255, 255, 255, 0.08);
+
+@mixin font-outfit {
+  font-family: 'Outfit', sans-serif;
+}
+
+@mixin font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.profile-wrapper {
+  background: $color-page-bg;
+  min-height: 100vh;
+  padding: 48px 24px;
+  color: $color-text-body;
+  @include font-inter;
+
+  .linkedin-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    
+    .nav-control {
+      margin-bottom: 24px;
+      
+      .nav-back-button {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 99px;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        font-weight: 600;
+
+        svg {
+          width: 14px;
+          height: 14px;
+          stroke-width: 2.5;
+        }
+
+        &:hover {
+          background: #ffffff;
+          color: #000000;
+        }
+      }
+    }
+
+    .profile-mainframe {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+
+      // Common Premium Card Style
+      .premium-card {
+        background: $color-card-bg;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+
+      // -- INTRO CARD --
+      .intro-card {
+        .profile-banner {
+          height: 200px;
+          background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+          position: relative;
+          
+          &::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=') repeat;
+          }
+        }
+
+        .intro-content {
+          padding: 0 24px 24px 24px;
+
+          .intro-details {
+            margin-top: 0;
+
+            .user-fullname {
+              font-size: 1.8rem;
+              font-weight: 700;
+              color: $color-text-header;
+              margin: 0 0 4px 0;
+              @include font-outfit;
+            }
+
+            .user-headline {
+              font-size: 1rem;
+              font-weight: 400;
+              color: $color-text-body;
+              margin: 0 0 12px 0;
+            }
+
+            .user-meta {
+              display: flex;
+              align-items: center;
+              flex-wrap: wrap;
+              gap: 8px;
+              font-size: 0.9rem;
+              color: #94a3b8;
+              margin-bottom: 12px;
+
+              .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+
+                svg {
+                  width: 14px;
+                  height: 14px;
+                  opacity: 0.7;
+                }
+
+                a {
+                  color: #60a5fa;
+                  text-decoration: none;
+                  &:hover { text-decoration: underline; }
+                }
+              }
+
+              .meta-dot {
+                color: #475569;
+              }
+            }
+
+            .connections-count {
+              display: inline-block;
+              font-size: 0.9rem;
+              color: #60a5fa;
+              font-weight: 600;
+              cursor: pointer;
+              
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+
+      // -- SECTION CARD --
+      .section-card {
+        padding: 24px;
+
+        .section-title {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: $color-text-header;
+          margin: 0 0 20px 0;
+          @include font-outfit;
+        }
+
+        .details-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+
+          .detail-row {
+            display: flex;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+            &:last-child {
+              border-bottom: none;
+              padding-bottom: 0;
+            }
+
+            .detail-label {
+              flex: 0 0 150px;
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: #94a3b8;
+            }
+
+            .detail-value {
+              font-size: 0.95rem;
+              font-weight: 500;
+              color: rgba(255, 255, 255, 0.9);
+
+              &.email-text {
+                color: #60a5fa;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-wrapper {
+    padding: 24px 16px;
+  }
+}
+

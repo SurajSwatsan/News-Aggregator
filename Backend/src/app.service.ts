@@ -130,44 +130,76 @@ export class AppService {
       relatedArticles = [...otherPublishers, ...samePublisher].slice(0, 6);
     }
 
-    // 2. Keyword-based fallback (if cluster is thin)
+    // 2. Tiered Keyword Matching
     if (relatedArticles.length < 6) {
       const keywords = this.getKeywords(article.title);
-      const filteredKeywords = keywords.filter(w => !['breaking', 'update', 'latest', 'live', 'amid', 'reports', 'claims', 'arrests', 'action'].includes(w));
-      const searchTerms = filteredKeywords.length > 0 ? filteredKeywords : keywords.slice(0, 2);
+      const significantKeywords = keywords.filter(w => !['breaking', 'update', 'latest', 'live', 'amid', 'reports', 'claims', 'arrests', 'action', 'fired', 'favor', 'list'].includes(w));
+      
+      // Try to find articles matching at least 2 significant keywords for high relevancy
+      if (significantKeywords.length >= 2) {
+        const highRelQueries = [];
+        for (let i = 0; i < significantKeywords.length; i++) {
+          for (let j = i + 1; j < significantKeywords.length; j++) {
+            highRelQueries.push({
+              AND: [
+                { title: { contains: significantKeywords[i], mode: 'insensitive' as const } },
+                { title: { contains: significantKeywords[j], mode: 'insensitive' as const } }
+              ]
+            });
+          }
+        }
 
-      if (searchTerms.length > 0) {
-        let additional = await this.prisma.article.findMany({
-          where: {
-            id: { notIn: [id, ...relatedArticles.map(a => a.id)] },
-            OR: searchTerms.map(term => ({ title: { contains: term, mode: 'insensitive' } }))
-          },
-          include: { source: { select: { id: true, name: true } } },
-          orderBy: { postedAt: 'desc' },
-          take: 20 // Get more for ranking
-        });
-
-        // Rank by mutual keyword count
-        const rankedResults = additional.map(item => {
-          const itemKeywords = this.getKeywords(item.title);
-          const commonCount = itemKeywords.filter(w => keywords.includes(w)).length;
-          
-          // Boost items from other publishers
-          const diversityBoost = item.sourceId !== article.sourceId ? 1.5 : 1.0;
-          const score = commonCount * diversityBoost;
-          
-          return { ...item, score };
-        })
-        .filter(item => item.score > 0.5) // Remove very weak matches
-        .sort((a, b) => b.score - a.score);
-        
-        relatedArticles = [...relatedArticles, ...rankedResults].slice(0, 8);
+        if (highRelQueries.length > 0) {
+          const highRelResults = await this.prisma.article.findMany({
+            where: {
+              id: { notIn: [id, ...relatedArticles.map(a => a.id)] },
+              OR: highRelQueries as any
+            },
+            include: { source: { select: { id: true, name: true } } },
+            orderBy: { postedAt: 'desc' },
+            take: 10
+          });
+          relatedArticles = [...relatedArticles, ...highRelResults];
+        }
       }
+
+      // Fallback to single keyword match (OR) if we still don't have enough
+      if (relatedArticles.length < 5) {
+        const searchTerms = significantKeywords.length > 0 ? significantKeywords : keywords.slice(0, 2);
+        if (searchTerms.length > 0) {
+          let additional = await this.prisma.article.findMany({
+            where: {
+              id: { notIn: [id, ...relatedArticles.map(a => a.id)] },
+              OR: searchTerms.map(term => ({ title: { contains: term, mode: 'insensitive' as const } }))
+            },
+            include: { source: { select: { id: true, name: true } } },
+            orderBy: { postedAt: 'desc' },
+            take: 10
+          });
+          relatedArticles = [...relatedArticles, ...additional].slice(0, 8);
+        }
+      }
+    }
+    
+    // 3. Filtered Category Fallback (Only for specific categories, avoid "General" spam)
+    if (relatedArticles.length < 4 && article.category && article.category.toLowerCase() !== 'general') {
+      const additionalByCategory = await this.prisma.article.findMany({
+        where: {
+          category: article.category,
+          id: { notIn: [id, ...relatedArticles.map(a => a.id)] },
+          sourceId: { not: article.sourceId }
+        },
+        include: { source: { select: { id: true, name: true } } },
+        orderBy: { postedAt: 'desc' },
+        take: 10
+      });
+      
+      relatedArticles = [...relatedArticles, ...additionalByCategory];
     }
 
     return {
       ...article,
-      relatedArticles: relatedArticles.slice(0, 8)
+      relatedArticles: relatedArticles.slice(0, 10)
     };
   }
 
@@ -184,7 +216,7 @@ export class AppService {
     return text.toLowerCase()
       .replace(/[^\w\s]/g, '')
       .split(/\s+/)
-      .filter(w => w.length > 3 && !stopWords.has(w));
+      .filter(w => w.length > 3 && !stopWords.has(w) && !/^\d+$/.test(w));
   }
 
   async getTrendingArticles() {

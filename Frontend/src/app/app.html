@@ -1,2 +1,28 @@
 <router-outlet></router-outlet>
 <app-toast></app-toast>
+
+<!-- Premium Floating Alert Container (News-Feed Only) -->
+<div class="floating-ad-wrapper" *ngIf="isNewsFeedPage() && isFloatingAdVisible()" [class.animate-slide-up]="isFloatingAdVisible()">
+  <div class="floating-ad-header">
+    <span class="ad-badge" *ngIf="hasFloatingAd()">SPONSORED</span>
+    <span class="ad-badge" *ngIf="!hasFloatingAd()">PARTNER</span>
+    <button class="btn-close-ad" (click)="closeFloatingAd()">&times;</button>
+  </div>
+  
+  <div class="floating-ad-body">
+    <!-- Mode 1: Active Floating Ad from Dashboard -->
+    <app-ad-slot [hidden]="!hasFloatingAd()" placementType="floating" [showLabel]="false" (adLoaded)="onAdLoaded($event)"></app-ad-slot>
+    
+    <!-- Mode 2: Premium Placeholder when no ad is active -->
+    <div class="floating-placeholder-card" *ngIf="!hasFloatingAd()">
+      <div class="placeholder-icon">
+        <i class="partner-glow"></i>
+      </div>
+      <div class="placeholder-content">
+        <h4>Promote Your Brand</h4>
+        <p>Targeted reaches, premium visibility. Reach 500k+ readers daily.</p>
+        <a href="/register-publisher" class="btn-advertise-now">Advertise Now</a>
+      </div>
+    </div>
+  </div>
+</div>

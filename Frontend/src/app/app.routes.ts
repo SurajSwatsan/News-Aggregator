@@ -13,6 +13,7 @@ import { ArticleDetailComponent } from './components/article-detail/article-deta
 import { SourceProfileComponent } from './components/source-profile/source-profile';
 import { PublisherRegistrationComponent } from './publisher/components/publisher-registration/publisher-registration';
 import { SubscriptionComponent } from './components/subscription/subscription';
+import { PaymentModalComponent } from './components/payment-modal/payment-modal';
 import { publisherGuard } from './publisher/publisher.guard';
 
 const authGuard = () => {
@@ -58,7 +59,11 @@ const publicGuard = () => true;
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'profile', loadComponent: () => import('./components/user-profile/user-profile').then(m => m.UserProfileComponent), canActivate: [authGuard] },
+  { path: 'edit-profile', loadComponent: () => import('./components/user-edit-profile/user-edit-profile').then(m => m.UserEditProfileComponent), canActivate: [authGuard] },
+
   { path: 'subscription', component: SubscriptionComponent, canActivate: [authGuard] },
+  { path: 'payment', component: PaymentModalComponent, canActivate: [authGuard] },
   { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent) },
   { path: 'reset-password', loadComponent: () => import('./auth/reset-password/reset-password').then(m => m.ResetPasswordComponent) },
   { path: 'article/:id', component: ArticleDetailComponent },

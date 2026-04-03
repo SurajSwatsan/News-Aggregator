@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, NgZone, PLATFORM_ID, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, NgZone, PLATFORM_ID, effect } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -23,6 +23,8 @@ export class AdSlotComponent implements OnInit, OnDestroy {
   @Input() index: number = 0; // To support rotation (0, 1, 2, ...)
   @Input() showLabel: boolean = false;
   @Input() excludeVideo: boolean = false;
+  
+  @Output() adLoaded = new EventEmitter<boolean>();
   
   ad = signal<any>(null);
   sanitizedMediaUrl = signal<SafeResourceUrl | null>(null);
@@ -93,6 +95,9 @@ export class AdSlotComponent implements OnInit, OnDestroy {
         this.ad.set(selectedAd);
         this.trackImpression(selectedAd.id);
         this.isPaused.set(false);
+        this.adLoaded.emit(true);
+      } else {
+        this.adLoaded.emit(false);
       }
       
       if (smooth) {

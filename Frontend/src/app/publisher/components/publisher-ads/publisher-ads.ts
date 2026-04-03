@@ -782,7 +782,8 @@ export class PublisherAdsComponent implements OnInit {
   placementOptions = [
     { value: 'sidebar', label: 'Sidebar Widget' },
     { value: 'header', label: 'Site Header' },
-    { value: 'in-feed', label: 'News Feed Item' }
+    { value: 'in-feed', label: 'News Feed Item' },
+    { value: 'floating', label: 'Floating (Bottom-Right)' }
   ];
 
   filteredAds = computed(() => {

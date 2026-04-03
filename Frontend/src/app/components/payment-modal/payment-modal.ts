@@ -1,169 +1,231 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AccessService } from '../../services/access.service';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../auth/auth';
 import { ToastService } from '../../services/toast.service';
+import { Router, ActivatedRoute } from '@angular/router';
+
+declare var Razorpay: any;
 
 @Component({
-  selector: 'app-payment-modal',
+  selector: 'app-payment',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="modal-overlay" (click)="close.emit()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Top Up Your Credits</h3>
-          <button class="close-btn" (click)="close.emit()">&times;</button>
-        </div>
-        <div class="balance-warning">
-          <p>You have 0 credits remaining. Please choose a plan to continue reading premium stories.</p>
-        </div>
-        <div class="plans-grid">
-          <div class="plan-card">
-            <span class="plan-tag">BASIC</span>
-            <h4>10 CREDITS</h4>
-            <p class="price">$4.99</p>
-            <button class="btn-buy" (click)="buy(10)">Buy Now</button>
-          </div>
-          <div class="plan-card featured">
-            <span class="plan-tag">POPULAR</span>
-            <h4>25 CREDITS</h4>
-            <p class="price">$9.99</p>
-            <button class="btn-buy" (click)="buy(25)">Buy Now</button>
-          </div>
-          <div class="plan-card">
-            <span class="plan-tag">PRO</span>
-            <h4>100 CREDITS</h4>
-            <p class="price">$19.99</p>
-            <button class="btn-buy" (click)="buy(100)">Buy Now</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-      backdrop-filter: blur(8px);
-    }
-    .modal-content {
-      background: #0a0a0b;
-      border: 1px solid #333;
-      padding: 3rem;
-      border-radius: 4px;
-      max-width: 800px;
-      width: 90%;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .modal-header h3 {
-      font-family: 'Lora', serif;
-      font-size: 2rem;
-      color: white;
-      margin: 0;
-    }
-    .close-btn {
-      background: transparent;
-      border: none;
-      color: #666;
-      font-size: 2rem;
-      cursor: pointer;
-    }
-    .balance-warning {
-      background: #111;
-      padding: 1rem;
-      border-left: 4px solid #dc2626;
-      margin-bottom: 2.5rem;
-      color: #999;
-    }
-    .plans-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2rem;
-    }
-    .plan-card {
-      background: #111;
-      border: 1px solid #222;
-      padding: 2.5rem;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    .plan-card:hover {
-      border-color: #444;
-      transform: translateY(-5px);
-    }
-    .plan-card.featured {
-      border-color: #dc2626;
-      background: #110808;
-    }
-    .plan-tag {
-      font-size: 0.6rem;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: #777;
-    }
-    .plan-card.featured .plan-tag { color: #dc2626; }
-    h4 { font-size: 1.5rem; margin: 1rem 0; color: white; }
-    .price { font-size: 2.5rem; font-weight: 900; color: white; margin-bottom: 2rem; }
-    .btn-buy {
-      width: 100%;
-      background: transparent;
-      border: 1px solid #444;
-      color: white;
-      padding: 0.75rem;
-      font-weight: 900;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .plan-card.featured .btn-buy, .btn-buy:hover {
-      background: #dc2626;
-      border-color: #dc2626;
-    }
-  `]
+  templateUrl: 'payment-modal.html',
+  styleUrls: ['payment-modal.scss']
 })
-export class PaymentModalComponent {
-  private accessService = inject(AccessService);
-  private auth = inject(AuthService);
+export class PaymentModalComponent implements OnInit {
+  private http = inject(HttpClient);
   private toast = inject(ToastService);
-  @Output() close = new EventEmitter<void>();
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  public auth = inject(AuthService);
 
-  buy(credits: number) {
-    this.accessService.addCredits(credits).subscribe({
-      next: () => {
-        this.toast.show(`Successfully added ${credits} credits!`);
-        this.close.emit();
-      },
-      error: (err: any) => {
-        console.error('Failed to add credits:', err);
-        // Fallback for immediate success in UI (Static/Demo mode as requested)
-        this.toast.show(`Thank you! ${credits} credits have been added to your account.`);
-        const user: any = this.auth.currentUser();
-        if (user) {
-          // Update local state so user can immediately unlock articles
-          const updatedUser = { 
-            ...user, 
-            id: user.id || 'current-user-id',
-            creditBalance: (parseFloat(user.creditBalance) || 0) + credits 
-          };
-          this.auth.currentUser.set(updatedUser);
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-        }
-        this.close.emit();
+  selectedPlan = signal<any>(null);
+  selectedFrequency = signal<string>('');
+  returnUrl = signal<string | null>(null);
+
+  isProcessing = signal(false);
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      const planId = params['planId'];
+      const freq = params['freq'];
+      const retUrl = params['returnUrl'];
+
+      if (planId && freq) {
+        this.selectedFrequency.set(freq);
+        this.returnUrl.set(retUrl || null);
+        this.fetchPlanDetails(planId);
+      } else {
+        this.toast.show('Invalid payment context.');
+        this.router.navigate(['/subscription']);
       }
     });
+  }
+
+  paymentStarted = signal(false);
+  isInitializing = signal(true);
+  isAutoRedirecting = signal(false);
+  paymentSuccess = signal<boolean>(false);
+  successData = signal<any>(null); // Store slip details
+  transactionId = signal<string | null>(null);
+
+  private fetchPlanDetails(planId: string) {
+    this.http.get<any>(`http://localhost:3000/subscription-plans`).subscribe({
+      next: (plans) => {
+        const plan = plans.find((p: any) => p.id === planId);
+        if (plan) {
+          this.selectedPlan.set(plan);
+          this.isInitializing.set(false);
+          // Automatically trigger payment once details are ready
+          if (!this.paymentStarted()) {
+            this.paymentStarted.set(true);
+            this.isAutoRedirecting.set(true);
+            this.proceedToPay();
+          }
+        } else {
+          this.toast.show('Plan not found.');
+          this.router.navigate(['/subscription']);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch plan:', err);
+        this.router.navigate(['/subscription']);
+      }
+    });
+  }
+
+  get frequencyData() {
+    return this.selectedPlan()?.subscriptions?.find((s: any) => s.frequency === this.selectedFrequency());
+  }
+
+  get amountDisplay() {
+    return this.frequencyData?.price || 0;
+  }
+
+  proceedToPay() {
+    if (this.isProcessing()) return;
+
+    this.loadRazorpayScript().then(() => {
+      this.initiatePurchase();
+    }).catch(err => {
+      console.error('Razorpay SDK failed to load:', err);
+      this.toast.show('Could not load the payment system. Please check your connection.');
+    });
+  }
+
+  private loadRazorpayScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (typeof Razorpay !== 'undefined') {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve();
+      script.onerror = () => reject();
+      document.body.appendChild(script);
+    });
+  }
+
+  private initiatePurchase() {
+    const subData = this.frequencyData;
+    const plan = this.selectedPlan();
+    if (!subData || !plan) {
+      this.toast.show('Plan details not available.');
+      return;
+    }
+
+    const amountInPaise = Math.round(subData.price * 100);
+    this.isProcessing.set(true);
+
+    const snapshot = {
+      planName: plan.name,
+      frequency: this.selectedFrequency(),
+      price: subData.price,
+      credits: subData.credits,
+      currency: subData.currency || 'INR',
+      features: [
+        `${subData.credits} Credits/${this.selectedFrequency() === 'monthly' ? 'month' : (this.selectedFrequency() === 'yearly' ? 'year' : this.selectedFrequency())}`,
+        ...(subData.features || [])
+      ]
+    };
+
+    this.http.post<any>('http://localhost:3000/payment/create-order', {
+      planId: plan.id,
+      amount: subData.price, // Send base amount to save in DB
+      credits: subData.credits,
+      snapshot: snapshot
+    }).subscribe({
+      next: (orderData) => {
+        this.openRazorpay(orderData, subData);
+      },
+      error: (err) => {
+        console.error('Failed to create order:', err);
+        this.isProcessing.set(false);
+        this.toast.show('Could not initiate payment. Please try again.');
+      }
+    });
+  }
+
+  private openRazorpay(orderData: any, subData: any) {
+    const options = {
+      key: orderData.key,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: 'News Aggregator',
+      description: `Subscription: ${this.selectedPlan()?.name} (${subData.frequency})`,
+      order_id: orderData.orderId,
+      method: {
+        upi: {
+          qr: true
+        }
+      },
+      handler: (response: any) => {
+        this.verifyPayment(response);
+      },
+      prefill: {
+        name: this.auth.currentUser()?.name || '',
+        email: this.auth.currentUser()?.email || '',
+        contact: this.auth.currentUser()?.phone || '9999999999'
+      },
+      theme: {
+        color: '#000000'
+      },
+      modal: {
+        ondismiss: () => {
+          this.isProcessing.set(false);
+          this.isAutoRedirecting.set(false);
+          this.goBack();
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  }
+
+  private verifyPayment(razorpayResponse: any) {
+    this.http.post<any>('http://localhost:3000/payment/verify', {
+      razorpay_order_id: razorpayResponse.razorpay_order_id,
+      razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+      razorpay_signature: razorpayResponse.razorpay_signature
+    }).subscribe({
+      next: (res) => {
+        this.isProcessing.set(false);
+        if (res.success) {
+          this.transactionId.set(res.transactionId);
+          this.successData.set(res); // All slip info: planName, amount, credits, expiryDate
+          this.paymentSuccess.set(true);
+          this.auth.refreshProfile().subscribe(); // Refresh credits in UI
+          this.toast.show('Payment successfully completed!');
+          // Remove automatic redirect to allow user to see the slip
+          // setTimeout(() => {
+          //   this.goBack();
+          // }, 5000);
+        } else {
+          this.toast.show('Payment verification failed: ' + res.message);
+        }
+      },
+      error: (err) => {
+        console.error('Verification failed:', err);
+        this.isProcessing.set(false);
+        this.toast.show('Payment successful, but account update failed. Contact support.');
+      }
+    });
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/']); // Redirect to home (dashboard)
+  }
+
+  goBack() {
+    const url = this.returnUrl();
+    if (url) {
+      this.router.navigateByUrl(url);
+    } else {
+      this.router.navigate(['/subscription']);
+    }
   }
 }

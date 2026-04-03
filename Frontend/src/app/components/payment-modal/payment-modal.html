@@ -1,0 +1,163 @@
+<div class="payment-page-container">
+  
+  <!-- Direct Redirect Overlay -->
+  <div class="direct-redirect-overlay" *ngIf="isAutoRedirecting()">
+    <div class="loader-content">
+      <div class="neon-spinner"></div>
+      <h2 class="jakarta-title">Securing Connection...</h2>
+      <p class="inter">Forwarding you to our secure payment gateway</p>
+    </div>
+  </div>
+
+  <!-- Payment Success Overlay -->
+  <div class="payment-success-overlay" *ngIf="paymentSuccess()">
+    <div class="success-content">
+      <!-- Icon and Title Combined for compactness -->
+      <div class="header-section">
+        <div class="success-icon-wrapper">
+          <svg viewBox="0 0 24 24" class="check-icon">
+            <polyline points="20 6 9 17 4 12" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h2 class="jakarta-title inter">Payment Confirmed!</h2>
+        <p class="inter subtitle">Success! Your subscription is now active.</p>
+      </div>
+
+      <!-- Compact Payment Slip -->
+      <div class="payment-slip inter" *ngIf="successData()">
+        <div class="slip-header">
+          <span class="slip-title">Subscription Receipt</span>
+        </div>
+        
+        <div class="slip-body">
+          <div class="slip-row">
+            <span class="label">Plan</span>
+            <span class="value">{{ successData().planName }}</span>
+          </div>
+          <div class="slip-row">
+            <span class="label">Amount</span>
+            <span class="value">₹{{ successData().amount }}</span>
+          </div>
+          <div class="slip-row">
+            <span class="label">Cycle</span>
+            <span class="value capitalize">{{ selectedFrequency() }}</span>
+          </div>
+          <div class="slip-row align-center">
+            <span class="label">Credits</span>
+            <span class="value">{{ successData().credits }}</span>
+          </div>
+          <div class="slip-row transaction">
+            <span class="label">Transaction ID:</span>
+            <span class="value">{{ transactionId() | slice:0:18 }}...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <button class="dashboard-btn inter" (click)="goToDashboard()">
+          Back to Dashboard
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="payment-content-wrapper">
+    <!-- Left Sidebar: Price Summary -->
+    <div class="summary-sidebar">
+      <div class="merchant-info">
+        <div class="logo-placeholder">N</div>
+        <h2 class="merchant-name inter">News Aggregator</h2>
+      </div>
+
+      <div class="price-summary-card">
+        <span class="summary-label outfit">Price Summary</span>
+        <div class="amount-row outfit">
+          <span class="currency">₹</span>
+          <span class="value">{{ amountDisplay }}</span>
+        </div>
+      </div>
+
+      <div class="user-info-bar">
+        <div class="info-content">
+          <span class="label inter">Using as {{ auth.currentUser()?.phone || '+91 91234 56789' }}</span>
+        </div>
+        <svg viewBox="0 0 24 24" class="chevron">
+          <path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" />
+        </svg>
+      </div>
+
+      <div class="offer-banner">
+        <div class="offer-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+          </svg>
+        </div>
+        <span class="offer-text inter">Offers on UPI and ICICI</span>
+        <svg viewBox="0 0 24 24" class="chevron">
+          <path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" />
+        </svg>
+      </div>
+
+      <div class="secure-footer inter">
+        <span>Secured by</span>
+        <span class="razorpay-logo">Razorpay</span>
+      </div>
+    </div>
+
+    <!-- Right Side: Action Area -->
+    <div class="action-view">
+      <div class="view-header">
+        <h3 class="jakarta-title">Complete Your Purchase</h3>
+        <button class="close-icon-btn" (click)="goBack()">&times;</button>
+      </div>
+
+      <div class="plan-details-review">
+        <div class="detail-item">
+          <span class="detail-label">Subscription Tier</span>
+          <span class="detail-value">{{ selectedPlan()?.name }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Billing Cycle</span>
+          <span class="detail-value capitalize">{{ selectedFrequency() }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Included Credits</span>
+          <span class="detail-value">{{ frequencyData?.credits }}</span>
+        </div>
+      </div>
+      <div class="plan-features-list">
+        <!-- Main Credits Feature (Dynamically generated to match image) -->
+        <div class="feature-row" *ngIf="frequencyData">
+          <div class="check-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="4">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+          <span class="feature-text inter bold-feature">{{ frequencyData.credits }} Credits/{{ selectedFrequency() === 'monthly' ? 'month' : (selectedFrequency() === 'yearly' ? 'year' : selectedFrequency()) }}</span>
+        </div>
+
+        <!-- Other features from DB -->
+        <div class="feature-row" *ngFor="let feature of frequencyData?.features">
+          <div class="check-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="4">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </div>
+          <span class="feature-text inter">{{ feature }}</span>
+        </div>
+      </div>
+
+      <div class="action-footer">
+        <button class="pay-btn" (click)="proceedToPay()" [disabled]="isProcessing() || !selectedPlan()">
+          <span *ngIf="!isProcessing()">PROCEED TO PAY ₹{{ amountDisplay }}</span>
+          <span *ngIf="isProcessing()" class="loader-spinner"></span>
+        </button>
+        <p class="terms inter">By continuing, you agree to our Terms of Service</p>
+      </div>
+    </div>
+
+  </div>
+</div>

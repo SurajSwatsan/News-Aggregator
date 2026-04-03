@@ -17,6 +17,7 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AdModule } from './ad/ad.module';
 import { MasterModule } from './master/master.module';
 import { SubscriptionPlanModule } from './admin/subscription-plan/module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { SubscriptionPlanModule } from './admin/subscription-plan/module';
     AdModule,
     MasterModule,
     SubscriptionPlanModule,
+    PaymentModule,
   ],
   controllers: [AppController, AdminController],
   providers: [AppService],

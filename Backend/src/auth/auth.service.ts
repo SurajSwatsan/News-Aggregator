@@ -375,17 +375,18 @@ export class AuthService {
     try {
       const users: any[] = await this.prisma.$queryRaw`
         SELECT 
-          id, email, username, name, role, 
-          city, country, phone,
-          org_name as "orgName",
-          org_website as "orgWebsite",
-          org_description as "orgDescription",
-          rss_url as "rssUrl",
-          business_doc as "businessDoc",
-          newspaper_license as "newspaperLicense",
-          "first_name" as "firstName", "last_name" as "lastName", "credit_balance" as "creditBalance", "created_at" as "createdAt"
-        FROM users 
-        WHERE id = ${id}
+          u.id, u.email, u.username, u.name, u.role, 
+          u.city, u.country, u.phone,
+          u.org_name as "orgName",
+          u.org_website as "orgWebsite",
+          u.org_description as "orgDescription",
+          u.rss_url as "rssUrl",
+          u.business_doc as "businessDoc",
+          u.newspaper_license as "newspaperLicense",
+          u.first_name as "firstName", u.last_name as "lastName", u.credit_balance as "creditBalance", u.created_at as "createdAt",
+          (SELECT COUNT(*)::int FROM access_logs al WHERE al.user_id = u.id) as "articlesRead"
+        FROM users u
+        WHERE u.id = ${id}
       `;
       
       if (users && users.length > 0) {

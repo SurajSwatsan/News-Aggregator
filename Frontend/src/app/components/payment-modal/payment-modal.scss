@@ -1,0 +1,494 @@
+.direct-redirect-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  .loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+
+    h2 { color: white; font-size: 2.5rem; margin: 0; }
+    p { color: #666; font-size: 1.1rem; }
+  }
+
+  .neon-spinner {
+    width: 60px;
+    height: 60px;
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    border-top: 2px solid #3399cc;
+    border-radius: 50%;
+    animation: spin 1s linear infinite, glow 2s ease-in-out infinite;
+    box-shadow: 0 0 15px rgba(51, 153, 204, 0.2);
+  }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(51, 153, 204, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(51, 153, 204, 0.4); }
+}
+
+.payment-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow-y: auto;
+  padding: 2rem 0;
+  animation: fadeIn 0.5s ease-out;
+
+  /* Custom Scrollbar for premium look */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+
+  .success-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 440px;
+    width: 95%;
+    padding: 2rem;
+    background: #0a0a0b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
+
+    .header-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+
+      h2 { color: white; font-size: 1.8rem; margin: 0; letter-spacing: -0.5px; font-weight: 800; }
+      .subtitle { color: #666; font-size: 0.9rem; margin: 0; }
+    }
+
+    .payment-slip {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      margin: 0.5rem 0;
+
+      .slip-header {
+        background: rgba(255, 255, 255, 0.01);
+        padding: 0.6rem 1.2rem;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+        text-align: center;
+        
+        .slip-title {
+          font-size: 0.65rem;
+          color: #444;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          font-weight: 700;
+        }
+      }
+
+      .slip-body {
+        padding: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+
+        .slip-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .label { color: #444; font-size: 0.85rem; }
+          .value { color: #ccc; font-weight: 600; font-size: 0.9rem; }
+
+          &.highlight {
+            padding-top: 0.4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            .label { color: #666; font-weight: 600; }
+            .value { color: #3399cc; font-weight: 700; font-size: 1rem; }
+          }
+
+          &.transaction {
+            margin-top: 0.4rem;
+            .label { font-size: 0.65rem; color: #333; }
+            .value { font-size: 0.75rem; color: #444; font-family: monospace; }
+          }
+        }
+      }
+    }
+
+    .success-actions {
+      width: 100%;
+      margin-top: 0.8rem;
+
+      .dashboard-btn {
+        width: 100%;
+        height: 50px;
+        background: #fff;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #e0e0e0;
+          transform: translateY(-2px);
+        }
+
+        svg { transition: transform 0.2s; }
+        &:hover svg { transform: translateX(3px); }
+      }
+    }
+  }
+
+  .success-icon-wrapper {
+    width: 54px;
+    height: 54px;
+    background: #10b981;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+    margin-bottom: 0.2rem;
+    
+    .check-icon {
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+.payment-page-container {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.payment-content-wrapper {
+  display: flex;
+  background: #0a0a0b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
+  min-height: 600px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+}
+
+.summary-sidebar {
+  width: 320px;
+  background: #111;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+  .merchant-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+
+    .logo-placeholder {
+      width: 40px;
+      height: 40px;
+      background: #000;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 900;
+      border-radius: 8px;
+    }
+
+    .merchant-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #999;
+    }
+  }
+
+  .price-summary-card {
+    margin-bottom: 3rem;
+
+    .summary-label {
+      color: #777;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .amount-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      color: white;
+
+      .currency { font-size: 2.5rem; font-weight: 300; }
+      .value { font-size: 4rem; font-weight: 700; line-height: 1; }
+    }
+  }
+
+  .user-info-bar, .offer-banner {
+    background: #19191b;
+    padding: 1.2rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #222;
+      transform: translateY(-2px);
+    }
+
+    .label, .offer-text {
+      font-size: 0.9rem;
+      color: #999;
+      font-weight: 500;
+    }
+
+    .chevron {
+      width: 18px;
+      height: 18px;
+      color: #555;
+    }
+
+    .offer-icon {
+      width: 20px;
+      height: 20px;
+      color: #6edff6;
+      margin-right: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .secure-footer {
+    position: absolute;
+    bottom: 2rem;
+    left: 3rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #666;
+
+    .razorpay-logo {
+      color: #3399cc;
+      font-weight: 700;
+    }
+  }
+}
+
+.action-view {
+  flex: 1;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #0a0a0b;
+
+  .view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    h3 {
+      font-size: 2.5rem;
+      color: white;
+      margin: 0;
+      max-width: 300px;
+      line-height: 1.1;
+    }
+
+    .close-icon-btn {
+      background: transparent;
+      border: none;
+      color: #444;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      &:hover { color: #888; }
+    }
+  }
+
+  .plan-details-review {
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 2rem;
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      &:last-child { margin-bottom: 0; }
+
+      .detail-label { color: #666; font-size: 1rem; }
+      .detail-value { color: white; font-weight: 600; font-size: 1.1rem; }
+      .capitalize { text-transform: capitalize; }
+    }
+  }
+
+  .action-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    .pay-btn {
+      width: 100%;
+      height: 60px;
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 4px;
+      font-weight: 900;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        background: #f0f0f0;
+      }
+
+      &:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+      }
+    }
+
+    .plan-features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 1.5rem 0;
+
+      .feature-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .check-icon {
+          width: 22px;
+          height: 22px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: #fff;
+          flex-shrink: 0;
+
+          svg {
+            width: 12px;
+            height: 12px;
+            stroke-width: 4;
+          }
+        }
+
+        .feature-text {
+          color: #efefef;
+          font-size: 1.05rem;
+          font-weight: 500;
+          letter-spacing: -0.2px;
+
+          &.bold-feature {
+            font-weight: 700;
+            color: #fff;
+          }
+        }
+      }
+    }
+
+    .terms {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #444;
+      margin-top: 1rem;
+    }
+  }
+}
+
+.loader-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(0,0,0,0.1);
+  border-top-color: black;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

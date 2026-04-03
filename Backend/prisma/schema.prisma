@@ -49,6 +49,7 @@ model User {
   resetPasswordExpires DateTime? @map("reset_password_expires")
   createdAt           DateTime  @default(now()) @map("created_at")
   sources        Source[]
+  transactions   Transaction[]
 
   @@map("users")
 }
@@ -202,6 +203,29 @@ model SubscriptionPlan {
   createdBy     String?  @map("created_by")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
+  transactions  Transaction[]
 
   @@map("subscription_plans")
+}
+
+model Transaction {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id") // Who is paying
+  user              User     @relation(fields: [userId], references: [id])
+  planId            String   @map("plan_id") // What are they buying
+  plan              SubscriptionPlan @relation(fields: [planId], references: [id])
+  amount            Int      // Amount in Paise (Razorpay standard)
+  currency          String   @default("INR")
+  status            String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  
+  // Razorpay IDs
+  razorpayOrderId   String   @unique @map("razorpay_order_id")
+  razorpayPaymentId String?  @unique @map("razorpay_payment_id")
+  razorpaySignature String?  @map("razorpay_signature")
+  credits           Int      // Number of credits to add on success
+  
+  paymentSnapshot   Json?    @map("payment_snapshot") // Details of the plan at purchase
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("transactions")
 }
