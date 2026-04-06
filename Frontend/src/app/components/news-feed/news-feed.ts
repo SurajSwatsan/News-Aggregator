@@ -8,14 +8,15 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth';
 import { AccessService } from '../../services/access.service';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
-import { FooterComponent } from '../common/footer/footer';
 import { AdSlotComponent } from '../ad-slot/ad-slot';
+import { NotificationBellComponent } from '../notification-bell/notification-bell';
 import { ToastService } from '../../services/toast.service';
+import { FooterComponent } from '../common/footer/footer';
 
 @Component({
   selector: 'app-news-feed',
   standalone: true,
-  imports: [CommonModule, RouterLink, SafeHtmlPipe, ProfileDropdownComponent, FormsModule, FooterComponent, AdSlotComponent],
+  imports: [CommonModule, RouterLink, SafeHtmlPipe, ProfileDropdownComponent, NotificationBellComponent, FormsModule, FooterComponent, AdSlotComponent],
   templateUrl: './news-feed.html',
   styleUrl: './news-feed.scss'
 })

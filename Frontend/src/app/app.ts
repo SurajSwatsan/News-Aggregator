@@ -55,9 +55,16 @@ export class App implements OnInit {
 
   private checkCurrentRoute() {
     const url = this.router.url.split('?')[0]; // Ignore query params
-    // News-Feed pages are: /, or category paths like /Politics, /Business
-    // But NOT /article/..., /admin, /profile, etc.
-    const isSpecialPath = url.includes('/article/') || url.includes('/admin') || url.includes('/profile') || url.includes('/publisher') || url.includes('/login') || url.includes('/register') || url.includes('/subscription');
+    
+    // Whitelist: Only show on root or simple category paths
+    // Blacklist: Hide on specific system paths
+    const blacklist = [
+      '/article/', '/admin', '/profile', '/publisher', '/login', 
+      '/register', '/subscription', '/ads', '/sources', '/readers', 
+      '/user', '/audit', '/master', '/subscriptions'
+    ];
+    
+    const isSpecialPath = blacklist.some(path => url.includes(path));
     this.isNewsFeedPage.set(!isSpecialPath);
   }
 

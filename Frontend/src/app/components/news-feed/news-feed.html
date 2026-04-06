@@ -35,6 +35,7 @@
           </svg>
           <span class="credit-count">{{ currentUser().creditBalance }} CREDITS</span>
         </div>
+        <app-notification-bell></app-notification-bell>
         <app-profile-dropdown></app-profile-dropdown>
         } @else {
         <a routerLink="/login" class="utility-link">Sign In</a>

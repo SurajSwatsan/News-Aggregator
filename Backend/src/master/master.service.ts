@@ -8,7 +8,9 @@ export class MasterService {
   // --- Country Methods ---
   async getCountries() {
     return this.prisma.country.findMany({
-      include: { _count: { select: { cities: true } } },
+      include: { 
+        _count: { select: { states: true, cities: true } } 
+      },
       orderBy: { name: 'asc' },
     });
   }
@@ -44,12 +46,60 @@ export class MasterService {
     return this.prisma.country.delete({ where: { id } });
   }
 
-  // --- City Methods ---
-  async getCities(countryId?: string) {
+  // --- State Methods ---
+  async getStates(countryId?: string) {
     const where = countryId ? { countryId } : {};
+    return this.prisma.state.findMany({
+      where,
+      include: { country: true, _count: { select: { cities: true } } },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async createState(data: any) {
+    const country = await this.prisma.country.findFirst({
+      where: { name: data.country }
+    });
+    if (!country) throw new NotFoundException('Country not found');
+
+    return this.prisma.state.create({
+      data: {
+        name: data.name,
+        countryId: country.id,
+        status: 'active',
+      },
+    });
+  }
+
+  async updateState(id: string, data: any) {
+    const country = await this.prisma.country.findFirst({
+      where: { name: data.country }
+    });
+    if (!country) throw new NotFoundException('Country not found');
+
+    return this.prisma.state.update({
+      where: { id },
+      data: {
+        name: data.name,
+        countryId: country.id,
+        status: data.status || 'active',
+      },
+    });
+  }
+
+  async deleteState(id: string) {
+    return this.prisma.state.delete({ where: { id } });
+  }
+
+  // --- City Methods ---
+  async getCities(countryId?: string, stateId?: string) {
+    const where: any = {};
+    if (countryId) where.countryId = countryId;
+    if (stateId) where.stateId = stateId;
+
     return this.prisma.city.findMany({
       where,
-      include: { country: true },
+      include: { country: true, state: true },
       orderBy: { name: 'asc' },
     });
   }
@@ -58,13 +108,21 @@ export class MasterService {
     const country = await this.prisma.country.findFirst({
       where: { name: data.country }
     });
-    
     if (!country) throw new NotFoundException('Country not found');
+
+    let stateId = null;
+    if (data.state) {
+      const state = await this.prisma.state.findFirst({
+        where: { name: data.state, countryId: country.id }
+      });
+      if (state) stateId = state.id;
+    }
 
     return this.prisma.city.create({
       data: {
         name: data.name,
         countryId: country.id,
+        stateId: stateId,
         status: 'active',
       },
     });
@@ -74,14 +132,22 @@ export class MasterService {
     const country = await this.prisma.country.findFirst({
       where: { name: data.country }
     });
-    
     if (!country) throw new NotFoundException('Country not found');
+
+    let stateId = null;
+    if (data.state) {
+      const state = await this.prisma.state.findFirst({
+        where: { name: data.state, countryId: country.id }
+      });
+      if (state) stateId = state.id;
+    }
 
     return this.prisma.city.update({
       where: { id },
       data: {
         name: data.name,
         countryId: country.id,
+        stateId: stateId,
         status: data.status,
       },
     });

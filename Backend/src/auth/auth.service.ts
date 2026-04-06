@@ -18,8 +18,17 @@ export class AuthService {
     private auditLogs: AuditLogsService,
   ) { }
 
-  async requestOtp(email: string, firstName?: string, lastName?: string, password?: string) {
-    const data = { email, firstName, lastName, password };
+  async requestOtp(
+    email: string, 
+    firstName?: string, 
+    lastName?: string, 
+    password?: string,
+    phone?: string,
+    city?: string,
+    state?: string,
+    country?: string
+  ) {
+    const data = { email, firstName, lastName, password, phone, city, state, country };
     // 1. Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -33,7 +42,11 @@ export class AuthService {
         data: {
           otp,
           otpExpiresAt: expiresAt,
-          passwordHash: data.password ? await bcrypt.hash(data.password, 10) : user.passwordHash
+          passwordHash: data.password ? await bcrypt.hash(data.password, 10) : user.passwordHash,
+          phone: data.phone || user.phone,
+          city: data.city || user.city,
+          state: data.state || user.state,
+          country: data.country || user.country
         }
       });
     } else {
@@ -50,7 +63,11 @@ export class AuthService {
             otpExpiresAt: expiresAt,
             firstName: firstName || onboarding.firstName,
             lastName: lastName || onboarding.lastName,
-            passwordHash: data.password ? await bcrypt.hash(data.password, 10) : onboarding.passwordHash
+            passwordHash: data.password ? await bcrypt.hash(data.password, 10) : onboarding.passwordHash,
+            phone: data.phone || onboarding.phone,
+            city: data.city || onboarding.city,
+            state: data.state || onboarding.state,
+            country: data.country || onboarding.country
           }
         });
       } else {
@@ -67,7 +84,11 @@ export class AuthService {
             requestedRole: UserRole.reader,
             firstName,
             lastName,
-            passwordHash: hashedPassword
+            passwordHash: hashedPassword,
+            phone: data.phone,
+            city: data.city,
+            state: data.state,
+            country: data.country
           }
         });
       }
@@ -144,8 +165,12 @@ export class AuthService {
               lastName: onboarding.lastName,
               name: onboarding.firstName ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim() : (onboarding.orgName || null),
               role: UserRole.reader,
+              phone: onboarding.phone,
+              city: onboarding.city,
+              state: onboarding.state,
+              country: onboarding.country,
               passwordHash: onboarding.passwordHash || 'OTP_USER',
-              creditBalance: 10
+              creditBalance: 10,
             }
           });
           await this.prisma.publisherOnboarding.update({
@@ -219,6 +244,7 @@ export class AuthService {
       lastName,
       country,
       city,
+      state,
       phone,
       businessDoc,
       newspaperLicense
@@ -267,6 +293,7 @@ export class AuthService {
         requestedRole,
         country,
         city,
+        state,
         phone,
         businessDoc,
         newspaperLicense,
@@ -326,7 +353,7 @@ export class AuthService {
         name,
         org_name as "orgName", 
         org_website as "orgWebsite", 
-        phone, city, country, 
+        phone, city, state, country, 
         business_doc as "businessDoc", 
         newspaper_license as "newspaperLicense", 
         role::text, 
@@ -346,7 +373,7 @@ export class AuthService {
         TRIM(CONCAT(first_name, ' ', last_name)) as name, 
         org_name as "orgName", 
         org_website as "orgWebsite", 
-        phone, city, country, 
+        phone, city, state, country, 
         business_doc as "businessDoc", 
         newspaper_license as "newspaperLicense", 
         requested_role::text as role, 
@@ -376,7 +403,7 @@ export class AuthService {
       const users: any[] = await this.prisma.$queryRaw`
         SELECT 
           u.id, u.email, u.username, u.name, u.role, 
-          u.city, u.country, u.phone,
+          u.city, u.state, u.country, u.phone,
           u.org_name as "orgName",
           u.org_website as "orgWebsite",
           u.org_description as "orgDescription",
@@ -444,6 +471,7 @@ export class AuthService {
           role: data.role,
           phone: data.phone,
           city: data.city,
+          state: data.state,
           country: data.country,
           orgName: data.orgName,
           orgWebsite: data.orgWebsite,
@@ -478,6 +506,7 @@ export class AuthService {
             requestedRole: data.role as any,
             phone: data.phone,
             city: data.city,
+            state: data.state,
             country: data.country,
             orgName: data.orgName,
             orgWebsite: data.orgWebsite,

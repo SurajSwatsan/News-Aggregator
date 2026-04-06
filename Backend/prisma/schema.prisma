@@ -34,6 +34,7 @@ model User {
   orgDescription String?   @map("org_description")
   phone          String?
   city           String?
+  state          String?
   country        String?
   businessDoc    String?   @map("business_doc")
   newspaperLicense String? @map("newspaper_license")
@@ -50,6 +51,7 @@ model User {
   createdAt           DateTime  @default(now()) @map("created_at")
   sources        Source[]
   transactions   Transaction[]
+  notifications  Notification[]
 
   @@map("users")
 }
@@ -106,6 +108,7 @@ model PublisherOnboarding {
   lastName       String?          @map("last_name")
   country        String?
   city           String?
+  state          String?
   phone          String?
   businessDoc    String?          @map("business_doc")
   newspaperLicense String?        @map("newspaper_license")
@@ -169,6 +172,7 @@ model Country {
   mobileCode     String?  @map("mobile_code")
   currency       String?
   currencySymbol String?  @map("currency_symbol")
+  states         State[]
   cities         City[]
   status         String   @default("active")
   createdAt      DateTime @default(now()) @map("created_at")
@@ -177,11 +181,27 @@ model Country {
   @@map("countries")
 }
 
+model State {
+  id        String   @id @default(uuid())
+  name      String
+  countryId String   @map("country_id")
+  country   Country  @relation(fields: [countryId], references: [id])
+  cities    City[]
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([name, countryId])
+  @@map("states")
+}
+
 model City {
   id        String   @id @default(uuid())
   name      String
   countryId String   @map("country_id")
   country   Country  @relation(fields: [countryId], references: [id])
+  stateId   String?  @map("state_id")
+  state     State?   @relation(fields: [stateId], references: [id])
   status    String   @default("active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -228,4 +248,17 @@ model Transaction {
   createdAt         DateTime @default(now()) @map("created_at")
 
   @@map("transactions")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String   // 'PAYMENT_SUCCESS', 'PAYMENT_FAILED', 'INFO', etc.
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
 }

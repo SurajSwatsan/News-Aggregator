@@ -18,6 +18,7 @@ import { AdModule } from './ad/ad.module';
 import { MasterModule } from './master/master.module';
 import { SubscriptionPlanModule } from './admin/subscription-plan/module';
 import { PaymentModule } from './payment/payment.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { PaymentModule } from './payment/payment.module';
     MasterModule,
     SubscriptionPlanModule,
     PaymentModule,
+    NotificationModule,
   ],
   controllers: [AppController, AdminController],
   providers: [AppService],
