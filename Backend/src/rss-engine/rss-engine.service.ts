@@ -40,7 +40,10 @@ export class RSSEngineService {
   async syncRSSNews(sourceId: string): Promise<number> {
     let aiConsecutiveFailures = 0;
     try {
-      const source = await this.prisma.source.findUnique({ where: { id: sourceId } });
+      const source = await this.prisma.source.findUnique({ 
+        where: { id: sourceId },
+        include: { owner: true }
+      });
       if (!source || !source.isActive) return 0;
 
       // Strict RSS Check
@@ -174,6 +177,9 @@ export class RSSEngineService {
               sourceId: source.id,
               postedAt: data.postedAt || new Date(),
               clusterId: clusterId,
+              city: source.owner?.city,
+              state: source.owner?.state,
+              country: source.owner?.country,
             }
           });
           newCount++;

@@ -86,6 +86,9 @@ model Article {
   sourceUrl  String   @unique @map("source_url")
   postedAt   DateTime @map("posted_at")
   category   String?
+  city       String?
+  state      String?
+  country    String?
   clusterId  Int?     @map("cluster_id")
   isManual   Boolean  @default(false) @map("is_manual")
   createdAt  DateTime @default(now()) @map("created_at")
