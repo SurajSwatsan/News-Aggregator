@@ -34,9 +34,29 @@ export class MasterController {
     return this.masterService.deleteCountry(id);
   }
 
+  @Get('states')
+  getStates(@Query('countryId') countryId?: string) {
+    return this.masterService.getStates(countryId);
+  }
+
+  @Post('states')
+  createState(@Body() data: any) {
+    return this.masterService.createState(data);
+  }
+
+  @Put('states/:id')
+  updateState(@Param('id') id: string, @Body() data: any) {
+    return this.masterService.updateState(id, data);
+  }
+
+  @Delete('states/:id')
+  deleteState(@Param('id') id: string) {
+    return this.masterService.deleteState(id);
+  }
+
   @Get('cities')
-  getCities(@Query('countryId') countryId?: string) {
-    return this.masterService.getCities(countryId);
+  getCities(@Query('countryId') countryId?: string, @Query('stateId') stateId?: string) {
+    return this.masterService.getCities(countryId, stateId);
   }
 
   @Post('cities')

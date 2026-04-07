@@ -89,6 +89,37 @@
                                 </div>
                             }
                         </div>
+
+                        <div class="section-divider">Contact & Location</div>
+
+                        <div class="field-wrapper full-width">
+                            <app-floating-input label="Mobile Number" type="tel" formControlName="phone" [isInvalid]="isFieldInvalid('phone')" [required]="true" class="full-width">
+                            </app-floating-input>
+                            @if (isFieldInvalid('phone')) { <div class="field-error"><span>Valid mobile number is required.</span></div> }
+                        </div>
+
+                        <div class="field-wrapper">
+                            <app-floating-select label="Country" formControlName="country" 
+                                [options]="countries()" [isInvalid]="isFieldInvalid('country')" 
+                                [required]="true" (selectionChange)="onCountryChange($event)">
+                            </app-floating-select>
+                            @if (isFieldInvalid('country')) { <div class="field-error"><span>Country is required.</span></div> }
+                        </div>
+
+                        <div class="field-wrapper">
+                            <app-floating-select label="State / Province" formControlName="state" 
+                                [options]="states()" [isInvalid]="isFieldInvalid('state')" 
+                                [required]="true" (selectionChange)="onStateChange($event)">
+                            </app-floating-select>
+                            @if (isFieldInvalid('state')) { <div class="field-error"><span>State is required.</span></div> }
+                        </div>
+
+                        <div class="field-wrapper full-width">
+                            <app-floating-select label="City" formControlName="city" 
+                                [options]="cities()" [isInvalid]="isFieldInvalid('city')" [required]="true" class="full-width">
+                            </app-floating-select>
+                            @if (isFieldInvalid('city')) { <div class="field-error"><span>City is required.</span></div> }
+                        </div>
                     }
 
                     @if (registrationType() === 'publisher') {
@@ -121,10 +152,25 @@
                     </div>
 
                     <div class="field-wrapper">
+                        <app-floating-select label="State / Province" formControlName="state" 
+                            [options]="states()" [isInvalid]="isFieldInvalid('state')" 
+                            [required]="true" (selectionChange)="onStateChange($event)">
+                        </app-floating-select>
+                        @if (isFieldInvalid('state')) { <div class="field-error"><span>State is required.</span></div> }
+                    </div>
+
+                    <div class="field-wrapper">
                         <app-floating-select label="Headquarters City" formControlName="city" 
                             [options]="cities()" [isInvalid]="isFieldInvalid('city')" [required]="true">
                         </app-floating-select>
                         @if (isFieldInvalid('city')) { <div class="field-error"><span>City is required.</span></div> }
+                    </div>
+
+                    <div class="field-wrapper">
+                        <app-floating-input label="Newspaper License Number" type="text" formControlName="newspaperLicense"
+                            [isInvalid]="isFieldInvalid('newspaperLicense')" [required]="true">
+                        </app-floating-input>
+                        @if (isFieldInvalid('newspaperLicense')) { <div class="field-error"><span>License Number is required.</span></div> }
                     </div>
 
                     <div class="field-wrapper full-width">
@@ -149,13 +195,6 @@
                             </div>
                             <input type="file" #businessFileInput (change)="onFileSelected($event, 'business')" style="display: none">
                         </div>
-                    </div>
-
-                    <div class="field-wrapper full-width">
-                        <app-floating-input label="Newspaper License Number" type="text" formControlName="newspaperLicense"
-                            [isInvalid]="isFieldInvalid('newspaperLicense')" [required]="true" class="full-width">
-                        </app-floating-input>
-                        @if (isFieldInvalid('newspaperLicense')) { <div class="field-error"><span>License Number is required.</span></div> }
                     </div>
                     }
                 </div>

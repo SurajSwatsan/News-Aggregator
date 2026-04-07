@@ -29,10 +29,20 @@ export class AppService {
   }
 
   async getPublicArticles(
+<<<<<<< HEAD
     category?: string,
     query?: string,
     skip: number = 0,
     take: number = 12,
+=======
+    category?: string, 
+    query?: string, 
+    skip: number = 0, 
+    take: number = 12,
+    city?: string,
+    state?: string,
+    country?: string
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
   ) {
     const where: any = {};
 
@@ -40,12 +50,73 @@ export class AppService {
       where.category = category;
     }
 
+    if (city) {
+      where.city = { contains: city, mode: 'insensitive' };
+    }
+
+    if (state) {
+      // Find all cities belonging to this state to broaden the search
+      const stateData = await this.prisma.state.findFirst({
+        where: { name: { contains: state, mode: 'insensitive' } },
+        include: { cities: true }
+      });
+      const cityNames = stateData?.cities.map(c => c.name) || [];
+      
+      // If we already have an OR block (from query), we must combine them or use AND
+      const stateClause = {
+        OR: [
+          { state: { contains: state, mode: 'insensitive' } },
+          { city: { in: cityNames } }
+        ]
+      };
+
+      if (where.OR) {
+        // Wrap existing OR in an AND with our new state clause
+        const existingOR = where.OR;
+        delete where.OR;
+        where.AND = [
+          { OR: existingOR },
+          stateClause
+        ];
+      } else {
+        where.OR = stateClause.OR;
+      }
+    }
+
+    if (country) {
+      where.country = { contains: country, mode: 'insensitive' };
+    }
+
     if (query) {
+<<<<<<< HEAD
       where.OR = [
         { title: { contains: query, mode: 'insensitive' } },
         { synopsis: { contains: query, mode: 'insensitive' } },
         { source: { name: { contains: query, mode: 'insensitive' } } },
       ];
+=======
+      const queryClause = {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { synopsis: { contains: query, mode: 'insensitive' } },
+          { source: { name: { contains: query, mode: 'insensitive' } } }
+        ]
+      };
+
+      if (where.AND) {
+        where.AND.push(queryClause);
+      } else if (where.OR) {
+        // Already have an OR from state, combine into AND
+        const stateOR = where.OR;
+        delete where.OR;
+        where.AND = [
+          { OR: stateOR },
+          queryClause
+        ];
+      } else {
+        where.OR = queryClause.OR;
+      }
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     }
 
     const articles = await this.prisma.article.findMany({
@@ -61,7 +132,11 @@ export class AppService {
       orderBy: {
         postedAt: 'desc',
       },
+<<<<<<< HEAD
       take: skip + take + 100, // Get enough for de-duplication
+=======
+      take: (skip + take) * 3 // Get a much larger pool to ensure enough unique clusters after de-duplication
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     });
 
     // Calculate cluster sizes for the batch

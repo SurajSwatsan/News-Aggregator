@@ -24,12 +24,25 @@ export class AuthService {
   ) {}
 
   async requestOtp(
+<<<<<<< HEAD
     email: string,
     firstName?: string,
     lastName?: string,
     password?: string,
   ) {
     const data = { email, firstName, lastName, password };
+=======
+    email: string, 
+    firstName?: string, 
+    lastName?: string, 
+    password?: string,
+    phone?: string,
+    city?: string,
+    state?: string,
+    country?: string
+  ) {
+    const data = { email, firstName, lastName, password, phone, city, state, country };
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     // 1. Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -43,10 +56,19 @@ export class AuthService {
         data: {
           otp,
           otpExpiresAt: expiresAt,
+<<<<<<< HEAD
           passwordHash: data.password
             ? await bcrypt.hash(data.password, 10)
             : user.passwordHash,
         },
+=======
+          passwordHash: data.password ? await bcrypt.hash(data.password, 10) : user.passwordHash,
+          phone: data.phone || user.phone,
+          city: data.city || user.city,
+          state: data.state || user.state,
+          country: data.country || user.country
+        }
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
       });
     } else {
       // Check if there's a pending onboarding, or create a temporary one for registration
@@ -62,10 +84,19 @@ export class AuthService {
             otpExpiresAt: expiresAt,
             firstName: firstName || onboarding.firstName,
             lastName: lastName || onboarding.lastName,
+<<<<<<< HEAD
             passwordHash: data.password
               ? await bcrypt.hash(data.password, 10)
               : onboarding.passwordHash,
           },
+=======
+            passwordHash: data.password ? await bcrypt.hash(data.password, 10) : onboarding.passwordHash,
+            phone: data.phone || onboarding.phone,
+            city: data.city || onboarding.city,
+            state: data.state || onboarding.state,
+            country: data.country || onboarding.country
+          }
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
         });
       } else {
         // Create a basic onboarding record for this new email
@@ -84,7 +115,15 @@ export class AuthService {
             firstName,
             lastName,
             passwordHash: hashedPassword,
+<<<<<<< HEAD
           },
+=======
+            phone: data.phone,
+            city: data.city,
+            state: data.state,
+            country: data.country
+          }
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
         });
       }
     }
@@ -169,9 +208,17 @@ export class AuthService {
                 ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim()
                 : onboarding.orgName || null,
               role: UserRole.reader,
+              phone: onboarding.phone,
+              city: onboarding.city,
+              state: onboarding.state,
+              country: onboarding.country,
               passwordHash: onboarding.passwordHash || 'OTP_USER',
               creditBalance: 10,
+<<<<<<< HEAD
             },
+=======
+            }
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
           });
           await this.prisma.publisherOnboarding.update({
             where: { id: onboarding.id },
@@ -248,6 +295,7 @@ export class AuthService {
       lastName,
       country,
       city,
+      state,
       phone,
       businessDoc,
       newspaperLicense,
@@ -300,6 +348,7 @@ export class AuthService {
         requestedRole,
         country,
         city,
+        state,
         phone,
         businessDoc,
         newspaperLicense,
@@ -369,7 +418,7 @@ export class AuthService {
         name,
         org_name as "orgName", 
         org_website as "orgWebsite", 
-        phone, city, country, 
+        phone, city, state, country, 
         business_doc as "businessDoc", 
         newspaper_license as "newspaperLicense", 
         role::text, 
@@ -389,7 +438,7 @@ export class AuthService {
         TRIM(CONCAT(first_name, ' ', last_name)) as name, 
         org_name as "orgName", 
         org_website as "orgWebsite", 
-        phone, city, country, 
+        phone, city, state, country, 
         business_doc as "businessDoc", 
         newspaper_license as "newspaperLicense", 
         requested_role::text as role, 
@@ -419,7 +468,7 @@ export class AuthService {
       const users: any[] = await this.prisma.$queryRaw`
         SELECT 
           u.id, u.email, u.username, u.name, u.role, 
-          u.city, u.country, u.phone,
+          u.city, u.state, u.country, u.phone,
           u.org_name as "orgName",
           u.org_website as "orgWebsite",
           u.org_description as "orgDescription",
@@ -489,6 +538,7 @@ export class AuthService {
           role: data.role,
           phone: data.phone,
           city: data.city,
+          state: data.state,
           country: data.country,
           orgName: data.orgName,
           orgWebsite: data.orgWebsite,
@@ -527,6 +577,7 @@ export class AuthService {
             requestedRole: data.role,
             phone: data.phone,
             city: data.city,
+            state: data.state,
             country: data.country,
             orgName: data.orgName,
             orgWebsite: data.orgWebsite,

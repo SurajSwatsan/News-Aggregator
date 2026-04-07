@@ -21,12 +21,21 @@ export class AppController {
     @Query('q') query?: string,
     @Query('skip') skip?: string,
     @Query('take') take?: string,
+    @Query('city') city?: string,
+    @Query('state') state?: string,
+    @Query('country') country?: string,
   ) {
     return await this.appService.getPublicArticles(
       category,
       query,
       skip ? parseInt(skip) : undefined,
       take ? parseInt(take) : undefined,
+<<<<<<< HEAD
+=======
+      city,
+      state,
+      country,
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     );
   }
 

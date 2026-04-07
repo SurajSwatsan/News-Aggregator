@@ -21,6 +21,8 @@ export class MasterComponent implements OnInit {
   activeSubTab = signal<string>('countries');
 
   countries = signal<any[]>([]);
+  states = signal<any[]>([]);
+  modalStates = signal<any[]>([]);
   cities = signal<any[]>([]);
 
   isModalOpen = signal(false);
@@ -34,7 +36,8 @@ export class MasterComponent implements OnInit {
     mobileCode: '',
     currency: '',
     currencySymbol: '',
-    country: ''
+    country: '',
+    state: ''
   });
 
   editingId = signal<string | null>(null);
@@ -43,12 +46,19 @@ export class MasterComponent implements OnInit {
     this.countries().map(c => ({ value: c.name, label: c.name }))
   );
 
+  stateOptions = computed(() => {
+    return this.modalStates().map(s => ({ value: s.name, label: s.name }));
+  });
+
   isFormValid = computed(() => {
     const data = this.formData();
-    if (this.activeSubTab() === 'countries') {
+    const tab = this.activeSubTab();
+    if (tab === 'countries') {
       return !!(data.name?.trim() && data.isoCode?.trim() && data.currency?.trim() && data.currencySymbol?.trim());
-    } else {
+    } else if (tab === 'states') {
       return !!(data.name?.trim() && data.country);
+    } else {
+      return !!(data.name?.trim() && data.country); // State is optional for city
     }
   });
 
@@ -61,12 +71,16 @@ export class MasterComponent implements OnInit {
   }
 
   loadData() {
-    if (this.activeSubTab() === 'countries') {
+    const tab = this.activeSubTab();
+    if (tab === 'countries') {
+      this.masterService.getCountries().subscribe((data: any[]) => this.countries.set(data));
+    } else if (tab === 'states') {
+      this.masterService.getStates().subscribe((data: any[]) => this.states.set(data));
       this.masterService.getCountries().subscribe((data: any[]) => this.countries.set(data));
     } else {
       this.masterService.getCities().subscribe((data: any[]) => this.cities.set(data));
-      // Also fetch countries for the dropdown
       this.masterService.getCountries().subscribe((data: any[]) => this.countries.set(data));
+      this.masterService.getStates().subscribe((data: any[]) => this.states.set(data));
     }
   }
 
@@ -79,28 +93,53 @@ export class MasterComponent implements OnInit {
     this.modalMode.set('add');
     this.editingId.set(null);
     this.isFormTouched.set(false);
+    this.modalStates.set([]); // Clear modal states for new entry
     this.formData.set({
       name: '',
       isoCode: '',
       mobileCode: '',
       currency: '',
       currencySymbol: '',
-      country: ''
+      country: '',
+      state: ''
     });
     this.isModalOpen.set(true);
     this.uiService.setModalState(true);
     document.body.classList.add('modal-open');
   }
 
+  onCountryChange(countryName: string) {
+    this.formData.set({ ...this.formData(), country: countryName, state: '' });
+    this.modalStates.set([]);
+    
+    if (countryName) {
+      const country = this.countries().find(c => c.name === countryName);
+      if (country) {
+        this.masterService.getStates(country.id).subscribe((data: any[]) => {
+          this.modalStates.set(data);
+        });
+      }
+    }
+  }
+
   edit(item: any) {
     this.modalMode.set('edit');
     this.editingId.set(item.id);
     this.isFormTouched.set(false);
+    this.modalStates.set([]);
     
     // Prepare form data, extracting country name for city dropdown if needed
     const data = { ...item };
-    if (this.activeSubTab() === 'cities' && item.country) {
+    if ((this.activeSubTab() === 'cities' || this.activeSubTab() === 'states') && item.country) {
       data.country = item.country.name;
+      
+      // Fetch states for this country immediately so dropdown is ready
+      this.masterService.getStates(item.country.id).subscribe((data: any[]) => {
+        this.modalStates.set(data);
+      });
+    }
+    if (this.activeSubTab() === 'cities' && item.state) {
+      data.state = item.state.name;
     }
     
     this.formData.set(data);
@@ -129,19 +168,19 @@ export class MasterComponent implements OnInit {
         ? this.masterService.addCountry(data) 
         : this.masterService.updateCountry(id!, data);
       
-      action.subscribe(() => {
-        this.loadData();
-        this.closeModal();
-      });
+      action.subscribe(() => { this.loadData(); this.closeModal(); });
+    } else if (subTab === 'states') {
+      const action = mode === 'add' 
+        ? this.masterService.addState(data) 
+        : this.masterService.updateState(id!, data);
+      
+      action.subscribe(() => { this.loadData(); this.closeModal(); });
     } else {
       const action = mode === 'add' 
         ? this.masterService.addCity(data) 
         : this.masterService.updateCity(id!, data);
       
-      action.subscribe(() => {
-        this.loadData();
-        this.closeModal();
-      });
+      action.subscribe(() => { this.loadData(); this.closeModal(); });
     }
   }
 
@@ -150,7 +189,9 @@ export class MasterComponent implements OnInit {
       const subTab = this.activeSubTab();
       const action = subTab === 'countries' 
         ? this.masterService.deleteCountry(item.id) 
-        : this.masterService.deleteCity(item.id);
+        : subTab === 'states'
+          ? this.masterService.deleteState(item.id)
+          : this.masterService.deleteCity(item.id);
 
       action.subscribe(() => this.loadData());
     }

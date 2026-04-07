@@ -16,7 +16,7 @@
   <div class="top-utility-bar">
     <div class="utility-content">
       <div class="utility-left">
-        <span class="edition-info">EDITION: INTERNATIONAL &nbsp;|&nbsp; ISSUE NO. 008</span>
+        <span class="edition-info">EDITION: {{ selectedCity() ? (selectedCity() | uppercase) : (selectedState() ? (selectedState() | uppercase) : (selectedCountry() ? (selectedCountry() | uppercase) : 'INTERNATIONAL')) }} &nbsp;|&nbsp; ISSUE NO. 008</span>
         <span class="current-date">{{ currentDate() | uppercase }}</span>
         <span class="weather-widget">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -35,6 +35,7 @@
           </svg>
           <span class="credit-count">{{ currentUser().creditBalance }} CREDITS</span>
         </div>
+        <app-notification-bell></app-notification-bell>
         <app-profile-dropdown></app-profile-dropdown>
         } @else {
         <a routerLink="/login" class="utility-link">Sign In</a>
@@ -164,7 +165,17 @@
         <div class="news-list-section">
           <div class="section-header">
             <div class="header-left">
-              <h3>Latest Headlines</h3>
+              <h3>
+                {{ selectedCity() ? 'News in ' + selectedCity() : (selectedState() ? 'News in ' + selectedState() : (selectedCountry() === 'India' ? 'India Regional News' : 'Latest Headlines')) }}
+              </h3>
+              @if (selectedCity() || selectedState()) {
+                <button class="clear-filter-status" (click)="clearLocationFilter()" [title]="selectedCity() ? 'Clear City Filter' : 'Clear State Filter'">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                  <span>{{ (selectedCity() || selectedState()) | uppercase }}</span>
+                </button>
+              }
               @if (lastUpdated()) {
               <span class="last-updated">LAST UPDATED AT {{ lastUpdated() }}</span>
               }

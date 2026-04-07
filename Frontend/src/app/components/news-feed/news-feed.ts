@@ -8,14 +8,15 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth';
 import { AccessService } from '../../services/access.service';
 import { ProfileDropdownComponent } from '../profile-dropdown/profile-dropdown';
-import { FooterComponent } from '../common/footer/footer';
 import { AdSlotComponent } from '../ad-slot/ad-slot';
+import { NotificationBellComponent } from '../notification-bell/notification-bell';
 import { ToastService } from '../../services/toast.service';
+import { FooterComponent } from '../common/footer/footer';
 
 @Component({
   selector: 'app-news-feed',
   standalone: true,
-  imports: [CommonModule, RouterLink, SafeHtmlPipe, ProfileDropdownComponent, FormsModule, FooterComponent, AdSlotComponent],
+  imports: [CommonModule, RouterLink, SafeHtmlPipe, ProfileDropdownComponent, NotificationBellComponent, FormsModule, FooterComponent, AdSlotComponent],
   templateUrl: './news-feed.html',
   styleUrl: './news-feed.scss'
 })
@@ -31,6 +32,9 @@ export class NewsFeedComponent implements OnInit {
   searchQuery = '';
   isLoading = signal(true);
   selectedCategory = signal<string>('All');
+  selectedCity = signal<string>('');
+  selectedState = signal<string>('');
+  selectedCountry = signal<string>('');
   currentUser = this.auth.currentUser;
 
   // Computed properties for specialized layout
@@ -60,6 +64,9 @@ export class NewsFeedComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
+      // Default to showing all news for all users (previously defaulted to 'India' for logged-in users)
+      this.selectedCountry.set('');
+
       const categoryParam = params['category'];
       if (categoryParam) {
         // Map lowercase URL param back to capitalized category name
@@ -142,8 +149,24 @@ export class NewsFeedComponent implements OnInit {
       params.push(`category=${this.selectedCategory()}`);
     }
 
-    if (this.searchQuery) {
-      params.push(`q=${encodeURIComponent(this.searchQuery.trim())}`);
+    if (this.selectedCity()) {
+      params.push(`city=${encodeURIComponent(this.selectedCity())}`);
+    }
+
+    if (this.selectedState()) {
+      params.push(`state=${encodeURIComponent(this.selectedState())}`);
+    }
+
+    if (this.selectedCountry()) {
+      params.push(`country=${encodeURIComponent(this.selectedCountry())}`);
+    }
+    
+    // If we have a city or state name exactly as the search query, we skip the keyword 'q' to avoid double filtering
+    const cleanQuery = this.searchQuery.trim();
+    if (cleanQuery && 
+        cleanQuery.toLowerCase() !== this.selectedCity().toLowerCase() && 
+        cleanQuery.toLowerCase() !== this.selectedState().toLowerCase()) {
+      params.push(`q=${encodeURIComponent(cleanQuery)}`);
     }
 
     const finalUrl = params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl;
@@ -215,12 +238,46 @@ export class NewsFeedComponent implements OnInit {
     }
     
     this.searchTimeout = setTimeout(() => {
+      const query = this.searchQuery.trim().toLowerCase();
+      // Simple city detection for major Indian cities
+      const indianCities = [
+        'pune', 'mumbai', 'delhi', 'bangalore', 'chennai', 'kolkata', 'hyderabad', 
+        'ahmedabad', 'surat', 'jaipur', 'lucknow', 'kanpur', 'nagpur', 'indore', 'thane', 'bhopal'
+      ];
+      const indianStates = [
+        'maharashtra', 'gujarat', 'karnataka', 'tamil nadu', 'telangana', 'uttar pradesh', 'rajasthan', 'madhya pradesh',
+        'west bengal', 'haryana', 'punjab', 'kerala', 'andhra pradesh', 'bihar', 'odisha', 'assam', 'jharkhand', 'chhattisgarh'
+      ];
+
+      if (indianCities.includes(query)) {
+        this.selectedCity.set(this.searchQuery.trim());
+        this.selectedState.set(''); // Clear state if city is searched
+      } else if (indianStates.includes(query)) {
+        this.selectedState.set(this.searchQuery.trim());
+        this.selectedCity.set(''); // Clear city if state is searched
+      } else {
+        // If it's not a city or state name, we keep the keyword search and clear location filters
+        this.selectedCity.set('');
+        this.selectedState.set('');
+      }
+
       this.isLoading.set(true);
       this.articles.set([]);
       this.skip.set(0);
       this.hasMore.set(true);
       this.fetchArticles();
     }, 400); // 400ms debounce
+  }
+
+  clearLocationFilter() {
+    this.selectedCity.set('');
+    this.selectedState.set('');
+    this.searchQuery = ''; // Clear search bar text as well
+    this.isLoading.set(true);
+    this.articles.set([]);
+    this.skip.set(0);
+    this.hasMore.set(true);
+    this.fetchArticles();
   }
 
 

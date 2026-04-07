@@ -2,7 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
+<<<<<<< HEAD
 import * as crypto from 'crypto';
+=======
+import { NotificationService } from '../notification/notification.service';
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
 import Razorpay = require('razorpay');
 
 @Injectable()
@@ -14,6 +18,7 @@ export class PaymentService {
     private prisma: PrismaService,
     private config: ConfigService,
     private mailService: MailService,
+    private notificationService: NotificationService,
   ) {
     this.razorpay = new Razorpay({
       key_id: this.config.get<string>('RAZORPAY_KEY_ID'),
@@ -186,8 +191,36 @@ export class PaymentService {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + plan.validityDays);
 
+<<<<<<< HEAD
       return {
         success: true,
+=======
+      // Trigger In-App Notification
+      this.notificationService.createNotification({
+        userId,
+        title: 'Subscription Activated',
+        message: `Your ${plan.name} plan is now active. ${transaction.credits} credits have been added to your account.`,
+        type: 'PAYMENT_SUCCESS'
+      }).catch(err => this.logger.error('Failed to create in-app notification', err));
+
+      // 2. Notify All Admins
+      this.prisma.user.findMany({
+        where: { role: 'admin' }
+      }).then(admins => {
+        const adminPromises = admins.map(admin => 
+          this.notificationService.createNotification({
+            userId: admin.id,
+            title: 'New Subscription Sale',
+            message: `User ${user?.name || user?.email} purchased the ${plan.name} plan for ₹${Number(transaction.amount)}.`,
+            type: 'SALE_NOTIFICATION'
+          })
+        );
+        return Promise.all(adminPromises);
+      }).catch(err => this.logger.error('Failed to notify admins of new sale', err));
+
+      return { 
+        success: true, 
+>>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
         transactionId: transaction.id,
         planName: plan.name,
         amount: Number(transaction.amount), // Amount is already base currency

@@ -41,8 +41,19 @@ export class AuthService {
     }
   }
 
-  requestOtp(email: string, firstName?: string, lastName?: string, password?: string) {
-    return this.http.post<any>(`${this.apiUrl}/request-otp`, { email, firstName, lastName, password });
+  requestOtp(
+    email: string, 
+    firstName?: string, 
+    lastName?: string, 
+    password?: string,
+    phone?: string,
+    city?: string,
+    state?: string,
+    country?: string
+  ) {
+    return this.http.post<any>(`${this.apiUrl}/request-otp`, { 
+      email, firstName, lastName, password, phone, city, state, country 
+    });
   }
 
   verifyOtp(email: string, code: string) {

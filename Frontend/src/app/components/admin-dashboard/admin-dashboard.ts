@@ -12,12 +12,14 @@ import { AdminSubscriptionComponent } from './admin-subscription/admin-subscript
 import { FloatingInputComponent } from '../common/floating-input/floating-input';
 import { FloatingSelectComponent } from '../common/floating-select/floating-select';
 import { UserManagementComponent } from '../user-management/user-management';
+import { NotificationBellComponent } from '../notification-bell/notification-bell';
+import { NotificationService } from '../../services/notification.service';
 import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, CreatedAdsComponent, MasterComponent, AdminSubscriptionComponent, UserManagementComponent, TitleCasePipe, DatePipe, FloatingInputComponent, FloatingSelectComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ProfileDropdownComponent, NotificationBellComponent, CreatedAdsComponent, MasterComponent, AdminSubscriptionComponent, UserManagementComponent, TitleCasePipe, DatePipe, FloatingInputComponent, FloatingSelectComponent],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss'
 })
@@ -25,6 +27,7 @@ export class AdminDashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private toast = inject(ToastService);
   public authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   public uiService = inject(UiService);
@@ -42,6 +45,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'ads': return 'Advertising Center';
       case 'master': return 'Master Data Management';
       case 'subscriptions': return 'User Subscription Management';
+      case 'notifications': return 'System Notifications & Alerts History';
       default: return 'Administrative Control Center';
     }
   });
@@ -55,6 +59,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'ads': return 'Campaign Performance & Asset Delivery Management';
       case 'master': return 'Platform-wide Geography & Metadata Configuration';
       case 'subscriptions': return 'Track Reader Credits & Membership Statuses';
+      case 'notifications': return 'Complete Audit Trail of In-app Communications';
       default: return 'Administrative Control Center';
     }
   });
@@ -69,9 +74,10 @@ export class AdminDashboardComponent implements OnInit {
       case 'ads': current = 'Advertising Center'; break;
       case 'master': 
         const tab = this.route.snapshot.queryParams['tab'] || 'countries';
-        current = tab === 'countries' ? 'Country Master' : 'City Master';
+        current = tab === 'countries' ? 'Country Master' : (tab === 'states' ? 'State Master' : 'City Master');
         break;
       case 'subscriptions': current = 'Subscriptions'; break;
+      case 'notifications': current = 'Alerts History'; break;
       default: current = 'Dashboard'; break;
     }
     return { root: 'Platform', current };
@@ -108,6 +114,11 @@ export class AdminDashboardComponent implements OnInit {
   auditPage = signal(1);
   auditTotal = signal(0);
   auditTotalPages = signal(0);
+
+  notiPage = signal(1);
+  notiTotal = signal(0);
+  notiTotalPages = signal(0);
+  notificationsList = signal<any[]>([]);
 
   newAd = signal({
     title: '',
@@ -154,6 +165,9 @@ export class AdminDashboardComponent implements OnInit {
         this.isMasterExpanded.set(true);
       } else if (path === 'subscriptions') {
         this.activeTab.set('subscriptions');
+      } else if (path === 'notifications') {
+        this.activeTab.set('notifications');
+        this.loadFullNotifications();
       } else {
         this.activeTab.set('overview');
       }
@@ -205,6 +219,21 @@ export class AdminDashboardComponent implements OnInit {
     if (p < 1 || p > this.auditTotalPages()) return;
     this.auditPage.set(p);
     this.loadAuditLogs();
+  }
+
+  loadFullNotifications() {
+    const page = this.notiPage();
+    this.notificationService.getHistory(page, 15).subscribe((res: any) => {
+      this.notificationsList.set(res.data);
+      this.notiTotal.set(res.total);
+      this.notiTotalPages.set(res.totalPages);
+    });
+  }
+
+  setPageNoti(p: number) {
+    if (p < 1 || p > this.notiTotalPages()) return;
+    this.notiPage.set(p);
+    this.loadFullNotifications();
   }
 
   onLogout() {

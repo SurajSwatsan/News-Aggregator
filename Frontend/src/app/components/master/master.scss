@@ -123,18 +123,32 @@
     &.orange { background: #fff7ed; color: #f97316; }
   }
 
-  .stat-num {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: -0.02em;
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
   }
 
-  .stat-label-large {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: -0.02em;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    border-color: #e2e8f0;
   }
 }
 
@@ -190,26 +204,64 @@
 
 .cols-master-country-refined {
   display: grid;
-  grid-template-columns: 1.8fr 0.8fr 1fr 1fr 0.8fr 0.8fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
   align-items: center;
   padding: 1.25rem 2rem;
 }
 
 .cols-master-city-refined {
   display: grid;
-  grid-template-columns: 2fr 2fr 1.2fr 0.8fr;
+  grid-template-columns: 2.5fr 2.5fr 0.8fr; // Updated for 3 columns (State Master)
+  align-items: center;
+  padding: 1.25rem 2rem;
+}
+
+.cols-master-city-actual-refined {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.2fr 0.8fr; // Original 4 columns for City Master
   align-items: center;
   padding: 1.25rem 2rem;
 }
 
 .premium-grid-header {
   border-bottom: 1px solid #f8fafc;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+  
   span {
     font-size: 0.75rem;
     font-weight: 700;
     color: #64748b;
     text-transform: capitalize;
     letter-spacing: 0.02em;
+  }
+}
+
+.premium-inventory-wrapper {
+  position: relative;
+}
+
+.premium-scroll-area {
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
   }
 }
 

@@ -99,7 +99,7 @@
           <button class="icon-btn-refined" (click)="viewDetails(ad)" title="View Analytics">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z" /><circle cx="12" cy="12" r="3" /></svg>
           </button>
-          <button class="icon-btn-refined" (click)="editRequested.emit(ad)" title="Edit Campaign">
+          <button class="icon-btn-refined" (click)="editRequested.emit(ad)" title="Edit Campaign" *ngIf="ad.createdBy === 'ADMIN'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
           </button>
           <button class="icon-btn-refined toggle" [class.is-active]="ad.isActive" (click)="toggleAd(ad)" [title]="ad.isActive ? 'Pause' : 'Resume'">

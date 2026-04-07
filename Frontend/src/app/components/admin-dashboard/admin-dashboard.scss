@@ -70,6 +70,19 @@ body {
   z-index: 100 !important;
   box-shadow: 1px 0 10px rgba(0, 0, 0, 0.05) !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow-y: auto !important;
+
+  // Custom scrollbar for sidebar
+  &::-webkit-scrollbar {
+    width: 6px !important;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #f1f5f9 !important;
+    border-radius: 10px !important;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+  }
 
   &.sidebar-hidden {
     left: -350px !important; // Slide out of vision
@@ -740,6 +753,13 @@ body.modal-open {
             width: 10px;
             height: 10px;
           }
+        }
+
+        .header-right-actions {
+          display: flex !important;
+          align-items: center !important;
+          gap: 1.5rem !important;
+          margin-left: auto !important;
         }
       }
     }

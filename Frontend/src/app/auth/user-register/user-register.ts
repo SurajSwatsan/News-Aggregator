@@ -75,6 +75,7 @@ export class UserRegisterComponent implements OnInit {
 
   // Master Data
   countries = signal<any[]>([]);
+  states = signal<any[]>([]);
   cities = signal<any[]>([]);
 
   constructor() {
@@ -90,6 +91,7 @@ export class UserRegisterComponent implements OnInit {
       rssUrl: [''],
       country: [''],
       city: [''],
+      state: [''],
       phone: [''],
       newspaperLicense: ['']
     }, { validators: passwordMatchValidator });
@@ -103,6 +105,7 @@ export class UserRegisterComponent implements OnInit {
   ngOnInit() {
     this.checkAdminExists();
     this.loadCountries();
+    this.loadStates();
     this.loadCities(); // Load all cities initially
     
     // Default to publisher if arriving via /register-publisher
@@ -117,26 +120,58 @@ export class UserRegisterComponent implements OnInit {
     });
   }
 
-  loadCities(countryId?: string) {
-    this.masterService.getCities(countryId).subscribe(data => {
+  loadCities(countryId?: string, stateId?: string) {
+    this.masterService.getCities(countryId, stateId).subscribe(data => {
       this.cities.set(data.map(city => ({ 
         value: city.name, 
-        label: countryId ? city.name : `${city.name} (${city.country?.name || 'Unknown'})`
+        label: (countryId || stateId) ? city.name : `${city.name} (${city.country?.name || 'Unknown'})`,
+        id: city.id
       })));
     });
   }
 
   onCountryChange(countryName: string) {
+    this.registerForm.patchValue({ state: '', city: '' });
     if (!countryName) {
-      this.loadCities();
+      this.states.set([]);
+      this.cities.set([]);
       return;
     }
     const country = this.countries().find(c => c.value === countryName);
     if (country) {
+      this.loadStates(country.id);
       this.loadCities(country.id);
-    } else {
-      this.loadCities();
     }
+  }
+
+  onStateChange(stateName: string) {
+    this.registerForm.patchValue({ city: '' });
+    if (!stateName) {
+      const countryName = this.registerForm.get('country')?.value;
+      this.onCountryChange(countryName);
+      return;
+    }
+    const state = this.states().find(s => s.value === stateName);
+    if (state) {
+      // Find state by name in our list. Note: states() values are names.
+      // We need the ID. Let's update loadStates to include ID.
+      const stateObj = this.rawStates.find(s => s.name === stateName);
+      if (stateObj) {
+        this.loadCities(undefined, stateObj.id);
+      }
+    }
+  }
+
+  rawStates: any[] = [];
+  loadStates(countryId?: string) {
+    this.masterService.getStates(countryId).subscribe(data => {
+      this.rawStates = data;
+      this.states.set(data.map(s => ({ 
+        value: s.name, 
+        label: countryId ? s.name : `${s.name} (${s.country?.name || 'Unknown'})`,
+        id: s.id
+      })));
+    });
   }
 
   checkAdminExists() {
@@ -161,6 +196,7 @@ export class UserRegisterComponent implements OnInit {
       this.registerForm.get('orgName')?.setValidators([Validators.required]);
       this.registerForm.get('orgWebsite')?.setValidators([Validators.required]);
       this.registerForm.get('country')?.setValidators([Validators.required]);
+      this.registerForm.get('state')?.setValidators([Validators.required]);
       this.registerForm.get('city')?.setValidators([Validators.required]);
       this.registerForm.get('phone')?.setValidators([Validators.required]);
       this.registerForm.get('newspaperLicense')?.setValidators([Validators.required]);
@@ -170,9 +206,10 @@ export class UserRegisterComponent implements OnInit {
       
       this.registerForm.get('orgName')?.clearValidators();
       this.registerForm.get('orgWebsite')?.clearValidators();
-      this.registerForm.get('country')?.clearValidators();
-      this.registerForm.get('city')?.clearValidators();
-      this.registerForm.get('phone')?.clearValidators();
+      this.registerForm.get('country')?.setValidators([Validators.required]);
+      this.registerForm.get('state')?.setValidators([Validators.required]);
+      this.registerForm.get('city')?.setValidators([Validators.required]);
+      this.registerForm.get('phone')?.setValidators([Validators.required, Validators.pattern('^[0-9+]*$')]);
       this.registerForm.get('newspaperLicense')?.clearValidators();
     }
     
@@ -212,10 +249,10 @@ export class UserRegisterComponent implements OnInit {
   private handleUserSubmit() {
     this.isLoading.set(true);
 
-    const { email, firstName, lastName, password } = this.registerForm.value;
+    const { email, firstName, lastName, password, phone, city, state, country } = this.registerForm.value;
     this.email = email; // Set property for OTP step display
 
-    this.authService.requestOtp(email, firstName, lastName, password).subscribe({
+    this.authService.requestOtp(email, firstName, lastName, password, phone, city, state, country).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.step.set(2);
@@ -241,6 +278,7 @@ export class UserRegisterComponent implements OnInit {
       orgWebsite: val.orgWebsite,
       rssUrl: val.rssUrl,
       country: val.country,
+      state: val.state,
       city: val.city,
       phone: val.phone,
       businessDoc: this.businessFileName(),
