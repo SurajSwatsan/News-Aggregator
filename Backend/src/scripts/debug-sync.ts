@@ -9,7 +9,7 @@ async function debugSync() {
   const prisma = app.get(PrismaService);
 
   const source = await prisma.source.findFirst({
-    where: { rssUrl: 'https://zeenews.india.com/rss/india-national-news.xml' }
+    where: { rssUrl: 'https://zeenews.india.com/rss/india-national-news.xml' },
   });
 
   if (!source) {

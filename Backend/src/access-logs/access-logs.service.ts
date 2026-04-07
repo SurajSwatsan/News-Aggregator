@@ -37,7 +37,7 @@ export class AccessLogsService {
       FROM users 
       WHERE id = ${userId}
     `;
-    
+
     if (!userResults || userResults.length === 0) {
       throw new Error('User not found');
     }
@@ -76,10 +76,9 @@ export class AccessLogsService {
       action: 'ARTICLE_ACCESS',
       resourceType: 'ARTICLE',
       resourceId: articleId,
-      metadata: { userId, articleId, cost: 1, type: 'CREDIT' }
+      metadata: { userId, articleId, cost: 1, type: 'CREDIT' },
     });
 
     return { success: true };
   }
-
 }

@@ -24,7 +24,12 @@ export class MailService {
     try {
       if (logOnly) {
         console.log('--- [DEV MODE] EMAIL LOGGED ---');
-        console.log('From:', this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('SMTP_USER') || 'Next-Gen News <noreply@nextgennews.com>');
+        console.log(
+          'From:',
+          this.configService.get<string>('SMTP_FROM') ||
+            this.configService.get<string>('SMTP_USER') ||
+            'Next-Gen News <noreply@nextgennews.com>',
+        );
         console.log('To:', to);
         console.log('Subject:', subject);
         console.log('Content:', html);
@@ -33,13 +38,20 @@ export class MailService {
       }
 
       const info = await this.transporter.sendMail({
-        from: this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('SMTP_USER'),
+        from:
+          this.configService.get<string>('SMTP_FROM') ||
+          this.configService.get<string>('SMTP_USER'),
         to,
         subject,
         html,
       });
       console.log('--- EMAIL SENT ---');
-      console.log('From:', this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('SMTP_USER') || 'Next-Gen News <noreply@nextgennews.com>');
+      console.log(
+        'From:',
+        this.configService.get<string>('SMTP_FROM') ||
+          this.configService.get<string>('SMTP_USER') ||
+          'Next-Gen News <noreply@nextgennews.com>',
+      );
       console.log('To:', to);
       console.log('Subject:', subject);
       console.log('Content:', html);
@@ -155,7 +167,12 @@ export class MailService {
     return this.sendMail(email, subject, html);
   }
 
-  async sendPaymentSuccess(email: string, planName: string, amount: number, transactionId: string) {
+  async sendPaymentSuccess(
+    email: string,
+    planName: string,
+    amount: number,
+    transactionId: string,
+  ) {
     const subject = 'Payment Successful - Next-Gen News Subscription';
     const html = `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">

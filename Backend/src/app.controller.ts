@@ -26,7 +26,7 @@ export class AppController {
       category,
       query,
       skip ? parseInt(skip) : undefined,
-      take ? parseInt(take) : undefined
+      take ? parseInt(take) : undefined,
     );
   }
 

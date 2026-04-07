@@ -13,7 +13,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET || 'YourNextGenProjectSecretKey2026',
+      secretOrKey:
+        configService.get<string>('JWT_SECRET') ||
+        process.env.JWT_SECRET ||
+        'YourNextGenProjectSecretKey2026',
     });
   }
 
@@ -25,14 +28,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // Check if user is soft-deleted
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { isDeleted: true }
+      select: { isDeleted: true },
     });
 
     if (!user || user.isDeleted) {
-      throw new UnauthorizedException('This account has been deleted or is no longer active.');
+      throw new UnauthorizedException(
+        'This account has been deleted or is no longer active.',
+      );
     }
 
     return { id: payload.sub, email: payload.email, role: payload.role };
   }
 }
-

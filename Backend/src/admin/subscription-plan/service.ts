@@ -18,7 +18,7 @@ export class SubscriptionPlanService {
         validityDays: dto.validityDays || 365,
         isActive: dto.isActive !== undefined ? dto.isActive : true,
         subscriptions: dto.subscriptions || {},
-        createdBy: dto.createdBy || 'Admin'
+        createdBy: dto.createdBy || 'Admin',
       },
     });
   }

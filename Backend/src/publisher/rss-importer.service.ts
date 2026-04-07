@@ -13,11 +13,11 @@ export class RSSImporterService {
 
   async importFromRSSFile(filePath: string) {
     this.logger.log(`Importing publishers from RSS file: ${filePath}`);
-    
+
     try {
       const xml = fs.readFileSync(filePath, 'utf-8');
       const feed = await this.parser.parseString(xml);
-      
+
       this.logger.log(`Found ${feed.items?.length || 0} items in RSS feed`);
 
       for (const item of feed.items || []) {
@@ -29,29 +29,29 @@ export class RSSImporterService {
           await this.addPublisher(name, website, rssUrl);
         }
       }
-      
+
       // Move processed file to a 'processed' folder or delete it
       const processedDir = path.join(path.dirname(filePath), 'processed');
       if (!fs.existsSync(processedDir)) {
         fs.mkdirSync(processedDir, { recursive: true });
       }
       const fileName = path.basename(filePath);
-      fs.renameSync(filePath, path.join(processedDir, `${Date.now()}-${fileName}`));
-
+      fs.renameSync(
+        filePath,
+        path.join(processedDir, `${Date.now()}-${fileName}`),
+      );
     } catch (error) {
-      this.logger.error(`Failed to import from RSS file ${filePath}: ${error.message}`);
+      this.logger.error(
+        `Failed to import from RSS file ${filePath}: ${error.message}`,
+      );
     }
   }
 
   private async addPublisher(name: string, website: string, rssUrl: string) {
     const existing = await this.prisma.source.findFirst({
-      where: { 
-        OR: [
-          { name },
-          { homepageUrl: website },
-          { rssUrl }
-        ]
-      }
+      where: {
+        OR: [{ name }, { homepageUrl: website }, { rssUrl }],
+      },
     });
 
     if (!existing) {
@@ -62,7 +62,7 @@ export class RSSImporterService {
           rssUrl,
           isActive: true,
           scrapingInterval: 60,
-        }
+        },
       });
       this.logger.log(`✅ Automatically added new publisher: ${name}`);
     } else {

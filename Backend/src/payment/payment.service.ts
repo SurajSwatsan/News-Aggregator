@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
+import * as crypto from 'crypto';
 import Razorpay = require('razorpay');
 
 @Injectable()
@@ -20,10 +21,18 @@ export class PaymentService {
     });
   }
 
-  async createOrder(planId: string, userId: string, amount: number, credits: number, snapshot?: any) {
+  async createOrder(
+    planId: string,
+    userId: string,
+    amount: number,
+    credits: number,
+    snapshot?: any,
+  ) {
     try {
-      this.logger.log(`Creating Razorpay order for plan ${planId} (user: ${userId})`);
-      
+      this.logger.log(
+        `Creating Razorpay order for plan ${planId} (user: ${userId})`,
+      );
+
       const options = {
         amount: Math.round(amount * 100), // Razorpay expects amount in paise
         currency: 'INR',
@@ -33,7 +42,7 @@ export class PaymentService {
       const order = await this.razorpay.orders.create(options);
 
       // Create a pending transaction in our database
-      const transaction = await this.prisma.transaction.create({
+      const transaction = await this.prisma.paymentTransaction.create({
         data: {
           userId,
           planId,
@@ -68,9 +77,9 @@ export class PaymentService {
       this.logger.log(`Verifying payment for order ${razorpayOrderId}`);
 
       const text = `${razorpayOrderId}|${razorpayPaymentId}`;
-      const secret = this.config.get<string>('RAZORPAY_KEY_SECRET');
-      
-      const generated_signature = require('crypto')
+      const secret = this.config.get<string>('RAZORPAY_KEY_SECRET') || '';
+
+      const generated_signature = crypto
         .createHmac('sha256', secret)
         .update(text)
         .digest('hex');
@@ -79,62 +88,79 @@ export class PaymentService {
       this.logger.debug(`Received signature: ${razorpaySignature}`);
 
       if (generated_signature !== razorpaySignature) {
-        this.logger.error(`Signature verification failed for order ${razorpayOrderId}`);
-        
-        const failedTransaction = await this.prisma.transaction.update({
+        this.logger.error(
+          `Signature verification failed for order ${razorpayOrderId}`,
+        );
+
+        await this.prisma.paymentTransaction.update({
           where: { razorpayOrderId },
-          data: { 
+          data: {
             status: 'FAILED',
             razorpayPaymentId,
-            razorpaySignature 
-          }
+            razorpaySignature,
+          },
         });
 
-        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        const user = await this.prisma.user.findUnique({
+          where: { id: userId },
+        });
 
         // Send failure email
         if (user) {
-          this.mailService.sendPaymentFailed(
-            user.email,
-            'Invalid payment signature',
-            razorpayOrderId
-          ).catch(err => this.logger.error('Failed to send failure email', err));
+          this.mailService
+            .sendPaymentFailed(
+              user.email,
+              'Invalid payment signature',
+              razorpayOrderId,
+            )
+            .catch((err) =>
+              this.logger.error('Failed to send failure email', err),
+            );
         }
-        
+
         return { success: false, message: 'Invalid payment signature' };
       }
 
       // Update the transaction in our database
-      this.logger.log(`Setting transaction status to COMPLETED for order ${razorpayOrderId}`);
-      const transaction = await this.prisma.transaction.update({
+      this.logger.log(
+        `Setting transaction status to COMPLETED for order ${razorpayOrderId}`,
+      );
+      const transaction = await this.prisma.paymentTransaction.update({
         where: { razorpayOrderId },
         data: {
           status: 'COMPLETED',
           razorpayPaymentId,
           razorpaySignature,
-        }
+        },
       });
 
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
       // Send success email
       if (user) {
-        this.mailService.sendPaymentSuccess(
-          user.email,
-          (transaction.paymentSnapshot as any)?.['planName'] || 'Premium Plan',
-          Number(transaction.amount),
-          transaction.id
-        ).catch(err => this.logger.error('Failed to send success email', err));
+        this.mailService
+          .sendPaymentSuccess(
+            user.email,
+            (transaction.paymentSnapshot as any)?.['planName'] ||
+              'Premium Plan',
+            Number(transaction.amount),
+            transaction.id,
+          )
+          .catch((err) =>
+            this.logger.error('Failed to send success email', err),
+          );
       }
 
       // Get the plan data to add credits
       const plan = await this.prisma.subscriptionPlan.findUnique({
-        where: { id: transaction.planId }
+        where: { id: transaction.planId },
       });
 
       if (!plan) {
-         this.logger.error(`Plan ${transaction.planId} not found during credit update`);
-         return { success: false, message: 'Plan not found' };
+        this.logger.error(
+          `Plan ${transaction.planId} not found during credit update`,
+        );
+        return { success: false, message: 'Plan not found' };
       }
 
       // Add credits to user balance
@@ -142,30 +168,32 @@ export class PaymentService {
       // For now, let's look at the basic credits field in SubscriptionPlan or the relevant tiered credit
       // This part depends on which sub-plan they bought (monthly/yearly)
       // I'll need to pass that info or store it in the transaction
-      
-      this.logger.log(`Payment successful for user ${userId}. Logic to add credits goes here.`);
-      
+
+      this.logger.log(
+        `Payment successful for user ${userId}. Logic to add credits goes here.`,
+      );
+
       // Update user credit balance using the credits stored in the transaction
       await this.prisma.user.update({
         where: { id: userId },
         data: {
           creditBalance: {
-            increment: transaction.credits
-          }
-        }
+            increment: transaction.credits,
+          },
+        },
       });
 
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + plan.validityDays);
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         transactionId: transaction.id,
         planName: plan.name,
         amount: Number(transaction.amount), // Amount is already base currency
         credits: transaction.credits,
         validityDays: plan.validityDays,
-        expiryDate: expiryDate.toISOString()
+        expiryDate: expiryDate.toISOString(),
       };
     } catch (error) {
       this.logger.error('Failed to verify Razorpay payment', error.stack);
@@ -174,7 +202,7 @@ export class PaymentService {
   }
 
   async getLatestTransaction(userId: string) {
-    const transaction = await this.prisma.transaction.findFirst({
+    const transaction = await this.prisma.paymentTransaction.findFirst({
       where: {
         userId,
         status: 'COMPLETED',

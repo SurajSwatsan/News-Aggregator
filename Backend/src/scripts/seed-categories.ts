@@ -9,22 +9,48 @@ async function main() {
   for (const article of articles) {
     let category = 'World'; // Default
     const title = article.title.toLowerCase();
-    
-    if (title.includes('sport') || title.includes('football') || title.includes('cricket') || title.includes('olympic')) {
+
+    if (
+      title.includes('sport') ||
+      title.includes('football') ||
+      title.includes('cricket') ||
+      title.includes('olympic')
+    ) {
       category = 'Sports';
-    } else if (title.includes('tech') || title.includes('google') || title.includes('apple') || title.includes('ai') || title.includes('software')) {
+    } else if (
+      title.includes('tech') ||
+      title.includes('google') ||
+      title.includes('apple') ||
+      title.includes('ai') ||
+      title.includes('software')
+    ) {
       category = 'Technology';
-    } else if (title.includes('market') || title.includes('stock') || title.includes('economy') || title.includes('business')) {
+    } else if (
+      title.includes('market') ||
+      title.includes('stock') ||
+      title.includes('economy') ||
+      title.includes('business')
+    ) {
       category = 'Business';
-    } else if (title.includes('health') || title.includes('virus') || title.includes('doctor') || title.includes('medical')) {
+    } else if (
+      title.includes('health') ||
+      title.includes('virus') ||
+      title.includes('doctor') ||
+      title.includes('medical')
+    ) {
       category = 'Health';
-    } else if (title.includes('politic') || title.includes('vote') || title.includes('election') || title.includes('government')) {
+    } else if (
+      title.includes('politic') ||
+      title.includes('vote') ||
+      title.includes('election') ||
+      title.includes('government')
+    ) {
       category = 'Politics';
     }
 
     await prisma.article.update({
       where: { id: article.id },
-      data: { category }
+      data: { category },
     });
   }
 
@@ -32,5 +58,5 @@ async function main() {
 }
 
 main()
-  .catch(e => console.error(e))
+  .catch((e) => console.error(e))
   .finally(async () => await prisma.$disconnect());

@@ -14,7 +14,7 @@ export class AccessLogsController {
   }
 
   @Post()
-  async grantAccess(@Body() body: { userId: string, articleId: string }) {
+  async grantAccess(@Body() body: { userId: string; articleId: string }) {
     return this.accessLogsService.grantAccess(body.userId, body.articleId);
   }
 }

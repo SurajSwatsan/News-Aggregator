@@ -21,14 +21,16 @@ export class DailyPublisherTask {
     }
 
     const files = fs.readdirSync(this.importDir);
-    const rssFiles = files.filter(file => file.endsWith('.xml') || file.endsWith('.rss'));
+    const rssFiles = files.filter(
+      (file) => file.endsWith('.xml') || file.endsWith('.rss'),
+    );
 
     this.logger.log(`Found ${rssFiles.length} files to process.`);
 
     for (const file of rssFiles) {
       await this.rssImporter.importFromRSSFile(path.join(this.importDir, file));
     }
-    
+
     this.logger.log('Daily publisher import task completed.');
   }
 }

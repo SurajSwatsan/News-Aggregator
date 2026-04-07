@@ -15,7 +15,7 @@ async function testLlama() {
   `;
 
   console.log('Testing Llama 3 Summarization...');
-  
+
   try {
     const summary = await aiService.summarize(testText);
     console.log('--- Original Text ---');

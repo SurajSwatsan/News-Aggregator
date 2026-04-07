@@ -10,10 +10,12 @@ async function bootstrap() {
   const prisma = app.get(PrismaService);
 
   const activeSources = await prisma.source.findMany({
-    where: { isActive: true }
+    where: { isActive: true },
   });
 
-  console.log(`Manually triggering sync for ${activeSources.length} active sources...`);
+  console.log(
+    `Manually triggering sync for ${activeSources.length} active sources...`,
+  );
 
   for (const source of activeSources) {
     console.log(`Syncing: ${source.name}...`);

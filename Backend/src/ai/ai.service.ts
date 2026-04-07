@@ -13,20 +13,28 @@ export class AiService {
 
     try {
       this.logger.log('Requesting Llama 3 summary...');
-      
-      const response = await axios.post(this.ollamaUrl, {
-        model: 'llama3',
-        prompt: `Summarize the following news article in exactly 2-3 concise sentences. 
+
+      const response = await axios.post(
+        this.ollamaUrl,
+        {
+          model: 'llama3',
+          prompt: `Summarize the following news article in exactly 2-3 concise sentences. 
                  Focus on the key facts. Return ONLY the summary text, no introduction or chatter.
                  
                  Article: ${text.substring(0, 3000)}`,
-        stream: false,
-      }, { timeout: 30000 }); // Increased timeout to 30s
+          stream: false,
+        },
+        { timeout: 30000 },
+      ); // Increased timeout to 30s
 
       const summary = response.data?.response?.trim();
       return summary || text.substring(0, 200) + '...';
     } catch (error: any) {
-      const errMsg = error?.response?.data?.error || error?.message || error?.code || String(error);
+      const errMsg =
+        error?.response?.data?.error ||
+        error?.message ||
+        error?.code ||
+        String(error);
       this.logger.warn(`Llama 3 summarization bypassed: ${errMsg}`);
       // Fallback to simple truncation
       return text.length > 200 ? text.substring(0, 200) + '...' : text;
@@ -34,12 +42,14 @@ export class AiService {
   }
 
   async areArticlesSimilar(
-    title1: string, synopsis1: string, 
-    title2: string, synopsis2: string
+    title1: string,
+    synopsis1: string,
+    title2: string,
+    synopsis2: string,
   ): Promise<boolean> {
     try {
       this.logger.log('Comparing two articles for similarity using Llama 3...');
-      
+
       const prompt = `
         Determine if the following two news article snippets describe the SAME news event/story.
         They might be from different publishers and have slightly different wording or focus.
@@ -56,27 +66,39 @@ export class AiService {
         No explanation.
       `;
 
-      const response = await axios.post(this.ollamaUrl, {
-        model: 'llama3',
-        prompt,
-        stream: false,
-      }, { timeout: 30000 });
+      const response = await axios.post(
+        this.ollamaUrl,
+        {
+          model: 'llama3',
+          prompt,
+          stream: false,
+        },
+        { timeout: 30000 },
+      );
 
       const answer = response.data?.response?.trim().toUpperCase();
       this.logger.debug(`Similarity check result: ${answer}`);
-      
+
       return answer === 'YES';
     } catch (error: any) {
-      const errMsg = error?.response?.data?.error || error?.message || error?.code || String(error);
+      const errMsg =
+        error?.response?.data?.error ||
+        error?.message ||
+        error?.code ||
+        String(error);
       this.logger.warn(`Llama 3 similarity check bypassed: ${errMsg}`);
       return false; // Default to not similar on failure
     }
   }
 
-  async categorize(title: string, content: string, categories: string[]): Promise<string | null> {
+  async categorize(
+    title: string,
+    content: string,
+    categories: string[],
+  ): Promise<string | null> {
     try {
       this.logger.log(`Categorizing article: "${title}" using Llama 3...`);
-      
+
       const prompt = `
         Categorize the following news article into exactly ONE of these categories: ${categories.join(', ')}.
         
@@ -86,18 +108,26 @@ export class AiService {
         Respond with ONLY the category name. No explanation or chatter.
       `;
 
-      const response = await axios.post(this.ollamaUrl, {
-        model: 'llama3',
-        prompt,
-        stream: false,
-      }, { timeout: 30000 });
+      const response = await axios.post(
+        this.ollamaUrl,
+        {
+          model: 'llama3',
+          prompt,
+          stream: false,
+        },
+        { timeout: 30000 },
+      );
 
       const category = response.data?.response?.trim();
       this.logger.debug(`AI Categorization result: ${category}`);
-      
+
       return category || null;
     } catch (error: any) {
-      const errMsg = error?.response?.data?.error || error?.message || error?.code || String(error);
+      const errMsg =
+        error?.response?.data?.error ||
+        error?.message ||
+        error?.code ||
+        String(error);
       this.logger.warn(`Llama 3 categorization bypassed: ${errMsg}`);
       return null;
     }

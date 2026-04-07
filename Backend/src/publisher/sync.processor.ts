@@ -21,14 +21,18 @@ export class SyncProcessor extends WorkerHost {
 
     try {
       const count = await this.rssEngine.syncRSSNews(sourceId);
-      this.logger.log(`Sync complete for source: ${sourceId}. Added ${count} articles.`);
-      
+      this.logger.log(
+        `Sync complete for source: ${sourceId}. Added ${count} articles.`,
+      );
+
       // Notify via WebSocket
       this.syncGateway.emitSyncComplete(sourceId);
-      
+
       return { count };
     } catch (error) {
-      this.logger.error(`Failed to process sync job for ${sourceId}: ${error.message}`);
+      this.logger.error(
+        `Failed to process sync job for ${sourceId}: ${error.message}`,
+      );
       throw error;
     }
   }

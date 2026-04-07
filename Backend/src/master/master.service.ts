@@ -56,9 +56,9 @@ export class MasterService {
 
   async createCity(data: any) {
     const country = await this.prisma.country.findFirst({
-      where: { name: data.country }
+      where: { name: data.country },
     });
-    
+
     if (!country) throw new NotFoundException('Country not found');
 
     return this.prisma.city.create({
@@ -72,9 +72,9 @@ export class MasterService {
 
   async updateCity(id: string, data: any) {
     const country = await this.prisma.country.findFirst({
-      where: { name: data.country }
+      where: { name: data.country },
     });
-    
+
     if (!country) throw new NotFoundException('Country not found');
 
     return this.prisma.city.update({

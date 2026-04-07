@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Body, Param, Query, BadRequestException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Query,
+  BadRequestException,
+  UseGuards,
+} from '@nestjs/common';
 import { OnboardingService } from './onboarding.service';
 import * as bcrypt from 'bcrypt';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -20,7 +29,15 @@ export class OnboardingController {
   }
 
   @Post('register')
-  async register(@Body() body: { token: string; orgName: string; orgWebsite: string; orgDescription: string }) {
+  async register(
+    @Body()
+    body: {
+      token: string;
+      orgName: string;
+      orgWebsite: string;
+      orgDescription: string;
+    },
+  ) {
     return this.onboardingService.registerPublisher(body.token, body);
   }
 

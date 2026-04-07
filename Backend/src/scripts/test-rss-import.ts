@@ -8,8 +8,13 @@ async function testImport() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const importer = app.get(RSSImporterService);
 
-  const testFile = path.join(process.cwd(), 'imports', 'rss', 'test-publishers.xml');
-  
+  const testFile = path.join(
+    process.cwd(),
+    'imports',
+    'rss',
+    'test-publishers.xml',
+  );
+
   const xmlContent = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
@@ -30,7 +35,7 @@ async function testImport() {
   if (!fs.existsSync(path.dirname(testFile))) {
     fs.mkdirSync(path.dirname(testFile), { recursive: true });
   }
-  
+
   fs.writeFileSync(testFile, xmlContent);
   console.log('✅ Created test RSS file');
 
@@ -40,7 +45,7 @@ async function testImport() {
   await app.close();
 }
 
-testImport().catch(err => {
+testImport().catch((err) => {
   console.error('❌ Test failed:', err);
   process.exit(1);
 });

@@ -6,8 +6,8 @@ async function main() {
     where: {
       OR: [
         { title: { contains: 'Bihar', mode: 'insensitive' } },
-        { title: { contains: 'paper leak', mode: 'insensitive' } }
-      ]
+        { title: { contains: 'paper leak', mode: 'insensitive' } },
+      ],
     },
     select: {
       id: true,
@@ -15,8 +15,8 @@ async function main() {
       category: true,
       clusterId: true,
       sourceId: true,
-      postedAt: true
-    }
+      postedAt: true,
+    },
   });
   console.log(JSON.stringify(articles, null, 2));
 }

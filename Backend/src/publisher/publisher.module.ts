@@ -21,11 +21,11 @@ import { AdModule } from '../ad/ad.module';
   ],
   controllers: [PublisherController],
   providers: [
-    PublisherService, 
-    RSSImporterService, 
+    PublisherService,
+    RSSImporterService,
     DailyPublisherTask,
     SyncGateway,
-    SyncProcessor
+    SyncProcessor,
   ],
   exports: [PublisherService, RSSImporterService],
 })

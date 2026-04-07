@@ -9,11 +9,11 @@ async function checkZee() {
   const articles = await prisma.article.findMany({
     where: { sourceUrl: { contains: 'zeenews.india.com' } },
     include: { source: true },
-    take: 5
+    take: 5,
   });
-  
+
   console.log(`Found ${articles.length} articles matching Zee News URL.`);
-  articles.forEach(a => {
+  articles.forEach((a) => {
     console.log(`- Title: ${a.title}`);
     console.log(`  Source: ${a.source.name} (ID: ${a.sourceId})`);
   });

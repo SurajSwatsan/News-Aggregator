@@ -16,7 +16,13 @@ export class PaymentController {
     @Req() req: any,
   ) {
     const userId = req.user.id; // Or however you access it in your AuthGuard
-    return await this.paymentService.createOrder(planId, userId, amount, credits, snapshot);
+    return await this.paymentService.createOrder(
+      planId,
+      userId,
+      amount,
+      credits,
+      snapshot,
+    );
   }
 
   @Post('verify')
@@ -28,7 +34,12 @@ export class PaymentController {
     @Req() req: any,
   ) {
     const userId = req.user.id;
-    return await this.paymentService.verifyPayment(orderId, paymentId, signature, userId);
+    return await this.paymentService.verifyPayment(
+      orderId,
+      paymentId,
+      signature,
+      userId,
+    );
   }
 
   @Get('my-transaction')

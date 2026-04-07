@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { SubscriptionPlanService } from './service';
 import { CreateSubscriptionPlanDto } from './dto';
 
@@ -22,7 +31,10 @@ export class SubscriptionPlanController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: Partial<CreateSubscriptionPlanDto>) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: Partial<CreateSubscriptionPlanDto>,
+  ) {
     return this.service.update(id, dto);
   }
 

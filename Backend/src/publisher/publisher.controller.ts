@@ -1,4 +1,16 @@
-import { Controller, Get, Put, Patch, Delete, Post, Body, UseGuards, Request, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Patch,
+  Delete,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { PublisherService } from './publisher.service';
 import { AdService } from '../ad/ad.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -13,12 +25,12 @@ import { extname } from 'path';
 export class PublisherController {
   constructor(
     private readonly publisherService: PublisherService,
-    private readonly adService: AdService
+    private readonly adService: AdService,
   ) {}
 
   @Get('dashboard')
   async getDashboard(@Request() req: any) {
-    const userId = req.user.id; 
+    const userId = req.user.id;
     return this.publisherService.getDashboardStats(userId);
   }
 
@@ -80,7 +92,7 @@ export class PublisherController {
   async getMyAds(
     @Request() req: any,
     @Query('type') type?: string,
-    @Query('search') search?: string
+    @Query('search') search?: string,
   ) {
     return this.adService.getPublisherAds(req.user.id, type, search);
   }
@@ -92,7 +104,7 @@ export class PublisherController {
 
   @Patch('ads/:id')
   async updateMyAd(@Param('id') id: string, @Body() data: any) {
-    // Note: We could add ownership check here if needed, 
+    // Note: We could add ownership check here if needed,
     // but the adService.updateAd will just update by ID.
     return this.adService.updateAd(id, data);
   }
@@ -103,35 +115,45 @@ export class PublisherController {
   }
 
   @Post('upload-doc')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req: any, file: any, cb: any) => {
-        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-        return cb(null, `${randomName}${extname(file.originalname)}`);
-      }
-    })
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req: any, file: any, cb: any) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   async uploadDoc(@UploadedFile() file: any) {
     return {
       filename: file.filename,
-      url: `http://localhost:3000/uploads/${file.filename}`
+      url: `http://localhost:3000/uploads/${file.filename}`,
     };
   }
 
   @Post('ads/upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req: any, file: any, cb: any) => {
-        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-        return cb(null, `${randomName}${extname(file.originalname)}`);
-      }
-    })
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req: any, file: any, cb: any) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   async uploadFile(@UploadedFile() file: any) {
     return {
-      url: `http://localhost:3000/uploads/${file.filename}`
+      url: `http://localhost:3000/uploads/${file.filename}`,
     };
   }
 }

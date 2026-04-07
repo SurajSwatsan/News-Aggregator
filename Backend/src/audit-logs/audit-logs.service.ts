@@ -30,7 +30,10 @@ export class AuditLogsService {
     }
   }
 
-  async getAllLogs(page: number = 1, limit: number = 10): Promise<PaginatedResult<any>> {
+  async getAllLogs(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedResult<any>> {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       (this.prisma as any).auditLog.findMany({
@@ -38,7 +41,7 @@ export class AuditLogsService {
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      (this.prisma as any).auditLog.count()
+      (this.prisma as any).auditLog.count(),
     ]);
 
     return {
@@ -46,7 +49,7 @@ export class AuditLogsService {
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
     };
   }
 }

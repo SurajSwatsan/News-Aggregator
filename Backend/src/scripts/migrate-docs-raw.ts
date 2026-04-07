@@ -25,7 +25,7 @@ async function main() {
       newspaper_license = 'license.png'
     WHERE email = 'publisher@toi.com'
   `;
-  
+
   console.log(`Manual update: ${manual} rows.`);
   console.log('--- MIGRATION COMPLETED ---');
 }

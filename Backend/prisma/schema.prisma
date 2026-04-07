@@ -49,7 +49,7 @@ model User {
   resetPasswordExpires DateTime? @map("reset_password_expires")
   createdAt           DateTime  @default(now()) @map("created_at")
   sources        Source[]
-  transactions   Transaction[]
+  transactions   PaymentTransaction[]
 
   @@map("users")
 }
@@ -203,12 +203,12 @@ model SubscriptionPlan {
   createdBy     String?  @map("created_by")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
-  transactions  Transaction[]
+  transactions  PaymentTransaction[]
 
   @@map("subscription_plans")
 }
 
-model Transaction {
+model PaymentTransaction {
   id                String   @id @default(uuid())
   userId            String   @map("user_id") // Who is paying
   user              User     @relation(fields: [userId], references: [id])

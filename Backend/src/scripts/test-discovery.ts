@@ -8,9 +8,10 @@ async function discoverRssUrl(homepageUrl: string): Promise<string | null> {
   try {
     const { data } = await axios.get(homepageUrl);
     const $ = cheerio.load(data);
-    
-    const rssLink = $('link[type="application/rss+xml"]').attr('href') ||
-                    $('link[type="application/atom+xml"]').attr('href');
+
+    const rssLink =
+      $('link[type="application/rss+xml"]').attr('href') ||
+      $('link[type="application/atom+xml"]').attr('href');
 
     if (rssLink) {
       if (rssLink.startsWith('http')) return rssLink;

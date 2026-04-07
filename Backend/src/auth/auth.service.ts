@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserRole, OnboardingStatus } from '@prisma/client';
@@ -16,9 +21,14 @@ export class AuthService {
     private configService: ConfigService,
     private mailService: MailService,
     private auditLogs: AuditLogsService,
-  ) { }
+  ) {}
 
-  async requestOtp(email: string, firstName?: string, lastName?: string, password?: string) {
+  async requestOtp(
+    email: string,
+    firstName?: string,
+    lastName?: string,
+    password?: string,
+  ) {
     const data = { email, firstName, lastName, password };
     // 1. Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -33,13 +43,15 @@ export class AuthService {
         data: {
           otp,
           otpExpiresAt: expiresAt,
-          passwordHash: data.password ? await bcrypt.hash(data.password, 10) : user.passwordHash
-        }
+          passwordHash: data.password
+            ? await bcrypt.hash(data.password, 10)
+            : user.passwordHash,
+        },
       });
     } else {
       // Check if there's a pending onboarding, or create a temporary one for registration
       const onboarding = await this.prisma.publisherOnboarding.findFirst({
-        where: { email, status: { not: OnboardingStatus.completed } }
+        where: { email, status: { not: OnboardingStatus.completed } },
       });
 
       if (onboarding) {
@@ -50,12 +62,16 @@ export class AuthService {
             otpExpiresAt: expiresAt,
             firstName: firstName || onboarding.firstName,
             lastName: lastName || onboarding.lastName,
-            passwordHash: data.password ? await bcrypt.hash(data.password, 10) : onboarding.passwordHash
-          }
+            passwordHash: data.password
+              ? await bcrypt.hash(data.password, 10)
+              : onboarding.passwordHash,
+          },
         });
       } else {
         // Create a basic onboarding record for this new email
-        const hashedPassword = data.password ? await bcrypt.hash(data.password, 10) : null;
+        const hashedPassword = data.password
+          ? await bcrypt.hash(data.password, 10)
+          : null;
         await this.prisma.publisherOnboarding.create({
           data: {
             token: crypto.randomUUID(),
@@ -67,8 +83,8 @@ export class AuthService {
             requestedRole: UserRole.reader,
             firstName,
             lastName,
-            passwordHash: hashedPassword
-          }
+            passwordHash: hashedPassword,
+          },
         });
       }
     }
@@ -93,7 +109,7 @@ export class AuthService {
 
         const updatedUser = await (this.prisma.user as any).update({
           where: { id: user.id },
-          data: updateData
+          data: updateData,
         });
 
         await this.auditLogs.createLog({
@@ -101,7 +117,10 @@ export class AuthService {
           action: 'LOGIN_RESTORED',
           resourceType: 'USER',
           resourceId: updatedUser.id,
-          metadata: { email: updatedUser.email, reason: 'OTP verification after soft delete' }
+          metadata: {
+            email: updatedUser.email,
+            reason: 'OTP verification after soft delete',
+          },
         });
 
         await this.auditLogs.createLog({
@@ -109,7 +128,7 @@ export class AuthService {
           action: 'LOGIN_SUCCESS',
           resourceType: 'USER',
           resourceId: updatedUser.id,
-          metadata: { email: updatedUser.email, role: updatedUser.role }
+          metadata: { email: updatedUser.email, role: updatedUser.role },
         });
 
         return { user: updatedUser, type: 'login' };
@@ -119,7 +138,7 @@ export class AuthService {
 
     // 2. Check Onboarding table
     const onboarding = await this.prisma.publisherOnboarding.findFirst({
-      where: { email, otp: code, status: { not: OnboardingStatus.completed } }
+      where: { email, otp: code, status: { not: OnboardingStatus.completed } },
     });
 
     if (onboarding) {
@@ -127,12 +146,16 @@ export class AuthService {
       if (onboarding.otpExpiresAt && onboarding.otpExpiresAt > now) {
         // For new readers, we can auto-create the account upon OTP verification if it's a simple flow
         if (onboarding.requestedRole === UserRole.reader) {
-          let baseUsername = onboarding.username || email.split('@')[0];
+          const baseUsername = onboarding.username || email.split('@')[0];
           let finalUsername = baseUsername;
           let counter = 1;
 
           // Ensure unique username
-          while (await this.prisma.user.findUnique({ where: { username: finalUsername } })) {
+          while (
+            await this.prisma.user.findUnique({
+              where: { username: finalUsername },
+            })
+          ) {
             finalUsername = `${baseUsername}${counter++}`;
           }
 
@@ -142,22 +165,28 @@ export class AuthService {
               username: finalUsername,
               firstName: onboarding.firstName,
               lastName: onboarding.lastName,
-              name: onboarding.firstName ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim() : (onboarding.orgName || null),
+              name: onboarding.firstName
+                ? `${onboarding.firstName} ${onboarding.lastName || ''}`.trim()
+                : onboarding.orgName || null,
               role: UserRole.reader,
               passwordHash: onboarding.passwordHash || 'OTP_USER',
-              creditBalance: 10
-            }
+              creditBalance: 10,
+            },
           });
           await this.prisma.publisherOnboarding.update({
             where: { id: onboarding.id },
-            data: { status: OnboardingStatus.completed, otp: null, otpExpiresAt: null }
+            data: {
+              status: OnboardingStatus.completed,
+              otp: null,
+              otpExpiresAt: null,
+            },
           });
           await this.auditLogs.createLog({
             userId: newUser.id,
             action: 'READER_REGISTERED',
             resourceType: 'USER',
             resourceId: newUser.id,
-            metadata: { email: newUser.email, source: 'OTP_REGISTER' }
+            metadata: { email: newUser.email, source: 'OTP_REGISTER' },
           });
 
           return { user: newUser, type: 'register' };
@@ -168,7 +197,7 @@ export class AuthService {
           action: 'PUBLISHER_OTP_VERIFIED',
           resourceType: 'ONBOARDING',
           resourceId: onboarding.id,
-          metadata: { email: onboarding.email }
+          metadata: { email: onboarding.email },
         });
         return { onboarding, type: 'onboarding_verified' };
       }
@@ -187,7 +216,7 @@ export class AuthService {
     }
 
     const adminExists = await this.prisma.user.findFirst({
-      where: { role: UserRole.admin }
+      where: { role: UserRole.admin },
     });
 
     if (adminExists) {
@@ -221,10 +250,12 @@ export class AuthService {
       city,
       phone,
       businessDoc,
-      newspaperLicense
+      newspaperLicense,
     } = data;
 
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
     if (existingUser && !(existingUser as any).isDeleted) {
       throw new ConflictException('User already exists');
     }
@@ -242,7 +273,9 @@ export class AuthService {
     if (requestedRole === UserRole.admin) {
       const adminExists = await this.checkAdminExists();
       if (adminExists) {
-        throw new ConflictException('An administrator already exists or a registration is pending.');
+        throw new ConflictException(
+          'An administrator already exists or a registration is pending.',
+        );
       }
     }
 
@@ -277,18 +310,19 @@ export class AuthService {
       action: 'REGISTRATION_SUBMITTED',
       resourceType: 'ONBOARDING',
       resourceId: email,
-      metadata: { email, requestedRole }
+      metadata: { email, requestedRole },
     });
 
     return {
-      message: 'Registration submitted! Your account is pending admin approval. You can log in once approved.',
-      pendingApproval: true
+      message:
+        'Registration submitted! Your account is pending admin approval. You can log in once approved.',
+      pendingApproval: true,
     };
   }
 
   async checkAdminExists() {
     const adminUser = await this.prisma.user.findFirst({
-      where: { role: UserRole.admin, isDeleted: false } as any
+      where: { role: UserRole.admin, isDeleted: false } as any,
     });
 
     if (adminUser) return true;
@@ -296,14 +330,23 @@ export class AuthService {
     const pendingAdmin = await this.prisma.publisherOnboarding.findFirst({
       where: {
         requestedRole: UserRole.admin,
-        status: { in: [OnboardingStatus.pending, OnboardingStatus.registered, OnboardingStatus.approved] }
-      }
+        status: {
+          in: [
+            OnboardingStatus.pending,
+            OnboardingStatus.registered,
+            OnboardingStatus.approved,
+          ],
+        },
+      },
     });
 
     return !!pendingAdmin;
   }
 
-  async getUsers(page: number = 1, limit: number = 10): Promise<PaginatedResult<any>> {
+  async getUsers(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedResult<any>> {
     const skip = (page - 1) * limit;
 
     const totalCountResults: any = await this.prisma.$queryRawUnsafe(`
@@ -316,7 +359,7 @@ export class AuthService {
     `);
     const total = totalCountResults[0].count;
 
-    // We use raw SQL to bypass Prisma Client generation locks (EPERM errors) 
+    // We use raw SQL to bypass Prisma Client generation locks (EPERM errors)
     // and to merge pending onboarding users into the main list.
     const data = await this.prisma.$queryRawUnsafe(`
       SELECT 
@@ -367,7 +410,7 @@ export class AuthService {
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -388,19 +431,21 @@ export class AuthService {
         FROM users u
         WHERE u.id = ${id}
       `;
-      
+
       if (users && users.length > 0) {
         return users[0];
       }
 
-      const onboarding = await this.prisma.publisherOnboarding.findUnique({ 
-        where: { id: id as any } 
+      const onboarding = await this.prisma.publisherOnboarding.findUnique({
+        where: { id: id as any },
       });
       return onboarding;
     } catch (error) {
       console.error('Error in getUserById:', error);
       // Final fallback to onboarding
-      return this.prisma.publisherOnboarding.findUnique({ where: { id: id as any } }).catch(() => null);
+      return this.prisma.publisherOnboarding
+        .findUnique({ where: { id: id as any } })
+        .catch(() => null);
     }
   }
 
@@ -427,7 +472,7 @@ export class AuthService {
       action: 'LOGIN_SUCCESS',
       resourceType: 'USER',
       resourceId: user.id,
-      metadata: { email: user.email }
+      metadata: { email: user.email },
     });
 
     return user;
@@ -451,17 +496,21 @@ export class AuthService {
           businessDoc: data.businessDoc,
           newspaperLicense: data.newspaperLicense,
           rssUrl: data.rssUrl,
-          creditBalance: data.creditBalance ? parseInt(data.creditBalance) : undefined,
+          creditBalance: data.creditBalance
+            ? parseInt(data.creditBalance)
+            : undefined,
         },
       });
 
       // Synchronize with Source if it's a publisher
       if (data.rssUrl) {
-        const source = await this.prisma.source.findFirst({ where: { ownerId: id } });
+        const source = await this.prisma.source.findFirst({
+          where: { ownerId: id },
+        });
         if (source) {
           await this.prisma.source.update({
             where: { id: source.id },
-            data: { rssUrl: data.rssUrl }
+            data: { rssUrl: data.rssUrl },
           });
         }
       }
@@ -475,7 +524,7 @@ export class AuthService {
           data: {
             firstName: data.firstName || data.name,
             lastName: data.lastName,
-            requestedRole: data.role as any,
+            requestedRole: data.role,
             phone: data.phone,
             city: data.city,
             country: data.country,
@@ -485,7 +534,7 @@ export class AuthService {
             businessDoc: data.businessDoc,
             newspaperLicense: data.newspaperLicense,
             rssUrl: data.rssUrl,
-          }
+          },
         });
       }
       throw e;
@@ -499,9 +548,11 @@ export class AuthService {
 
       if (!user) {
         // Not a user, check onboarding
-        return await this.prisma.publisherOnboarding.delete({ where: { id } }).catch(() => {
-          throw new NotFoundException('Account not found');
-        });
+        return await this.prisma.publisherOnboarding
+          .delete({ where: { id } })
+          .catch(() => {
+            throw new NotFoundException('Account not found');
+          });
       }
 
       // 2. Perform Role-Based Deletion
@@ -511,8 +562,8 @@ export class AuthService {
           where: { id },
           data: {
             isDeleted: true,
-            deletedAt: new Date()
-          }
+            deletedAt: new Date(),
+          },
         });
 
         await this.auditLogs.createLog({
@@ -520,7 +571,7 @@ export class AuthService {
           action: 'READER_SOFT_DELETE',
           resourceType: 'USER',
           resourceId: id,
-          metadata: { email: user.email, role: user.role }
+          metadata: { email: user.email, role: user.role },
         });
 
         return result;
@@ -530,12 +581,12 @@ export class AuthService {
       return await this.prisma.$transaction(async (tx) => {
         // Find sources owned by this user
         const sources = await tx.source.findMany({ where: { ownerId: id } });
-        const sourceIds = sources.map(s => s.id);
+        const sourceIds = sources.map((s) => s.id);
 
         // Delete all articles for these sources
         if (sourceIds.length > 0) {
           await tx.article.deleteMany({
-            where: { sourceId: { in: sourceIds } }
+            where: { sourceId: { in: sourceIds } },
           });
         }
 
@@ -552,11 +603,12 @@ export class AuthService {
         const result = await tx.user.delete({ where: { id } });
 
         // ALSO delete any onboarding record for this email to prevent it from reappearing
-        await tx.publisherOnboarding.deleteMany({ where: { email: user.email } });
+        await tx.publisherOnboarding.deleteMany({
+          where: { email: user.email },
+        });
 
         return result;
       });
-
     } catch (e: any) {
       console.error('Error in hard delete:', e);
       throw e;
@@ -569,9 +621,9 @@ export class AuthService {
         where: { id: userId },
         data: {
           creditBalance: {
-            increment: credits
-          }
-        }
+            increment: credits,
+          },
+        },
       });
       console.log('Credits added successfully:', result.id);
       return result;
@@ -585,8 +637,8 @@ export class AuthService {
     // 1. Check if user already read this article
     const log = await this.prisma.accessLog.findUnique({
       where: {
-        userId_articleId: { userId, articleId }
-      }
+        userId_articleId: { userId, articleId },
+      },
     });
 
     if (log) {
@@ -604,11 +656,11 @@ export class AuthService {
 
       const updatedUser = await (tx.user as any).update({
         where: { id: userId },
-        data: { creditBalance: newBalance }
+        data: { creditBalance: newBalance },
       });
 
       await tx.accessLog.create({
-        data: { userId, articleId }
+        data: { userId, articleId },
       });
 
       await this.auditLogs.createLog({
@@ -616,7 +668,7 @@ export class AuthService {
         action: 'ARTICLE_READ_DEDUCTION',
         resourceType: 'ARTICLE',
         resourceId: articleId,
-        metadata: { prevBalance: user.creditBalance, newBalance }
+        metadata: { prevBalance: user.creditBalance, newBalance },
       });
 
       return updatedUser;
@@ -627,7 +679,10 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
       // For security, don't reveal if user exists
-      return { message: 'If an account exists with this email, a reset link has been sent.' };
+      return {
+        message:
+          'If an account exists with this email, a reset link has been sent.',
+      };
     }
 
     const resetToken = crypto.randomUUID();
@@ -649,10 +704,13 @@ export class AuthService {
       action: 'PASSWORD_RESET_REQUESTED',
       resourceType: 'USER',
       resourceId: user.id,
-      metadata: { email }
+      metadata: { email },
     });
 
-    return { message: 'If an account exists with this email, a reset link has been sent.' };
+    return {
+      message:
+        'If an account exists with this email, a reset link has been sent.',
+    };
   }
 
   async resetPassword(token: string, newPass: string) {
@@ -664,7 +722,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Password reset token is invalid or has expired.');
+      throw new UnauthorizedException(
+        'Password reset token is invalid or has expired.',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(newPass, 10);
@@ -683,7 +743,7 @@ export class AuthService {
       action: 'PASSWORD_RESET_SUCCESS',
       resourceType: 'USER',
       resourceId: user.id,
-      metadata: { email: user.email }
+      metadata: { email: user.email },
     });
 
     return { message: 'Your password has been reset successfully.' };

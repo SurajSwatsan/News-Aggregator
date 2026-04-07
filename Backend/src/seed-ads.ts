@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('Synchronizing premium, watermark-free system advertisements...');
-  
+
   const ads = [
     // Header Ads (Priority -100 - High-quality, Watermark-free)
     {
@@ -16,7 +16,7 @@ async function main() {
       createdBy: 'ADMIN',
       status: 'active',
       isActive: true,
-      position: -100
+      position: -100,
     },
     {
       title: 'Cinematic Travel Journals',
@@ -27,7 +27,7 @@ async function main() {
       createdBy: 'ADMIN',
       status: 'active',
       isActive: true,
-      position: -100
+      position: -100,
     },
     // In-Feed Ads (Priority -100)
     {
@@ -39,7 +39,7 @@ async function main() {
       createdBy: 'ADMIN',
       status: 'active',
       isActive: true,
-      position: -100
+      position: -100,
     },
     {
       title: 'Sustainable Energy Solutions',
@@ -50,7 +50,7 @@ async function main() {
       createdBy: 'ADMIN',
       status: 'active',
       isActive: true,
-      position: -100
+      position: -100,
     },
     // Sidebar Ads (Priority -100)
     {
@@ -62,7 +62,7 @@ async function main() {
       createdBy: 'ADMIN',
       status: 'active',
       isActive: true,
-      position: -100
+      position: -100,
     },
     {
       title: 'Global Travel Destinations',
@@ -73,8 +73,8 @@ async function main() {
       createdBy: 'ADMIN',
       status: 'active',
       isActive: true,
-      position: -100
-    }
+      position: -100,
+    },
   ];
 
   for (const ad of ads) {
@@ -83,12 +83,12 @@ async function main() {
       where: { id: adId },
       update: {
         ...ad,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       create: {
         id: adId,
-        ...ad
-      }
+        ...ad,
+      },
     });
   }
 

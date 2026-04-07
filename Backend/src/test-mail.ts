@@ -9,12 +9,12 @@ async function bootstrap() {
 
   const testEmail = 'your-email@gmail.com'; // Change to check real delivery
   console.log(`Attempting to send a test email to ${testEmail}...`);
-  
+
   try {
     const result = await mailService.sendMail(
-      testEmail, 
-      'Connectivity Test', 
-      '<h1>Test Success</h1><p>If you see this, your email configuration is working!</p>'
+      testEmail,
+      'Connectivity Test',
+      '<h1>Test Success</h1><p>If you see this, your email configuration is working!</p>',
     );
     if (result && result.messageId.includes('dev-mock')) {
       console.log('✅ DEV MODE ACTIVE: Email successfully logged to console.');

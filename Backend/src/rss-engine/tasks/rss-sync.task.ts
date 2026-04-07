@@ -15,18 +15,22 @@ export class RSSSyncTask {
   @Cron(CronExpression.EVERY_HOUR)
   async handleDailyRSSSync() {
     this.logger.log('Starting automated RSS news synchronization...');
-    
+
     const activeSources = await this.prisma.source.findMany({
-      where: { isActive: true }
+      where: { isActive: true },
     });
 
-    this.logger.log(`Found ${activeSources.length} active publishers for RSS sync.`);
+    this.logger.log(
+      `Found ${activeSources.length} active publishers for RSS sync.`,
+    );
 
     for (const source of activeSources) {
       try {
         await this.rssService.syncRSSNews(source.id);
       } catch (err) {
-        this.logger.error(`Error syncing news for ${source.name}: ${err.message}`);
+        this.logger.error(
+          `Error syncing news for ${source.name}: ${err.message}`,
+        );
       }
     }
 

@@ -12,7 +12,9 @@ async function seedPublisher() {
   const publisherEmail = 'publisher@toi.com';
   const hashedPassword = await bcrypt.hash('publisher123', 10);
 
-  let publisher = await prisma.user.findUnique({ where: { email: publisherEmail } });
+  let publisher = await prisma.user.findUnique({
+    where: { email: publisherEmail },
+  });
   if (!publisher) {
     publisher = await prisma.user.create({
       data: {
@@ -26,11 +28,13 @@ async function seedPublisher() {
   }
 
   // 2. Link Times of India to this publisher
-  const toi = await prisma.source.findFirst({ where: { name: 'Times of India' } });
+  const toi = await prisma.source.findFirst({
+    where: { name: 'Times of India' },
+  });
   if (toi) {
     await prisma.source.update({
       where: { id: toi.id },
-      data: { ownerId: publisher.id }
+      data: { ownerId: publisher.id },
     });
     console.log('✅ Times of India linked to publisher@toi.com');
   } else {

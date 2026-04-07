@@ -1,4 +1,16 @@
-import { Controller, Post, Get, Body, Patch, Param, Delete, UnauthorizedException, Req, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UnauthorizedException,
+  Req,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -8,7 +20,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   @Post('register-superadmin')
   async registerSuperAdmin(@Body() body: any) {
@@ -33,7 +45,7 @@ export class AuthController {
   @Get('users')
   async getUsers(
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '10'
+    @Query('limit') limit: string = '10',
   ) {
     return this.authService.getUsers(parseInt(page), parseInt(limit));
   }
@@ -55,18 +67,31 @@ export class AuthController {
         lastName: user.lastName,
         name: user.name,
         role: user.role,
-        creditBalance: user.creditBalance
-      }
+        creditBalance: user.creditBalance,
+      },
     };
   }
 
   @Post('request-otp')
-  async requestOtp(@Body() body: { email: string, firstName?: string, lastName?: string, password?: string }) {
-    return this.authService.requestOtp(body.email, body.firstName, body.lastName, body.password);
+  async requestOtp(
+    @Body()
+    body: {
+      email: string;
+      firstName?: string;
+      lastName?: string;
+      password?: string;
+    },
+  ) {
+    return this.authService.requestOtp(
+      body.email,
+      body.firstName,
+      body.lastName,
+      body.password,
+    );
   }
 
   @Post('verify-otp')
-  async verifyOtp(@Body() body: { email: string, code: string }) {
+  async verifyOtp(@Body() body: { email: string; code: string }) {
     const result = await this.authService.verifyOtp(body.email, body.code);
 
     const user = (result as any).user;
@@ -84,8 +109,8 @@ export class AuthController {
         lastName: user.lastName,
         name: user.name,
         role: user.role,
-        creditBalance: user.creditBalance
-      }
+        creditBalance: user.creditBalance,
+      },
     };
   }
 
@@ -105,12 +130,12 @@ export class AuthController {
     return this.authService.softDeleteUser(id);
   }
   @Post('add-credits')
-  async addCredits(@Body() body: { userId: string, credits: number }) {
+  async addCredits(@Body() body: { userId: string; credits: number }) {
     return this.authService.addCredits(body.userId, body.credits);
   }
 
   @Post('deduct-credits')
-  async deductCredits(@Body() body: { userId: string, articleId: string }) {
+  async deductCredits(@Body() body: { userId: string; articleId: string }) {
     return this.authService.deductArticleCredit(body.userId, body.articleId);
   }
 
@@ -120,7 +145,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  async resetPassword(@Body() body: { token: string, password: string }) {
+  async resetPassword(@Body() body: { token: string; password: string }) {
     return this.authService.resetPassword(body.token, body.password);
   }
 }

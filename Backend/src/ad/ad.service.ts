@@ -7,8 +7,9 @@ export class AdService {
 
   async createAd(data: any, creatorId: string) {
     // Admin ads are automatically set to active and bypass the workflow
-    const initialStatus = creatorId === 'ADMIN' ? 'active' : (data.status || 'pending');
-    
+    const initialStatus =
+      creatorId === 'ADMIN' ? 'active' : data.status || 'pending';
+
     return this.prisma.advertisement.create({
       data: {
         title: data.title,
@@ -58,7 +59,7 @@ export class AdService {
         isActive: true,
         OR: [
           { status: 'active' },
-          { createdBy: 'ADMIN' } // Admin ads are always available if active
+          { createdBy: 'ADMIN' }, // Admin ads are always available if active
         ],
         ...(placementType ? { placementType } : {}),
       },
@@ -93,12 +94,15 @@ export class AdService {
     if (data.adType !== undefined) updateData.adType = data.adType;
     if (data.mediaUrl !== undefined) updateData.mediaUrl = data.mediaUrl;
     if (data.targetUrl !== undefined) updateData.targetUrl = data.targetUrl;
-    if (data.placementType !== undefined) updateData.placementType = data.placementType;
+    if (data.placementType !== undefined)
+      updateData.placementType = data.placementType;
     if (data.position !== undefined) updateData.position = data.position;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
     if (data.status !== undefined) updateData.status = data.status;
-    if (data.startTime !== undefined) updateData.startTime = data.startTime ? new Date(data.startTime) : null;
-    if (data.endTime !== undefined) updateData.endTime = data.endTime ? new Date(data.endTime) : null;
+    if (data.startTime !== undefined)
+      updateData.startTime = data.startTime ? new Date(data.startTime) : null;
+    if (data.endTime !== undefined)
+      updateData.endTime = data.endTime ? new Date(data.endTime) : null;
 
     return this.prisma.advertisement.update({
       where: { id: adId },

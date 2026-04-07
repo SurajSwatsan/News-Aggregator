@@ -7,12 +7,14 @@ async function listAllSources() {
   const prisma = app.get(PrismaService);
 
   const sources = await prisma.source.findMany({
-    include: { owner: true }
+    include: { owner: true },
   });
-  
+
   console.log(`--- Total Sources: ${sources.length} ---`);
-  sources.forEach(s => {
-    console.log(`ID: ${s.id} | Name: ${s.name} | URL: ${s.rssUrl} | Owner: ${s.owner?.email || 'N/A'}`);
+  sources.forEach((s) => {
+    console.log(
+      `ID: ${s.id} | Name: ${s.name} | URL: ${s.rssUrl} | Owner: ${s.owner?.email || 'N/A'}`,
+    );
   });
 
   await app.close();

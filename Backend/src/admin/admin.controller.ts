@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Param, Put, Patch, Delete, UseGuards, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Patch,
+  Delete,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Query,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -13,13 +26,13 @@ import { PaginatedResult } from '../common/pagination.dto';
 export class AdminController {
   constructor(
     private prisma: PrismaService,
-    private adService: AdService
+    private adService: AdService,
   ) {}
 
   @Get('sources')
   async getAllSources(
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '10'
+    @Query('limit') limit: string = '10',
   ): Promise<PaginatedResult<any>> {
     const p = parseInt(page);
     const l = parseInt(limit);
@@ -34,12 +47,12 @@ export class AdminController {
           owner: {
             select: {
               email: true,
-              orgName: true
-            }
-          }
-        }
+              orgName: true,
+            },
+          },
+        },
       }),
-      this.prisma.source.count()
+      this.prisma.source.count(),
     ]);
 
     return {
@@ -47,7 +60,7 @@ export class AdminController {
       total,
       page: p,
       limit: l,
-      totalPages: Math.ceil(total / l)
+      totalPages: Math.ceil(total / l),
     };
   }
 
@@ -55,16 +68,20 @@ export class AdminController {
   async getGlobalStats() {
     const totalArticles = await this.prisma.article.count();
     const totalSources = await this.prisma.source.count();
-    const totalReaders = await this.prisma.user.count({ where: { role: 'reader', isDeleted: false } });
-    const totalPublishers = await this.prisma.user.count({ where: { role: 'publisher', isDeleted: false } });
-    
+    const totalReaders = await this.prisma.user.count({
+      where: { role: 'reader', isDeleted: false },
+    });
+    const totalPublishers = await this.prisma.user.count({
+      where: { role: 'publisher', isDeleted: false },
+    });
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const sourcesAddedToday = await this.prisma.source.count({
       where: {
-        createdAt: { gte: today }
-      }
+        createdAt: { gte: today },
+      },
     });
 
     return {
@@ -72,10 +89,9 @@ export class AdminController {
       totalSources,
       totalReaders,
       totalPublishers,
-      sourcesAddedToday
+      sourcesAddedToday,
     };
   }
-
 
   @Get('ads')
   async getAllAds() {
@@ -88,7 +104,10 @@ export class AdminController {
   }
 
   @Put('ads/:id/status')
-  async updateAdStatus(@Param('id') id: string, @Body() data: { status: string, isActive: boolean }) {
+  async updateAdStatus(
+    @Param('id') id: string,
+    @Body() data: { status: string; isActive: boolean },
+  ) {
     return this.adService.updateAdStatus(id, data.status, data.isActive);
   }
 
@@ -103,18 +122,23 @@ export class AdminController {
   }
 
   @Post('ads/upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req: any, file: any, cb: any) => {
-        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-        return cb(null, `${randomName}${extname(file.originalname)}`);
-      }
-    })
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req: any, file: any, cb: any) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   async uploadFile(@UploadedFile() file: any) {
     return {
-      url: `http://localhost:3000/uploads/${file.filename}`
+      url: `http://localhost:3000/uploads/${file.filename}`,
     };
   }
 }

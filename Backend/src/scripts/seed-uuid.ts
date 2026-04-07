@@ -25,8 +25,8 @@ async function main() {
       name: 'Admin',
       passwordHash,
       role: UserRole.admin,
-      creditBalance: 1000
-    }
+      creditBalance: 1000,
+    },
   });
 
   // 3. Create Active User (Publisher)
@@ -44,8 +44,8 @@ async function main() {
       newspaperLicense: 'license.png',
       passwordHash,
       role: UserRole.publisher,
-      creditBalance: 0
-    }
+      creditBalance: 0,
+    },
   });
 
   console.log('--- SEEDING COMPLETED ---');
