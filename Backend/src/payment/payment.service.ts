@@ -2,11 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
-<<<<<<< HEAD
 import * as crypto from 'crypto';
-=======
 import { NotificationService } from '../notification/notification.service';
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
 import Razorpay = require('razorpay');
 
 @Injectable()
@@ -191,10 +188,6 @@ export class PaymentService {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + plan.validityDays);
 
-<<<<<<< HEAD
-      return {
-        success: true,
-=======
       // Trigger In-App Notification
       this.notificationService.createNotification({
         userId,
@@ -220,7 +213,7 @@ export class PaymentService {
 
       return { 
         success: true, 
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
+
         transactionId: transaction.id,
         planName: plan.name,
         amount: Number(transaction.amount), // Amount is already base currency

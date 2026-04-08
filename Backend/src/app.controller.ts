@@ -30,12 +30,9 @@ export class AppController {
       query,
       skip ? parseInt(skip) : undefined,
       take ? parseInt(take) : undefined,
-<<<<<<< HEAD
-=======
       city,
       state,
       country,
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     );
   }
 

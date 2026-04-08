@@ -50,12 +50,8 @@ model User {
   resetPasswordExpires DateTime? @map("reset_password_expires")
   createdAt           DateTime  @default(now()) @map("created_at")
   sources        Source[]
-<<<<<<< HEAD
   transactions   PaymentTransaction[]
-=======
-  transactions   Transaction[]
   notifications  Notification[]
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
 
   @@map("users")
 }

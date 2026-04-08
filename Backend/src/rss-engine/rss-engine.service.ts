@@ -47,14 +47,9 @@ export class RSSEngineService {
   async syncRSSNews(sourceId: string): Promise<number> {
     let aiConsecutiveFailures = 0;
     try {
-<<<<<<< HEAD
-      const source = await this.prisma.source.findUnique({
-        where: { id: sourceId },
-=======
       const source = await this.prisma.source.findUnique({ 
         where: { id: sourceId },
         include: { owner: true }
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
       });
       if (!source || !source.isActive) return 0;
 
@@ -231,6 +226,9 @@ export class RSSEngineService {
                 sourceId: source.id,
                 postedAt: data.postedAt || new Date(),
                 clusterId: clusterId,
+                city: source.owner?.city,
+                state: source.owner?.state,
+                country: source.owner?.country,
               },
             });
             newCount++;
@@ -242,34 +240,9 @@ export class RSSEngineService {
         }),
       );
 
-<<<<<<< HEAD
       this.logger.log(
         `Finished ${source.name}. Added ${newCount} new articles.`,
       );
-=======
-          await this.prisma.article.create({
-            data: {
-              title: data.title || 'Untitled',
-              sourceUrl: data.sourceUrl,
-              imageUrl: data.imageUrl,
-              synopsis: summary,
-              category: category,
-              sourceId: source.id,
-              postedAt: data.postedAt || new Date(),
-              clusterId: clusterId,
-              city: source.owner?.city,
-              state: source.owner?.state,
-              country: source.owner?.country,
-            }
-          });
-          newCount++;
-        } catch (articleError) {
-          this.logger.error(`Error processing article ${data?.sourceUrl}: ${articleError.message}`);
-        }
-      }));
-
-      this.logger.log(`Finished ${source.name}. Added ${newCount} new articles.`);
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
       return newCount;
     } catch (error) {
       this.logger.error(`Failed to sync RSS for ${sourceId}: ${error.message}`);

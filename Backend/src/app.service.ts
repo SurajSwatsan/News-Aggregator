@@ -29,12 +29,6 @@ export class AppService {
   }
 
   async getPublicArticles(
-<<<<<<< HEAD
-    category?: string,
-    query?: string,
-    skip: number = 0,
-    take: number = 12,
-=======
     category?: string, 
     query?: string, 
     skip: number = 0, 
@@ -42,7 +36,6 @@ export class AppService {
     city?: string,
     state?: string,
     country?: string
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
   ) {
     const where: any = {};
 
@@ -88,13 +81,6 @@ export class AppService {
     }
 
     if (query) {
-<<<<<<< HEAD
-      where.OR = [
-        { title: { contains: query, mode: 'insensitive' } },
-        { synopsis: { contains: query, mode: 'insensitive' } },
-        { source: { name: { contains: query, mode: 'insensitive' } } },
-      ];
-=======
       const queryClause = {
         OR: [
           { title: { contains: query, mode: 'insensitive' } },
@@ -116,7 +102,6 @@ export class AppService {
       } else {
         where.OR = queryClause.OR;
       }
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     }
 
     const articles = await this.prisma.article.findMany({
@@ -132,11 +117,7 @@ export class AppService {
       orderBy: {
         postedAt: 'desc',
       },
-<<<<<<< HEAD
-      take: skip + take + 100, // Get enough for de-duplication
-=======
       take: (skip + take) * 3 // Get a much larger pool to ensure enough unique clusters after de-duplication
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     });
 
     // Calculate cluster sizes for the batch

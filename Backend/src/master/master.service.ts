@@ -108,10 +108,6 @@ export class MasterService {
     const country = await this.prisma.country.findFirst({
       where: { name: data.country },
     });
-<<<<<<< HEAD
-
-=======
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     if (!country) throw new NotFoundException('Country not found');
 
     let stateId = null;
@@ -136,10 +132,6 @@ export class MasterService {
     const country = await this.prisma.country.findFirst({
       where: { name: data.country },
     });
-<<<<<<< HEAD
-
-=======
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     if (!country) throw new NotFoundException('Country not found');
 
     let stateId = null;

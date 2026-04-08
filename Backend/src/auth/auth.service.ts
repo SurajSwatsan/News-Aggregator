@@ -21,20 +21,12 @@ export class AuthService {
     private configService: ConfigService,
     private mailService: MailService,
     private auditLogs: AuditLogsService,
-  ) {}
+  ) { }
 
   async requestOtp(
-<<<<<<< HEAD
     email: string,
     firstName?: string,
     lastName?: string,
-    password?: string,
-  ) {
-    const data = { email, firstName, lastName, password };
-=======
-    email: string, 
-    firstName?: string, 
-    lastName?: string, 
     password?: string,
     phone?: string,
     city?: string,
@@ -42,7 +34,6 @@ export class AuthService {
     country?: string
   ) {
     const data = { email, firstName, lastName, password, phone, city, state, country };
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
     // 1. Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -56,19 +47,12 @@ export class AuthService {
         data: {
           otp,
           otpExpiresAt: expiresAt,
-<<<<<<< HEAD
-          passwordHash: data.password
-            ? await bcrypt.hash(data.password, 10)
-            : user.passwordHash,
-        },
-=======
           passwordHash: data.password ? await bcrypt.hash(data.password, 10) : user.passwordHash,
           phone: data.phone || user.phone,
           city: data.city || user.city,
           state: data.state || user.state,
           country: data.country || user.country
         }
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
       });
     } else {
       // Check if there's a pending onboarding, or create a temporary one for registration
@@ -84,19 +68,12 @@ export class AuthService {
             otpExpiresAt: expiresAt,
             firstName: firstName || onboarding.firstName,
             lastName: lastName || onboarding.lastName,
-<<<<<<< HEAD
-            passwordHash: data.password
-              ? await bcrypt.hash(data.password, 10)
-              : onboarding.passwordHash,
-          },
-=======
             passwordHash: data.password ? await bcrypt.hash(data.password, 10) : onboarding.passwordHash,
             phone: data.phone || onboarding.phone,
             city: data.city || onboarding.city,
             state: data.state || onboarding.state,
             country: data.country || onboarding.country
           }
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
         });
       } else {
         // Create a basic onboarding record for this new email
@@ -115,15 +92,11 @@ export class AuthService {
             firstName,
             lastName,
             passwordHash: hashedPassword,
-<<<<<<< HEAD
-          },
-=======
             phone: data.phone,
             city: data.city,
             state: data.state,
             country: data.country
           }
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
         });
       }
     }
@@ -214,11 +187,7 @@ export class AuthService {
               country: onboarding.country,
               passwordHash: onboarding.passwordHash || 'OTP_USER',
               creditBalance: 10,
-<<<<<<< HEAD
-            },
-=======
             }
->>>>>>> 71079a29c9e6895199c0572cf8ea02c4170efe7c
           });
           await this.prisma.publisherOnboarding.update({
             where: { id: onboarding.id },

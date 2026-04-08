@@ -2,6 +2,7 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // ✅ These public endpoints must NOT receive a Bearer token
 // Sending a bad/expired token to these routes causes 401 → login redirect
@@ -26,11 +27,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
 
+  // Attach token ONLY for internal API calls (absolute or relative)
+  const isInternal = req.url.startsWith('/') || req.url.startsWith(environment.apiUrl);
   // Skip attaching token for public endpoints
   const isPublic = PUBLIC_URL_PATTERNS.some(pattern => req.url.includes(pattern));
 
   let authReq = req;
-  if (token && !isPublic) {
+  if (token && isInternal && !isPublic) {
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

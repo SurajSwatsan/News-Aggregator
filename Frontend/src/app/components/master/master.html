@@ -3,7 +3,11 @@
   <div class="top-header">
     <div class="top-actions">
       <button class="btn-add-master" (click)="add()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
         Add {{ activeSubTab() === 'countries' ? 'Country' : (activeSubTab() === 'states' ? 'State' : 'City') }}
       </button>
     </div>
@@ -13,7 +17,11 @@
   <div class="master-stats-grid">
     <div class="master-stat-card">
       <div class="stat-icon-box blue">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
       </div>
       <div class="stat-info">
         <span class="stat-num">{{ countries().length }}</span>
@@ -22,7 +30,10 @@
     </div>
     <div class="master-stat-card">
       <div class="stat-icon-box green">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
       </div>
       <div class="stat-info">
         <span class="stat-num">{{ states().length }}</span>
@@ -31,7 +42,13 @@
     </div>
     <div class="master-stat-card">
       <div class="stat-icon-box orange">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18"/><path d="M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3l2-4h14l2 4"/><path d="M5 21V10.85"/><path d="M19 21V10.85"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/></svg>
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 21h18" />
+          <path d="M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3l2-4h14l2 4" />
+          <path d="M5 21V10.85" />
+          <path d="M19 21V10.85" />
+          <path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4" />
+        </svg>
       </div>
       <div class="stat-info">
         <span class="stat-num">{{ cities().length }}</span>
@@ -44,7 +61,10 @@
   <div class="table-card">
     <div class="table-card-header">
       <div class="search-box-refined">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
         <input type="text" [placeholder]="'Search ' + activeSubTab()">
       </div>
     </div>
@@ -70,10 +90,19 @@
             <div class="currency-cell font-bold">{{ c._count?.cities || 0 }} Cities</div>
             <div class="action-set">
               <button class="btn-icon-simple" (click)="edit(c)" title="Edit">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
               </button>
               <button class="btn-icon-simple danger" (click)="delete(c)" title="Delete">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
               </button>
             </div>
           </div>
@@ -92,10 +121,19 @@
             <div class="currency-cell">{{ state.country?.name }}</div>
             <div class="action-set">
               <button class="btn-icon-simple" (click)="edit(state)" title="Edit">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
               </button>
               <button class="btn-icon-simple danger" (click)="delete(state)" title="Delete">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
               </button>
             </div>
           </div>
@@ -120,17 +158,27 @@
             </div>
             <div class="action-set">
               <button class="btn-icon-simple" (click)="edit(city)" title="Edit">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
               </button>
               <button class="btn-icon-simple danger" (click)="delete(city)" title="Delete">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
               </button>
             </div>
           </div>
         </ng-container>
 
         <!-- Placeholder for unexpected tabs -->
-        <ng-container *ngIf="activeSubTab() !== 'countries' && activeSubTab() !== 'cities' && activeSubTab() !== 'states'">
+        <ng-container
+          *ngIf="activeSubTab() !== 'countries' && activeSubTab() !== 'cities' && activeSubTab() !== 'states'">
           <div style="padding: 3rem; text-align: center; color: #64748b; font-weight: 500;">
             Select a category from the sidebar to manage master data.
           </div>
@@ -140,12 +188,16 @@
   </div>
 
   <!-- Modern Modal Dialog -->
-  <div class="modal-overlay" *ngIf="isModalOpen()" (click)="closeModal()">
+  <div class="modal-overlay" *ngIf="isModalOpen()">
     <div class="modal-card animate-zoom-in" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>{{ modalMode() === 'add' ? 'Add New' : 'Edit' }} {{ activeSubTab() === 'countries' ? 'Country' : (activeSubTab() === 'states' ? 'State' : 'City') }}</h2>
+        <h2>{{ modalMode() === 'add' ? 'Add New' : 'Edit' }} {{ activeSubTab() === 'countries' ? 'Country' :
+          (activeSubTab() === 'states' ? 'State' : 'City') }}</h2>
         <button class="btn-close-modal" (click)="closeModal()">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
         </button>
       </div>
 
@@ -153,127 +205,66 @@
         <form class="refined-form-layout">
           <!-- Country Specific -->
           <ng-container *ngIf="activeSubTab() === 'countries'">
-            <app-floating-input 
-              [label]="'Country Name'"
-              name="countryName"
-              [required]="true"
-              errorMsg="Country Name is required"
-              [isInvalid]="!formData().name"
-              [forceShowErrors]="isFormTouched()"
-              [ngModel]="formData().name"
-              (ngModelChange)="formData.set({...formData(), name: $event})"
+            <app-floating-input [label]="'Country Name'" name="countryName" [required]="true"
+              errorMsg="Country Name is required" [isInvalid]="!formData().name" [forceShowErrors]="isFormTouched()"
+              [ngModel]="formData().name" (ngModelChange)="formData.set({...formData(), name: $event})"
               placeholder="e.g. United States">
             </app-floating-input>
 
             <div class="form-row">
-              <app-floating-input 
-                [label]="'ISO Code'"
-                name="isoCode"
-                [required]="true"
-                errorMsg="ISO Code is required"
-                [isInvalid]="!formData().isoCode"
-                [forceShowErrors]="isFormTouched()"
-                [ngModel]="formData().isoCode"
-                (ngModelChange)="formData.set({...formData(), isoCode: $event})"
-                placeholder="e.g. US">
+              <app-floating-input [label]="'ISO Code'" name="isoCode" [required]="true" errorMsg="ISO Code is required"
+                [isInvalid]="!formData().isoCode" [forceShowErrors]="isFormTouched()" [ngModel]="formData().isoCode"
+                (ngModelChange)="formData.set({...formData(), isoCode: $event})" placeholder="e.g. US">
               </app-floating-input>
-              <app-floating-input 
-                [label]="'Mobile Code'"
-                name="mobileCode"
-                [ngModel]="formData().mobileCode"
-                (ngModelChange)="formData.set({...formData(), mobileCode: $event})"
-                placeholder="e.g. +1">
+              <app-floating-input [label]="'Mobile Code'" name="mobileCode" [ngModel]="formData().mobileCode"
+                (ngModelChange)="formData.set({...formData(), mobileCode: $event})" placeholder="e.g. +1">
               </app-floating-input>
             </div>
-            
+
             <div class="form-row">
-              <app-floating-input 
-                [label]="'Currency'"
-                name="currency"
-                [required]="true"
-                errorMsg="Currency is required"
-                [isInvalid]="!formData().currency"
-                [forceShowErrors]="isFormTouched()"
-                [ngModel]="formData().currency"
-                (ngModelChange)="formData.set({...formData(), currency: $event})"
-                placeholder="e.g. USD">
+              <app-floating-input [label]="'Currency'" name="currency" [required]="true" errorMsg="Currency is required"
+                [isInvalid]="!formData().currency" [forceShowErrors]="isFormTouched()" [ngModel]="formData().currency"
+                (ngModelChange)="formData.set({...formData(), currency: $event})" placeholder="e.g. USD">
               </app-floating-input>
-              <app-floating-input 
-                [label]="'Currency Symbol'"
-                name="currencySymbol"
-                [required]="true"
-                errorMsg="Symbol is required"
-                [isInvalid]="!formData().currencySymbol"
-                [forceShowErrors]="isFormTouched()"
-                [ngModel]="formData().currencySymbol"
-                (ngModelChange)="formData.set({...formData(), currencySymbol: $event})"
-                placeholder="e.g. $">
+              <app-floating-input [label]="'Currency Symbol'" name="currencySymbol" [required]="true"
+                errorMsg="Symbol is required" [isInvalid]="!formData().currencySymbol"
+                [forceShowErrors]="isFormTouched()" [ngModel]="formData().currencySymbol"
+                (ngModelChange)="formData.set({...formData(), currencySymbol: $event})" placeholder="e.g. $">
               </app-floating-input>
             </div>
           </ng-container>
-          
+
           <!-- State Specific -->
           <ng-container *ngIf="activeSubTab() === 'states'">
-            <app-floating-input 
-              [label]="'State Name'"
-              name="stateName"
-              [required]="true"
-              errorMsg="State Name is required"
-              [isInvalid]="!formData().name"
-              [forceShowErrors]="isFormTouched()"
-              [ngModel]="formData().name"
-              (ngModelChange)="formData.set({...formData(), name: $event})"
+            <app-floating-input [label]="'State Name'" name="stateName" [required]="true"
+              errorMsg="State Name is required" [isInvalid]="!formData().name" [forceShowErrors]="isFormTouched()"
+              [ngModel]="formData().name" (ngModelChange)="formData.set({...formData(), name: $event})"
               placeholder="e.g. California">
             </app-floating-input>
 
-            <app-floating-select
-              label="Select Country"
-              name="countrySelectForState"
-              [required]="true"
-              errorMsg="Country selection is required"
-              [isInvalid]="!formData().country || formData().country === ''"
-              [forceShowErrors]="isFormTouched()"
-              [options]="countryOptions()"
-              [ngModel]="formData().country"
-              (ngModelChange)="formData.set({...formData(), country: $event})"
-              class="master-select-light">
+            <app-floating-select label="Select Country" name="countrySelectForState" [required]="true"
+              errorMsg="Country selection is required" [isInvalid]="!formData().country || formData().country === ''"
+              [forceShowErrors]="isFormTouched()" [options]="countryOptions()" [ngModel]="formData().country"
+              (ngModelChange)="formData.set({...formData(), country: $event})" class="master-select-light">
             </app-floating-select>
           </ng-container>
 
           <!-- City Specific -->
           <ng-container *ngIf="activeSubTab() === 'cities'">
-            <app-floating-input 
-              [label]="'City Name'"
-              name="cityName"
-              [required]="true"
-              errorMsg="City Name is required"
-              [isInvalid]="!formData().name"
-              [forceShowErrors]="isFormTouched()"
-              [ngModel]="formData().name"
-              (ngModelChange)="formData.set({...formData(), name: $event})"
-              placeholder="e.g. New York">
+            <app-floating-input [label]="'City Name'" name="cityName" [required]="true" errorMsg="City Name is required"
+              [isInvalid]="!formData().name" [forceShowErrors]="isFormTouched()" [ngModel]="formData().name"
+              (ngModelChange)="formData.set({...formData(), name: $event})" placeholder="e.g. New York">
             </app-floating-input>
 
             <div class="form-row">
-              <app-floating-select
-                label="Select Country"
-                name="countrySelect"
-                [required]="true"
-                errorMsg="Country selection is required"
-                [isInvalid]="!formData().country || formData().country === ''"
-                [forceShowErrors]="isFormTouched()"
-                [options]="countryOptions()"
-                [ngModel]="formData().country"
-                (ngModelChange)="onCountryChange($event)"
-                class="master-select-light">
+              <app-floating-select label="Select Country" name="countrySelect" [required]="true"
+                errorMsg="Country selection is required" [isInvalid]="!formData().country || formData().country === ''"
+                [forceShowErrors]="isFormTouched()" [options]="countryOptions()" [ngModel]="formData().country"
+                (ngModelChange)="onCountryChange($event)" class="master-select-light">
               </app-floating-select>
 
-              <app-floating-select
-                label="Select State (Optional)"
-                name="stateSelect"
-                [options]="stateOptions()"
-                [ngModel]="formData().state"
-                (ngModelChange)="formData.set({...formData(), state: $event})"
+              <app-floating-select label="Select State (Optional)" name="stateSelect" [options]="stateOptions()"
+                [ngModel]="formData().state" (ngModelChange)="formData.set({...formData(), state: $event})"
                 class="master-select-light">
               </app-floating-select>
             </div>
