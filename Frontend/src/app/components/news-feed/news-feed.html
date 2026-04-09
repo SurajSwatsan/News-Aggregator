@@ -29,7 +29,7 @@
       </div>
       <div class="utility-right">
         @if (currentUser()) {
-        <div class="user-credits">
+        <div class="user-credits" (click)="onCreditClick()">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="credit-icon">
             <path d="M12 2L1 12l11 10 11-10L12 2zm0 16.3L4.7 12 12 5.7l7.3 6.3-7.3 6.3z" />
           </svg>
@@ -348,4 +348,58 @@
   <app-footer></app-footer>
 
   <!-- <app-footer></app-footer> -->
+
+  <!-- Premium Paywall Modal -->
+  <div class="paywall-overlay" *ngIf="showPaywallModal()" (click)="showPaywallModal.set(false)">
+    <div class="paywall-card animate-zoom-in" (click)="$event.stopPropagation()">
+      <div class="paywall-header">
+        <div class="paywall-badge-row">
+          <span class="premium-label">PREMIUM REQUIRED</span>
+          <div class="user-credits-mini" *ngIf="currentUser()">
+            <svg viewBox="0 0 24 24" width="12" height="12">
+              <path d="M12 2L2 12l10 10 10-10L12 2z" fill="currentColor" />
+            </svg>
+            {{ currentUser()?.creditBalance || 0 }} CREDITS
+          </div>
+        </div>
+        <h2>Your Free Credits Are Used Up</h2>
+        <p>You’ve reached your limit of 10 free credits. Upgrade now to continue exploring premium insights without interruption.</p>
+        <button class="paywall-close-x" (click)="showPaywallModal.set(false)">&times;</button>
+      </div>
+      
+      <div class="paywall-cta-container">
+        <div class="premium-feature-list">
+          <div class="feature-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <span>Unlimited Investigations</span>
+          </div>
+          <div class="feature-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <span>Exclusive Editorial Analysis</span>
+          </div>
+          <div class="feature-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <span>Ad-Free Experience</span>
+          </div>
+        </div>
+
+        <button class="btn-apply-subscription" (click)="goToSubscription()">
+          APPLY SUBSCRIPTION
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="paywall-footer">
+        <button class="paywall-close-btn" (click)="showPaywallModal.set(false)">NOT NOW, CONTINUE BROWSING</button>
+      </div>
+    </div>
+  </div>
 </div>

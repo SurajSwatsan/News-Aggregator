@@ -1,4 +1,4 @@
-import { Component, computed, signal, inject, OnInit } from '@angular/core';
+import { Component, computed, signal, inject, OnInit, HostListener, ElementRef } from '@angular/core';
 import { AuthService } from '../../auth/auth';
 import { Router, RouterLink, ActivatedRoute, RouterLinkActive } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -31,10 +31,12 @@ export class AdminDashboardComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   public uiService = inject(UiService);
+  private elementRef = inject(ElementRef);
 
   user = computed(() => this.authService.currentUser());
   activeTab = signal('overview');
   isMasterExpanded = signal(false);
+  isMobileSidebarOpen = signal(false);
 
   headerTitle = computed(() => {
     switch (this.activeTab()) {
@@ -151,6 +153,8 @@ export class AdminDashboardComponent implements OnInit {
   ngOnInit() {
     this.route.url.subscribe(url => {
       const path = url[0]?.path;
+      this.isMasterExpanded.set(path === 'master');
+      
       if (path === 'sources') {
         this.activeTab.set('sources');
       } else if (path === 'user' || path === 'readers') {
@@ -162,7 +166,6 @@ export class AdminDashboardComponent implements OnInit {
         this.activeTab.set('ads');
       } else if (path === 'master') {
         this.activeTab.set('master');
-        this.isMasterExpanded.set(true);
       } else if (path === 'subscriptions') {
         this.activeTab.set('subscriptions');
       } else if (path === 'notifications') {
@@ -238,6 +241,30 @@ export class AdminDashboardComponent implements OnInit {
 
   onLogout() {
     this.authService.logout();
+  }
+
+  toggleMaster(event: MouseEvent) {
+    // Check if clicking the same item that's already expanded
+    if (this.isMasterExpanded()) {
+      // If already expanded and same route, toggle off
+      // Navigation will still happen due to routerLink, but state will be updated
+      this.isMasterExpanded.set(false);
+    } else {
+      this.isMasterExpanded.set(true);
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const sidebar = this.elementRef.nativeElement.querySelector('.sidebar');
+    
+    // Only close if master is expanded and click is outside the entire sidebar
+    // This allows clicking other sidebar items (which handle closing via routing) 
+    // or clicking inside the sub-menu without closing it.
+    if (this.isMasterExpanded() && sidebar && !sidebar.contains(target)) {
+      this.isMasterExpanded.set(false);
+    }
   }
 
   // --- Ad Creation ---

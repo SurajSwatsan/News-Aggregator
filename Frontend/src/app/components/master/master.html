@@ -57,17 +57,19 @@
     </div>
   </div>
 
+  <!-- Search Header Row -->
+  <div class="search-card">
+    <div class="search-box-refined">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      <input type="text" [placeholder]="'Search ' + activeSubTab()">
+    </div>
+  </div>
+
   <!-- Main Content Table Card -->
   <div class="table-card">
-    <div class="table-card-header">
-      <div class="search-box-refined">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.3-4.3" />
-        </svg>
-        <input type="text" [placeholder]="'Search ' + activeSubTab()">
-      </div>
-    </div>
 
     <div class="premium-inventory-wrapper">
       <div class="premium-scroll-area">

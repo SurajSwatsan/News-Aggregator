@@ -3,6 +3,7 @@
   bottom: 25px;
   right: 25px;
   width: 340px;
+  max-width: calc(100vw - 32px); /* Don't overflow small viewports */
   background: rgba(15, 23, 42, 0.9);
   backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -172,9 +173,10 @@
 /* Mobile Responsiveness */
 @media screen and (max-width: 480px) {
   .floating-ad-wrapper {
-    width: calc(100% - 32px);
-    left: 16px;
-    right: 16px;
+    width: calc(100% - 32px) !important;
+    max-width: calc(100vw - 32px) !important;
+    left: 16px !important;
+    right: 16px !important;
     bottom: 16px;
   }
 }

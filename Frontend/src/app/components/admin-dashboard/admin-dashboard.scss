@@ -257,6 +257,11 @@ body {
     margin-left: 0 !important;
     width: 100% !important;
   }
+
+  @media (max-width: 1024px) {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
 }
 
 /* Ad Creation Modal - Global Reset */
@@ -292,6 +297,11 @@ body.modal-open {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  @media (max-width: 640px) {
+    max-height: 100vh;
+    border-radius: 0;
+  }
 }
 
 .modal-top {
@@ -721,6 +731,10 @@ body.modal-open {
     top: 0;
     z-index: 1000;
 
+    @media (max-width: 768px) {
+       padding: 0.75rem 1.25rem;
+    }
+
     .header-content {
       max-width: 1600px;
       margin: 0 auto;
@@ -758,8 +772,28 @@ body.modal-open {
         .header-right-actions {
           display: flex !important;
           align-items: center !important;
-          gap: 1.5rem !important;
+          gap: clamp(0.75rem, 2vw, 1.5rem) !important;
           margin-left: auto !important;
+
+          .btn-sidebar-toggle {
+            display: none;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+
+            &:hover {
+              background: #e2e8f0;
+              color: #0f172a;
+            }
+
+            @media (max-width: 1024px) {
+              display: flex;
+            }
+          }
         }
       }
     }
@@ -791,7 +825,7 @@ body.modal-open {
 
 // Content Area
 .content-area {
-  padding: 2rem !important;
+  padding: clamp(1rem, 4vw, 2.5rem) !important;
   max-width: 1600px !important;
   animation: slideUp 0.4s ease-out !important;
 }
@@ -814,6 +848,11 @@ body.modal-open {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
   gap: 1.5rem !important;
   margin-bottom: 3rem !important;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
 }
 
 .stat-card {
@@ -865,6 +904,11 @@ body.modal-open {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: 2rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }
 
 .system-health,
@@ -976,8 +1020,26 @@ body.modal-open {
   padding: 1.5rem 2rem !important;
   border-bottom: 1px solid $border-color !important;
   display: flex !important;
-  justify-content: flex-end !important; // Because H2 was removed
+  justify-content: flex-end !important;
   align-items: center !important;
+
+  @media (max-width: 640px) {
+    padding: 1rem !important;
+  }
+}
+
+.table-container {
+  @include card-base;
+  overflow: hidden !important;
+  
+  .table-scroll-area {
+    overflow-x: auto;
+    width: 100%;
+    
+    .admin-table {
+       min-width: 800px;
+    }
+  }
 }
 
 .admin-table {

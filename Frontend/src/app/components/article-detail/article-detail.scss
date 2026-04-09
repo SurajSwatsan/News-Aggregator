@@ -20,20 +20,22 @@ app-ad-slot {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 // Navigation
 .reader-nav {
   position: sticky;
   top: 0;
-  height: 70px;
+  height: clamp(60px, 10vh, 70px);
   background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(25px);
   border-bottom: 1px solid var(--border-color);
   z-index: 1000;
   display: flex;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 clamp(15px, 4vw, 40px);
 
   .nav-content {
     width: 100%;
@@ -42,6 +44,7 @@ app-ad-slot {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 15px;
   }
 }
 
@@ -70,8 +73,16 @@ app-ad-slot {
 .nav-branding {
   display: flex;
   align-items: center;
-  gap: 15px; // Balanced gap
-  max-width: 60%;
+  gap: 15px;
+  max-width: 70%; // Allow more space for title on desktop
+  flex: 1;
+  min-width: 0; // Prevent overflow-driven overlap
+
+  @media (max-width: 992px) {
+     .nav-pipe, .nav-title, .credits-badge {
+        display: none; // Keep it clean on smaller tablets
+     }
+  }
 
   .source-logo-frame {
     width: 32px;
@@ -95,12 +106,13 @@ app-ad-slot {
 
   .nav-source {
     font-weight: 900;
-    font-size: 14px; // Slightly larger for emphasis
+    font-size: 14px;
     color: var(--source-accent);
     letter-spacing: 0.5px;
     text-transform: uppercase;
     white-space: nowrap;
-    margin-top: 1px; // Visual center adjustment
+    margin-top: 1px;
+    flex-shrink: 0; // Don't squash the source name
   }
 
   .premium-badge-nav {
@@ -112,56 +124,59 @@ app-ad-slot {
     border-radius: 3px;
     letter-spacing: 1.5px;
     margin-left: 5px;
-    box-shadow: 0 2px 10px rgba(var(--source-accent-rgb, 153, 0, 0), 0.3);
-  }
-
-  .credits-badge {
-    background: rgba(255, 60, 60, 0.05);
-    border: 1px solid rgba(255, 60, 60, 0.15);
-    padding: 6px 16px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 15px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: rgba(255, 60, 60, 0.1);
-      border-color: rgba(255, 60, 60, 0.3);
-      transform: scale(1.02);
-    }
-
-    .diamond-icon {
-      color: #ff3c3c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      filter: drop-shadow(0 0 3px rgba(255, 60, 60, 0.6));
-    }
-
-    .credits-text {
-      color: #fff;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      white-space: nowrap;
-    }
+    flex-shrink: 0;
   }
 
   .nav-pipe {
-    color: rgba(255, 255, 255, 0.1);
-    font-weight: 300;
-    margin: 0 10px;
+    color: rgba(255, 255, 255, 0.15);
+    font-weight: 200;
+    font-size: 18px;
+    margin: 0 5px;
+    flex-shrink: 0;
+  }
+
+  .credits-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 12px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+
+    .diamond-icon {
+      color: var(--source-accent);
+      display: flex;
+      align-items: center;
+      line-height: 1;
+    }
+
+    .credits-text {
+      font-size: 10px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--source-accent);
+    }
   }
 
   .nav-title {
     font-size: 13px;
     font-weight: 500;
-    color: #777;
+    color: #888;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: block;
+    margin-left: 5px;
+    min-width: 0; // Allow it to shrink
   }
 }
 
@@ -208,10 +223,15 @@ app-ad-slot {
 .article-grid {
   display: grid;
   grid-template-columns: 1fr 320px;
-  gap: 80px;
+  gap: clamp(30px, 6vw, 80px);
   max-width: 1350px;
   margin: 0 auto;
-  padding: 60px;
+  padding: clamp(20px, 5vw, 60px);
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
 }
 
 .article-main-content {
@@ -220,7 +240,7 @@ app-ad-slot {
 
 // Header Section
 .article-header {
-  margin-bottom: 60px;
+  margin-bottom: clamp(30px, 8vw, 60px);
 
   .category-badge {
     display: inline-block;
@@ -231,18 +251,23 @@ app-ad-slot {
     font-weight: 800;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 40px;
+    margin-bottom: 30px; // Fixed margin for desktop consistency
     border-radius: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .main-title {
     font-family: 'Playfair Display', serif;
-    font-size: 58px; // Reduced for better wrapping
+    font-size: clamp(32px, 8vw, 58px);
     font-weight: 900;
     line-height: 1.1;
     letter-spacing: -2px;
-    margin-bottom: 45px;
+    margin-bottom: clamp(25px, 6vw, 45px);
     color: var(--text-primary);
+
+    @media (max-width: 480px) {
+       letter-spacing: -1px;
+    }
   }
 }
 
@@ -251,6 +276,8 @@ app-ad-slot {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
   padding-bottom: 40px;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 60px;
@@ -357,6 +384,9 @@ app-ad-slot {
     letter-spacing: 2px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-wrap: wrap;
     gap: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 12px 12px 0 0;
@@ -883,7 +913,9 @@ app-ad-slot {
   letter-spacing: 2.5px;
   border-radius: 4px;
   transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  min-width: 280px;
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
   border: none;
   cursor: pointer;
 
@@ -968,9 +1000,14 @@ app-ad-slot {
   }
 
   .main-title {
-    font-size: 44px;
+    font-size: clamp(28px, 8vw, 44px);
     letter-spacing: -1.5px;
     margin-bottom: 30px;
+  }
+
+  .premium-exclusive-banner {
+    padding: 10px;
+    letter-spacing: 1px;
   }
 
   .nav-branding {

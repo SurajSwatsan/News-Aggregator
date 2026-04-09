@@ -54,6 +54,7 @@ export class NewsFeedComponent implements OnInit {
   hasMore = signal<boolean>(true);
   isFetchingMore = signal<boolean>(false);
   lastUpdated = signal<string>('');
+  showPaywallModal = signal(false);
 
   categories = [
     'All', 'General', 'World', 'Politics', 'Business', 'Technology',
@@ -290,6 +291,16 @@ export class NewsFeedComponent implements OnInit {
 
   handleArticleAccess(article: any) {
     this.router.navigate(['/article', article.id]);
+  }
+
+  onCreditClick() {
+    this.showPaywallModal.set(true);
+  }
+
+  goToSubscription() {
+    this.router.navigate(['/subscription'], { 
+      queryParams: { returnUrl: '/'} 
+    });
   }
 
   handleImageError(event: any) {

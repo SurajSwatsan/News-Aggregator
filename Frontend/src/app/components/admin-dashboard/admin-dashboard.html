@@ -1,5 +1,6 @@
 <div class="admin-layout">
-  <aside class="sidebar" [class.sidebar-hidden]="isSubscriptionModalActive() || uiService.isModalOpen()">
+  <div class="sidebar-overlay" *ngIf="isMobileSidebarOpen()" (click)="isMobileSidebarOpen.set(false)"></div>
+  <aside class="sidebar" [class.sidebar-hidden]="isSubscriptionModalActive() || uiService.isModalOpen()" [class.mobile-open]="isMobileSidebarOpen()">
     <div class="sidebar-header">
       <div class="logo-box">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -76,7 +77,7 @@
       <div class="nav-item collapsible" 
            routerLink="/master" 
            [queryParams]="{tab: 'countries'}" 
-           (click)="isMasterExpanded.set(true)" 
+           (click)="toggleMaster($event)" 
            routerLinkActive="active"
            [class.expanded]="isMasterExpanded()">
         <div class="nav-item-main">
@@ -126,6 +127,14 @@
             <span class="current">{{ breadcrumbTrail().current }}</span>
           </div>
           <div class="header-right-actions">
+            <button class="btn-sidebar-toggle" (click)="isMobileSidebarOpen.set(!isMobileSidebarOpen())">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
             <app-notification-bell></app-notification-bell>
             <app-profile-dropdown></app-profile-dropdown>
           </div>

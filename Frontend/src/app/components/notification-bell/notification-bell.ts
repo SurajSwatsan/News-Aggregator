@@ -17,7 +17,8 @@ export class NotificationBellComponent {
 
   isOpen = signal(false);
 
-  toggleDropdown() {
+  toggleDropdown(event: Event) {
+    event.stopPropagation();
     this.isOpen.set(!this.isOpen());
     if (this.isOpen()) {
       this.notificationService.fetchNotifications();

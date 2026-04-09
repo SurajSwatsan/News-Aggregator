@@ -27,7 +27,7 @@
 
 .footer-brand {
   flex: 1;
-  max-width: 400px;
+  max-width: 100%;
 
   h2 {
     font-family: 'Lora', serif;
@@ -40,6 +40,11 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    @media (max-width: 480px) {
+      white-space: normal;
+      font-size: 1.5rem;
+    }
   }
 
   .tagline {
@@ -149,4 +154,8 @@
   color: #222;
   letter-spacing: 2px;
   white-space: nowrap;
+
+  @media (max-width: 480px) {
+    white-space: normal;
+  }
 }

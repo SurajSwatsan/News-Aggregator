@@ -96,8 +96,13 @@
 // Stats Cards
 .master-stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); // Force 3 columns on desktop to prevent wrapping
   gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
 }
 
 .master-stat-card {
@@ -152,6 +157,15 @@
   }
 }
 
+// Search Card Standalone
+.search-card {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
 // Table Card
 .table-card {
   background: white;
@@ -159,29 +173,25 @@
   border: 1px solid #f1f5f9;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
   overflow: hidden;
-  padding: 1.5rem 0 1rem;
-}
-
-.table-card-header {
-  padding: 0 2rem 2rem;
+  padding: 1rem 0;
 }
 
 .search-box-refined {
-  max-width: 400px;
+  max-width: 100%; // Allow full width in search card
   position: relative;
   display: flex;
   align-items: center;
 
   svg {
     position: absolute;
-    left: 1.25rem;
+    left: 1.5rem;
     color: #94a3b8;
   }
 
   input {
     width: 100%;
-    padding: 0.7rem 1.25rem 0.7rem 3.5rem;
-    border-radius: 10px;
+    padding: 0.85rem 1.5rem 0.85rem 4rem; // Increased padding for taller look
+    border-radius: 12px;
     border: 1px solid #f1f5f9;
     background: #fcfcfd;
     font-size: 0.85rem;
@@ -207,20 +217,23 @@
   grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
   align-items: center;
   padding: 1.25rem 2rem;
+  min-width: 900px;
 }
 
 .cols-master-city-refined {
   display: grid;
-  grid-template-columns: 2.5fr 2.5fr 0.8fr; // Updated for 3 columns (State Master)
+  grid-template-columns: 2.5fr 2.5fr 0.8fr; 
   align-items: center;
   padding: 1.25rem 2rem;
+  min-width: 700px;
 }
 
 .cols-master-city-actual-refined {
   display: grid;
-  grid-template-columns: 2fr 2fr 1.2fr 0.8fr; // Original 4 columns for City Master
+  grid-template-columns: 2fr 2fr 1.2fr 0.8fr;
   align-items: center;
   padding: 1.25rem 2rem;
+  min-width: 850px;
 }
 
 .premium-grid-header {
@@ -246,7 +259,7 @@
 .premium-scroll-area {
   max-height: 60vh;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto; // Enabled horizontal scroll
   padding-right: 4px;
 
   &::-webkit-scrollbar {
@@ -352,10 +365,15 @@
   max-width: 750px;
   border-radius: 24px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  overflow: visible; // Changed from hidden to allow dropdowns to overflow
+  overflow: visible; 
   display: flex;
   flex-direction: column;
   position: relative;
+
+  @media (max-width: 640px) {
+    border-radius: 0;
+    max-height: 100vh;
+  }
 }
 
 .modal-header {
@@ -426,6 +444,10 @@ app-floating-input {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .modal-footer {
