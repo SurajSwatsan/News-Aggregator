@@ -13,11 +13,12 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   background: #000000;
   color: #ffffff;
   font-family: $font-sans;
-  overflow-x: clip; 
+  overflow-x: clip;
   width: 100%;
   max-width: 100vw;
   box-sizing: border-box;
   position: relative;
+
 }
 
 /* Breaking News Ticker */
@@ -464,6 +465,7 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -475,6 +477,7 @@ $border-subtle: rgba(255, 255, 255, 0.08);
     width: 100%;
     overflow-x: auto; // Required for horizontal scroll
     scrollbar-width: none; // Hide for FF
+
     &::-webkit-scrollbar {
       display: none; // Hide for Chrome/Safari
     }
@@ -591,18 +594,18 @@ $border-subtle: rgba(255, 255, 255, 0.08);
 }
 
 .in-feed-grid-ad {
-   grid-column: 1 / -1;
-   width: 100%;
-   margin: 2rem 0;
-   background: #0a0a0a;
-   border-radius: 12px;
-   overflow: hidden;
-   border: 1px solid rgba(255, 255, 255, 0.05);
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 2rem 0;
+  background: #0a0a0a;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 
-   app-ad-slot {
-      width: 100%;
-      display: block;
-   }
+  app-ad-slot {
+    width: 100%;
+    display: block;
+  }
 }
 
 /* Hero Section */
@@ -639,12 +642,11 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   position: absolute;
   inset: 0;
   // Darker, more extensive gradient for better text legibility
-  background: linear-gradient(to top, 
-    rgba(0, 0, 0, 0.98) 0%, 
-    rgba(0, 0, 0, 0.85) 35%, 
-    rgba(0, 0, 0, 0.5) 65%, 
-    rgba(0, 0, 0, 0.2) 100%
-  );
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.98) 0%,
+      rgba(0, 0, 0, 0.85) 35%,
+      rgba(0, 0, 0, 0.5) 65%,
+      rgba(0, 0, 0, 0.2) 100%);
 }
 
 .hero-content {
@@ -1354,35 +1356,48 @@ $border-subtle: rgba(255, 255, 255, 0.08);
     border-radius: 20px !important;
     width: clamp(280px, 90vw, 340px) !important;
   }
-  
+
   .dropdown-header-premium {
     background: rgba(255, 255, 255, 0.03) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
-  
-  .user-display-name { color: #ffffff !important; }
-  .user-display-email { color: #94a3b8 !important; }
-  .menu-item { color: #94a3b8 !important; }
-  
-  .menu-item:hover { 
-    background: rgba(255, 255, 255, 0.05) !important; 
+
+  .user-display-name {
     color: #ffffff !important;
   }
-  
-  .menu-item:hover .menu-icon { color: #ffffff !important; }
-  .menu-divider { background: rgba(255, 255, 255, 0.08) !important; }
-  
+
+  .user-display-email {
+    color: #94a3b8 !important;
+  }
+
+  .menu-item {
+    color: #94a3b8 !important;
+  }
+
+  .menu-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+  }
+
+  .menu-item:hover .menu-icon {
+    color: #ffffff !important;
+  }
+
+  .menu-divider {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
   .premium-select {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
   }
-  
+
   .premium-select option {
     background: #111 !important;
     color: #fff !important;
   }
-  
+
   .logout-link:hover {
     background: rgba(239, 68, 68, 0.1) !important;
   }
@@ -1556,7 +1571,7 @@ $border-subtle: rgba(255, 255, 255, 0.08);
 .spotlight-nav {
   display: flex;
   gap: 10px;
-  
+
   .nav-btn {
     width: 42px;
     height: 42px;
@@ -1569,14 +1584,14 @@ $border-subtle: rgba(255, 255, 255, 0.08);
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-    
+
     &:hover {
       background: #fff;
       color: #000;
       border-color: #fff;
       transform: translateY(-2px);
     }
-    
+
     svg {
       width: 18px;
       height: 18px;
@@ -1591,12 +1606,18 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   gap: 12px;
   cursor: pointer;
   width: fit-content;
-  
+
   &:hover {
-    h2 { color: $accent-red; }
-    svg { transform: translateX(5px); color: $accent-red; }
+    h2 {
+      color: $accent-red;
+    }
+
+    svg {
+      transform: translateX(5px);
+      color: $accent-red;
+    }
   }
-  
+
   h2 {
     font-family: $font-serif;
     font-size: clamp(20px, 5vw, 26px);
@@ -1606,7 +1627,7 @@ $border-subtle: rgba(255, 255, 255, 0.08);
     line-height: 1;
     letter-spacing: -0.5px;
   }
-  
+
   svg {
     color: #444;
     width: 20px;
@@ -1622,7 +1643,10 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   scroll-snap-type: x mandatory;
   padding: 10px 0 30px;
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .spotlight-grid {
@@ -1637,15 +1661,16 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   scroll-snap-align: start;
   flex-shrink: 0;
   cursor: pointer;
-  
+
   @media (max-width: 480px) {
     width: 220px;
   }
-  
+
   &:hover {
     .spotlight-image-box img {
       transform: scale(1.08);
     }
+
     .spotlight-item-title {
       color: #fff;
     }
@@ -1659,8 +1684,8 @@ $border-subtle: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   margin-bottom: 20px;
   background: #0a0a0a;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
   img {
     width: 100%;
     height: 100%;
@@ -1773,7 +1798,11 @@ $border-subtle: rgba(255, 255, 255, 0.08);
     cursor: pointer;
     line-height: 1;
     transition: 0.3s;
-    &:hover { color: #fff; transform: rotate(90deg); }
+
+    &:hover {
+      color: #fff;
+      transform: rotate(90deg);
+    }
   }
 }
 
@@ -1855,13 +1884,25 @@ $border-subtle: rgba(255, 255, 255, 0.08);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.9) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .animate-zoom-in {

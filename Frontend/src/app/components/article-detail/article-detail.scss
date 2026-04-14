@@ -79,9 +79,12 @@ app-ad-slot {
   min-width: 0; // Prevent overflow-driven overlap
 
   @media (max-width: 992px) {
-     .nav-pipe, .nav-title, .credits-badge {
-        display: none; // Keep it clean on smaller tablets
-     }
+
+    .nav-pipe,
+    .nav-title,
+    .credits-badge {
+      display: none; // Keep it clean on smaller tablets
+    }
   }
 
   .source-logo-frame {
@@ -266,7 +269,7 @@ app-ad-slot {
     color: var(--text-primary);
 
     @media (max-width: 480px) {
-       letter-spacing: -1px;
+      letter-spacing: -1px;
     }
   }
 }
@@ -709,7 +712,7 @@ app-ad-slot {
 
 .related-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 30px;
 }
 
@@ -1010,6 +1013,10 @@ app-ad-slot {
     letter-spacing: 1px;
   }
 
+  .related-news-section {
+    padding: 40px 20px;
+  }
+
   .nav-branding {
     display: none;
   }
@@ -1105,7 +1112,11 @@ app-ad-slot {
     cursor: pointer;
     line-height: 1;
     transition: 0.3s;
-    &:hover { color: #fff; transform: rotate(90deg); }
+
+    &:hover {
+      color: #fff;
+      transform: rotate(90deg);
+    }
   }
 }
 
@@ -1187,13 +1198,25 @@ app-ad-slot {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.9) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .animate-zoom-in {

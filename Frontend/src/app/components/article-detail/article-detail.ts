@@ -295,24 +295,24 @@ export class ArticleDetailComponent implements OnInit {
   article = signal<any>(null);
   relatedArticles = signal<any[]>([]);
   trendingArticles = signal<any[]>([]);
-  
+
   // New computed signal to filter out SAME-SOURCE duplicates but ALLOW different-source duplicates
   filteredRelatedArticles = computed(() => {
     const current = this.article();
     if (!current) return [];
-    
+
     return this.relatedArticles().filter(item => {
       // 1. Never show the current article again
       if (item.id === current.id) return false;
 
       // 2. If both have clusters, and it's the SAME cluster, de-duplicate same source
       if (item.clusterId !== null && current.clusterId !== null) {
-          if (item.clusterId === current.clusterId) {
-             return item.sourceId !== current.sourceId;
-          }
-          return true; // Different cluster
+        if (item.clusterId === current.clusterId) {
+          return item.sourceId !== current.sourceId;
+        }
+        return true; // Different cluster
       }
-      
+
       // 3. If cluster is null, we can't be sure it's the same story, 
       // so we allow same-source items IF their titles are sufficiently different or just allow it.
       // For now, let's allow it to ensure sidebar is never empty.
@@ -354,7 +354,7 @@ export class ArticleDetailComponent implements OnInit {
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
     }
-    
+
     this.http.get<any>(`http://localhost:3000/articles/${id}`).subscribe({
       next: (foundData) => {
         this.article.set(foundData.article || foundData);
@@ -372,7 +372,7 @@ export class ArticleDetailComponent implements OnInit {
     event.preventDefault();
     const articleId = this.article()?.id;
     const sourceUrl = this.article()?.sourceUrl;
-    
+
     if (!articleId || !sourceUrl) return;
 
     if (!this.auth.isAuthenticated()) {
@@ -492,8 +492,8 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   goToSubscription() {
-    this.router.navigate(['/subscription'], { 
-      queryParams: { returnUrl: this.router.url } 
+    this.router.navigate(['/subscription'], {
+      queryParams: { returnUrl: this.router.url }
     });
   }
 
